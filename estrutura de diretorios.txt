@@ -1,0 +1,5 @@
+/var/www/web2/
+├── index.html         (Formulário HTML)
+├── aposta.php          (API PHP)
+├── css/
+│   └── style.css      (Arquivo CSS para estilização)

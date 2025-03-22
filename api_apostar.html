@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulário de Aposta</title>
+</head>
+<body>
+    <h1>Formulário de Aposta</h1>
+    <form id="apostaForm">
+        <label for="numeros_escolhidos">Números Escolhidos:</label><br>
+        <input type="text" id="numeros_escolhidos" name="numeros_escolhidos" value="16/23,3/17,16/3,6/14,1/23"><br><br>
+
+        <label for="valor_aposta">Valor da Aposta:</label><br>
+        <input type="number" id="valor_aposta" name="valor_aposta" value="10.00"><br><br>
+
+        <label for="id_usuario">ID do Usuário:</label><br>
+        <input type="number" id="id_usuario" name="id_usuario" value="123"><br><br>
+
+        <label for="id_jogo">ID do Jogo:</label><br>
+        <input type="number" id="id_jogo" name="id_jogo" value="456"><br><br>
+
+        <button type="button" onclick="enviarAposta()">Enviar Aposta</button>
+    </form>
+
+    <div id="resultado"></div>
+
+    <script>
+        async function enviarAposta() {
+            const formData = new FormData(document.getElementById('apostaForm'));
+
+            try {
+                const response = await fetch('api_apostar.php', { // Substitua por sua_api.php pelo URL correto da sua API
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('resultado').innerHTML = `
+                        <p>Aposta enviada com sucesso!</p>
+                        <p>Hash: ${data.hash}</p>
+                        <p>Salt: ${data.salt}</p>
+                        <p>Números Escolhidos: ${data.numeros_escolhidos}</p>
+                        <p>Valor da Aposta: ${data.valor_aposta}</p>
+                        <p>ID do Usuário: ${data.id_usuario}</p>
+                        <p>Data/Hora da Aposta: ${data.data_hora_aposta}</p>
+                        <p>ID do Jogo: ${data.id_jogo}</p>
+                    `;
+                } else {
+                    document.getElementById('resultado').innerHTML = `<p>Erro: ${data.error}</p>`;
+                }
+
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = `<p>Erro na requisição: ${error}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
