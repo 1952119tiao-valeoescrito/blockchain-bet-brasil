@@ -1,11 +1,11 @@
 <?php
-// api/apostar-blockchain-bet-brasil.php
+// api/api_apostar.php
 
 // Configuração do cabeçalho para indicar que a resposta é JSON
 header('Content-Type: application/json');
 
 // Permitir requisições de qualquer origem (CORS - CUIDADO em produção!)
-header('Access-Control-Allow-Origin: https://1952119tiao-valeoescrito.github.io');
+header('Access-Control-Allow-Origin: https://1952119tiao-valeoescrito.github.io/blockchain-bet-brasil/');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
