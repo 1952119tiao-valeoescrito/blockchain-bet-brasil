@@ -876,7 +876,7 @@
     "shallow-clone": "^1.0.0",
     "shebang-command": "^1.2.0",
     "shebang-regex": "^1.0.0",
-    "shell-quote": "^1.7.2",
+    "shell-quote": "^1.8.2",
     "shellwords": "^0.1.1",
     "side-channel": "^1.1.0",
     "side-channel-list": "^1.0.0",

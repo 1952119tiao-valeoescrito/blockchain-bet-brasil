@@ -1,0 +1,110 @@
+<?php
+
+// Defina o tipo de conteúdo para JSON
+header('Content-Type: application/json');
+
+// Função para lidar com erros e retornar uma resposta JSON
+function handle_error($message, $code = 500) {
+    http_response_code($code);
+    echo json_encode(['error' => $message]);
+    exit;
+}
+
+// 1. Verificação do método da requisição
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    handle_error('Método não permitido. Use POST.', 405);
+}
+
+// 2. Obtenção e validação dos dados do formulário
+if (!isset($_POST['prognostico1']) || !isset($_POST['prognostico2']) || !isset($_POST['prognostico3']) || !isset($_POST['prognostico4']) || !isset($_POST['prognostico5'])) {
+    handle_error('Todos os campos do prognóstico são obrigatórios.');
+}
+
+// Validação dos valores dos prognósticos (certifique-se de que são números inteiros positivos)
+$prognostico1 = filter_var($_POST['prognostico1'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$prognostico2 = filter_var($_POST['prognostico2'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$prognostico3 = filter_var($_POST['prognostico3'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$prognostico4 = filter_var($_POST['prognostico4'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$prognostico5 = filter_var($_POST['prognostico5'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+
+if ($prognostico1 === false || $prognostico2 === false || $prognostico3 === false || $prognostico4 === false || $prognostico5 === false) {
+    handle_error('Os valores dos prognósticos devem ser números inteiros positivos.');
+}
+
+// Criar o array de prognósticos
+$prognosticos = [
+    $prognostico1,
+    $prognostico2,
+    $prognostico3,
+    $prognostico4,
+    $prognostico5
+];
+
+// 3.  Simulação da interação com o contrato (substitua pelo código real)
+//    Neste exemplo, vamos apenas simular o retorno de um hash de transação.
+
+$transactionHash = '0x' . bin2hex(random_bytes(32)); // Simula um hash de transação
+
+
+// 4. Preparar e enviar a resposta JSON
+$response = [
+    'status' => 'success',
+    'message' => 'Aposta recebida com sucesso!',
+    'prognosticos' => $prognosticos,
+    'transactionHash' => $transactionHash // Simulação do hash da transação
+];
+
+echo json_encode($response);
+
+
+// **** CÓDIGO PARA INTERAÇÃO REAL COM O CONTRATO (a ser adaptado com sua biblioteca Web3) ****
+/*
+// Incluir a biblioteca Web3 (ex: Web3.php)
+require_once 'Web3.php';
+
+// Configuração da conexão com a blockchain
+$web3 = new Web3('http://localhost:8545'); // Substitua pela sua URL da blockchain
+
+// Informações do contrato
+$contractAddress = '0xSEU_CONTRATO'; // Substitua pelo endereço do seu contrato
+$abi = file_get_contents('abi.json'); // Substitua pelo caminho do seu arquivo ABI
+
+// Criar a instância do contrato
+$contract = new Contract($web3->provider, $abi);
+$contract->at($contractAddress);
+
+// Sua conta (deve estar desbloqueada no seu node)
+$fromAddress = '0xSUA_CONTA'; // Substitua pelo seu endereço
+
+// Converter prognósticos para o formato esperado pelo contrato (se necessário)
+$prognosticosContrato = [
+    new EthQ($prognostico1),
+    new EthQ($prognostico2),
+    new EthQ($prognostico3),
+    new EthQ($prognostico4),
+    new EthQ($prognostico5)
+];
+
+// Valor da aposta (em Wei)
+$taxaApostaWei = $web3->utils->toWei('0.00033', 'ether');  // Converte Ether para Wei
+
+// Chamar a função 'apostar' do contrato
+$contract->apostar($prognosticosContrato, ['from' => $fromAddress, 'value' => $taxaApostaWei], function ($err, $transactionHash) use ($prognosticos) {
+    if ($err !== null) {
+        // Lidar com o erro
+        handle_error('Erro ao interagir com o contrato: ' . $err->getMessage());
+    } else {
+        // A transação foi enviada com sucesso
+        $response = [
+            'status' => 'success',
+            'message' => 'Aposta recebida com sucesso!',
+            'prognosticos' => $prognosticos,
+            'transactionHash' => $transactionHash
+        ];
+        echo json_encode($response);
+    }
+});
+
+*/
+?>
