@@ -127,7 +127,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="submit" class="btn btn-primary" value="Criar Conta">
                 <input type="reset" class="btn btn-secondary ml-2" value="Apagar Dados">
             </div>
-            <p>Já tem uma conta? <a href="login.php">Entre aqui</a>.</p>
+            <p>Já tem uma conta? <a href="https://www.valeoescrito.com.br/login.php">Entre aqui</a>.</p>
         </form>
     </div>    
 </body>
