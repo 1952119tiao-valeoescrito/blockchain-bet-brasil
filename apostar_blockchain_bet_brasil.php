@@ -53,7 +53,7 @@ $hash_aposta     = mysqli_real_escape_string($conexao, $_POST['hash_aposta']);
 $data_aposta     = date('Y-m-d H:i:s');
 
 // Cria a query de inserção
-$query = "INSERT INTO `apostar-blockchain-bet-brasil` 
+$query = "INSERT INTO `apostar_blockchain_bet_brasil` 
           (`num_extracao`, `data_extracao`, `country_pais`, `email_indicacao`, `valor_aposta`, `numeros_escolhidos`, `hash_aposta`, `data_aposta`) 
           VALUES 
           ('$num_extracao', '$data_extracao', '$country_pais', '$email_indicacao', '$valor_aposta', '$numeros_escolhidos', '$hash_aposta', '$data_aposta')";
