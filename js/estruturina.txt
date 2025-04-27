@@ -1,0 +1,6 @@
+betbrasil-hardhat/
+├── contracts/
+├── scripts/
+├── test/
+├── hardhat.config.js
+└── package.json

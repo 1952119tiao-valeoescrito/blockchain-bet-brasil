@@ -1,0 +1,25 @@
+{
+  "name": "betbrasil-contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "hardhat": "^2.23.0"
+  },
+  "dependencies": {
+    "@web3modal/ethers5": "^5.1.11",
+    "ethers": "^5.8.0"
+  }
+}
+"dependencies": {
+  "next": "^14.1.0",  // Última versão estável
+  "react": "^18",
+  "react-dom": "^18"
+}
