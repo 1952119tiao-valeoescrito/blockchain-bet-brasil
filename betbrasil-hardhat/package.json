@@ -8,3 +8,11 @@
     "dotenv": "^16.5.0"
   }
 }
+"resolutions": {
+  "ethers": "5.8.0"
+}
+# Adicione no package.json:
+"scripts": {
+  "dev": "next dev",
+  "build": "next build"
+}
