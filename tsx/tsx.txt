@@ -1,3 +1,0 @@
-import toast from 'react-hot-toast'
-// Dentro do connect/disconnect:
-toast.success(`Wallet ${isConnected ? 'connected' : 'disconnected'}`)

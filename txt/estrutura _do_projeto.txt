@@ -1,5 +1,0 @@
-/betbrasil  
-│── /frontend (Next.js)  
-│── /backend (Node.js + Express)  
-│── /contracts (Solidity)  
-│── /database (SQL)  
