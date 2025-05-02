@@ -84,14 +84,20 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Bem-vindo ao BetBrasil!</h1>
-      {!connected ? (
-        <button onClick={connectWallet}>Conectar Wallet</button>
-      ) : (
-        <div>
-          <p>Carteira conectada: {walletAddress}</p>
-          <button onClick={apostar}>Apostar</button>
-        </div>
+  <h1>Blockchain Bet Brasil - O BBB da Web3 - Esse é Animal!</h1>
+</div>
+<div>
+  <h3>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas.</h3>
+</div>
+
+{!connected ? (
+  <button onClick={connectWallet}>Conectar Wallet</button>
+) : (
+  <div>
+    <p>Carteira conectada: {walletAddress}</p>
+    <button onClick={apostar}>Apostar</button>
+  </div>
+)}
       )}
     </div>
   );
