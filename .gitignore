@@ -37,4 +37,3 @@ coverage.json
 *.bak
 
 *-eresolve-report.txt
-package-lock.json
