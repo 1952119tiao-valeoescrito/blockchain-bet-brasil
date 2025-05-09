@@ -1,26 +1,62 @@
 {
   "name": "betbrasil-frontend",
-  "version": "0.1.0",
-  "public": true,
+  "version": "1.0.2",
+  "description": "Smart contracts para plataforma de apostas BET Brasil",
+  "main": "index.js",
   "scripts": {
     "dev": "next dev",
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "lint": "prettier --check . && solhint \"contracts/**/*.sol\"",
+    "lint:fix": "prettier --write . && solhint --fix \"contracts/**/*.sol\"",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network mainnet",
+    "verify": "hardhat verify --network mainnet",
+    "gas-report": "REPORT_GAS=true hardhat test",
+    "clean": "hardhat clean && rm -rf artifacts cache typechain-types",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
+  "keywords": [
+    "blockchain",
+    "smart-contracts",
+    "solidity",
+    "hardhat",
+    "web3"
+  ],
+  "author": "Seu Nome <contato@betbrasil.com>",
+  "license": "MIT",
+  "type": "commonjs",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@tanstack/react-query": "^5.74.11",
+    "@web3-react/core": "^8.2.3",
+    "@web3modal/ethers5": "^5.1.11",
     "@web3modal/wagmi": "^5.1.11",
-    "next": "^14.2.28",
-    "react": "18",
-    "react-dom": "18",
+    "ethers": "^5.7.2",
+    "geist": "^1.3.1",
+    "next": "^15.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.2",
-    "viem": "^2.28.3",
-    "wagmi": "^2.15.2"
+    "react-icons": "^5.5.0",
+    "viem": "^2.28.1",
+    "wagmi": "^2.15.1"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "@types/react": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "^14.2.28"
+    "@types/node": "22.15.3",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.25.1",
+    "eslint-config-next": "^15.3.1",
+    "hardhat": "^2.23.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.5",
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
