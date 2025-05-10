@@ -1,68 +1,72 @@
-// app/page.tsx
-export default function Home() {
-  return <h1>Salve, BetBrasil! 🚀</h1>;
-}
+"use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/constants';
 
-const contractAbi = [
-  {"inputs": [{"internalType": "address","name": "_vrfCoordinator","type": "address"},{"internalType": "bytes32","name": "_keyHash","type": "bytes32"},{"internalType": "uint64","name": "_subscriptionId","type": "uint64"}],"stateMutability": "nonpayable", "type": "constructor"},
-  {"inputs": [{"internalType": "address","name": "have","type": "address"},{"internalType": "address","name": "want","type": "address"}],"name": "OnlyCoordinatorCanFulfill", "type": "error"},
-  {"anonymous": false,"inputs": [{"indexed": true,"internalType": "address","name": "apostador","type": "address"},{"indexed": false,"internalType": "uint256[5]","name": "prognosticos","type": "uint256[5]"}],"name": "ApostaRealizada","type": "event"},
-  {"anonymous": false,"inputs": [{"indexed": true,"internalType": "address","name": "apostador","type": "address"},{"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}],"name": "PremioDistribuido","type": "event"},
-  {"anonymous": false,"inputs": [{"indexed": false,"internalType": "uint256","name": "id","type": "uint256"},{"indexed": false,"internalType": "string","name": "descricao","type": "string"}],"name": "PrognosticoAdicionado","type": "event"},
-  {"anonymous": false,"inputs": [{"indexed": false,"internalType": "uint256[]","name": "resultados","type": "uint256[]"}],"name": "SorteioRealizado","type": "event"},
-  {"inputs": [{"internalType": "string","name": "_descricao","type": "string"}],"name": "adicionarPrognostico","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [{"internalType": "uint256[5]","name": "_prognosticos","type": "uint256[5]"}],"name": "apostar","outputs": [],"stateMutability": "payable","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "apostas","outputs": [{"internalType": "address","name": "apostador","type": "address"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "callbackGasLimit","outputs": [{"internalType": "uint32","name": "","type": "uint32"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "distribuirPremios","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "dono","outputs": [{"internalType": "address","name": "","type": "address"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "encerramentoApostas","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "keyHash","outputs": [{"internalType": "bytes32","name": "","type": "bytes32"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "numWords","outputs": [{"internalType": "uint32","name": "","type": "uint32"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "_id","type": "uint256"}],"name": "obterPrognostico","outputs": [{"internalType": "string","name": "","type": "string"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "premiacao","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "prognosticos","outputs": [{"internalType": "uint256","name": "id","type": "uint256"},{"internalType": "string","name": "descricao","type": "string"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "proximoIdPrognostico","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "requestId","type": "uint256"},{"internalType": "uint256[]","name": "randomWords","type": "uint256[]"}],"name": "rawFulfillRandomWords","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "reaberturaApostas","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "reabrirApostas","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "requestConfirmations","outputs": [{"internalType": "uint16","name": "","type": "uint16"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "requestId","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "resultados","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "solicitarSorteio","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "sorteioRealizado","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "subscriptionId","outputs": [{"internalType": "uint64","name": "","type": "uint64"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "taxaAposta","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "vrfCoordinator","outputs": [{"internalType": "contract VRFCoordinatorV2Interface","name": "","type": "address"}],"stateMutability": "view","type": "function"}
-];
-
-export default function Home() {
+export default function HomePage() {
   const [walletAddress, setWalletAddress] = useState("");
   const [connected, setConnected] = useState(false);
-  const [prognosticos, setPrognosticos] = useState(Array(5).fill(""));
+  const [prognosticos, setPrognosticos] = useState<string[]>(Array(5).fill(""));
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const checkConnection = async () => {
+      if (typeof window.ethereum !== "undefined") {
+        try {
+          const accounts = await (window.ethereum as any).request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            setConnected(true);
+            setWalletAddress(accounts[0]);
+          }
+        } catch (err) {
+          console.error("Erro ao verificar conexão existente:", err);
+        }
+      }
+    };
+    checkConnection();
+  }, []);
 
   const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert("Metamask não encontrado! Por favor, instale para continuar.");
+    console.log(">>> connectWallet chamada!");
+    console.log("isClient:", isClient, "typeof window.ethereum:", typeof window.ethereum);
+
+    if (!isClient || typeof window.ethereum === "undefined") {
+      alert("Metamask não encontrado! Por favor, instale para continuar ou certifique-se de que está no navegador.");
+      console.error("!!! Metamask não detectada ou isClient é false.");
       return;
     }
 
     try {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      if (accounts.length > 0) {
+      console.log(">>> Tentando criar provider...");
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
+      console.log(">>> Provider criado, solicitando contas...");
+      
+      // const accounts = await provider.send("eth_requestAccounts", []);
+      const accounts = await (window.ethereum as any).request({ method: 'eth_requestAccounts' });
+      
+      console.log(">>> Contas recebidas:", accounts);
+
+      if (accounts && accounts.length > 0) {
+        console.log(">>> Conectado com sucesso:", accounts[0]);
         setConnected(true);
         setWalletAddress(accounts[0]);
+      } else {
+        alert("Nenhuma conta selecionada ou encontrada.");
+        console.warn("!!! Nenhuma conta selecionada ou encontrada após request.");
       }
-    } catch (error) {
-      console.error("Erro ao conectar carteira:", error);
-      alert("Falha ao conectar a carteira.");
+    } catch (error: any) {
+      console.error("!!! Erro DENTRO do try/catch ao conectar carteira:", error);
+      if (error.code === 4001) {
+        alert("Conexão da carteira rejeitada pelo usuário.");
+      } else {
+        alert(`Falha ao conectar a carteira: ${error.message || 'Erro desconhecido'}`);
+      }
     }
   };
 
-  const handleInputChange = (index, value) => {
+  const handleInputChange = (index: number, value: string) => {
     if (/^[\d\/]*$/.test(value) && (value.match(/\//g) || []).length <= 1) {
       const novosPrognosticos = [...prognosticos];
       novosPrognosticos[index] = value;
@@ -71,11 +75,11 @@ export default function Home() {
   };
 
   const apostar = async () => {
-    if (!connected || !window.ethereum) {
+    if (!isClient || !connected || typeof window.ethereum === "undefined") {
       alert("Por favor, conecte sua carteira primeiro.");
       return;
     }
-    const numerosParaEnviar = [];
+    const numerosParaEnviar: number[] = [];
     let formatoInvalido = false;
     for (const p of prognosticos) {
       if (!/^\d+\/\d+$/.test(p)) {
@@ -91,43 +95,66 @@ export default function Home() {
       alert("Por favor, preencha todos os 5 prognósticos no formato número/número (ex: 10/25).");
       return;
     }
-    const contractAddress = "0x9D586CbA6c856B4979C1D2e5115ecdBAc85184E8";
 
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-      const taxa = ethers.utils.parseEther("0.01");
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      const taxa = ethers.parseEther("0.01");
       const tx = await contract.apostar(numerosParaEnviar, { value: taxa });
       alert("Processando sua aposta... Aguarde a confirmação da transação.");
       await tx.wait();
       alert("Aposta realizada com sucesso!");
-    } catch (error) {
+      setPrognosticos(Array(5).fill(""));
+    } catch (error: any) {
       console.error("Erro ao apostar:", error);
       let message = "Erro desconhecido ao apostar.";
-      if (error.reason) { message = `Erro no contrato: ${error.reason}`; }
-      else if (error.message) { message = error.message; }
-      else if (error.code === 4001) { message = "Transação rejeitada pelo usuário."; }
+      if (error.reason) {
+        message = `Erro no contrato: ${error.reason}`;
+      } else if (error.data?.message) {
+        message = `Erro no contrato: ${error.data.message}`;
+      } else if (error.message) {
+        message = error.message;
+      }
+      if (error.code === 4001) {
+        message = "Transação rejeitada pelo usuário.";
+      } else if (error.code === -32603 && error.data?.message?.includes("insufficient funds")) {
+        message = "Fundos insuficientes para a transação.";
+      }
       alert(message);
     }
   };
 
+  if (!isClient) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <p>Carregando...</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
-      <h1 style={{ textAlign: 'center', color: '#333' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é animal!</h1>
+    <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9', textAlign: 'center' }}>
+      <h1 style={{ color: '#333' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é Animal!</h1>
       
       {!connected ? (
-        <div style={{ textAlign: 'center' }}>
-          <button onClick={connectWallet} style={{ padding: '12px 25px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', borderRadius: '5px' }}>
+        <div style={{ marginTop: '20px' }}>
+          <button 
+            onClick={() => {
+              console.log(">>> BOTÃO CLICADO! <<<");
+              connectWallet();
+            }} 
+            style={{ padding: '12px 25px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', border: 'none', fontSize: '16px' }}
+          >
             Conectar Wallet Metamask
           </button>
         </div>
       ) : (
         <div>
-          <h3 style={{ textAlign: 'center', color: '#555' }}>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!</h3>
+          <h3 style={{ color: '#555', marginTop: '20px' }}>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!</h3>
           <p style={{ textAlign: 'center' }}>Carteira conectada: <strong>{walletAddress}</strong></p>
           
-          <p style={{ marginTop: '0px', marginBottom: '20px', textAlign: 'center', fontSize: '0.9em' }}>
+          <p style={{ marginTop: '10px', marginBottom: '20px', textAlign: 'center', fontSize: '0.9em' }}>
             <a href="https://www.valeoescrito.com.br/tabela_de_prognosticos.htm" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>
               Como apostar:
             </a>
@@ -171,7 +198,7 @@ export default function Home() {
               Apostar (0.01 ETH)
             </button>
           </div>
-        
+        </div>
       )}
     </div>
   );
