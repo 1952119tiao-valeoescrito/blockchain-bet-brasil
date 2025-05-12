@@ -1,68 +1,36 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useSimulateContract,
+  useWriteContract,
+  useWaitForTransactionReceipt
+} from 'wagmi';
+import { injected } from 'wagmi/connectors';
+import { parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/constants';
 
 export default function HomePage() {
-  const [walletAddress, setWalletAddress] = useState("");
-  const [connected, setConnected] = useState(false);
+  const { address, isConnected, connector, isConnecting } = useAccount();
+  const { connect, connectors, error: connectError, isPending: isConnectPending } = useConnect();
+  const { disconnect } = useDisconnect();
+
   const [prognosticos, setPrognosticos] = useState<string[]>(Array(5).fill(""));
-  const [isClient, setIsClient] = useState(false);
+  const [numerosParaEnviar, setNumerosParaEnviar] = useState<number[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uiMessage, setUiMessage] = useState<string | null>(null);
+  const [uiMessageType, setUiMessageType] = useState<'success' | 'error' | null>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-    const checkConnection = async () => {
-      if (typeof window.ethereum !== "undefined") {
-        try {
-          const accounts = await (window.ethereum as any).request({ method: 'eth_accounts' });
-          if (accounts && accounts.length > 0) {
-            setConnected(true);
-            setWalletAddress(accounts[0]);
-          }
-        } catch (err) {
-          console.error("Erro ao verificar conexão existente:", err);
-        }
-      }
-    };
-    checkConnection();
-  }, []);
-
-  const connectWallet = async () => {
-    console.log(">>> connectWallet chamada!");
-    console.log("isClient:", isClient, "typeof window.ethereum:", typeof window.ethereum);
-
-    if (!isClient || typeof window.ethereum === "undefined") {
-      alert("Metamask não encontrado! Por favor, instale para continuar ou certifique-se de que está no navegador.");
-      console.error("!!! Metamask não detectada ou isClient é false.");
-      return;
-    }
-
-    try {
-      console.log(">>> Tentando criar provider...");
-      const provider = new ethers.BrowserProvider(window.ethereum as any);
-      console.log(">>> Provider criado, solicitando contas...");
-      
-      // const accounts = await provider.send("eth_requestAccounts", []);
-      const accounts = await (window.ethereum as any).request({ method: 'eth_requestAccounts' });
-      
-      console.log(">>> Contas recebidas:", accounts);
-
-      if (accounts && accounts.length > 0) {
-        console.log(">>> Conectado com sucesso:", accounts[0]);
-        setConnected(true);
-        setWalletAddress(accounts[0]);
-      } else {
-        alert("Nenhuma conta selecionada ou encontrada.");
-        console.warn("!!! Nenhuma conta selecionada ou encontrada após request.");
-      }
-    } catch (error: any) {
-      console.error("!!! Erro DENTRO do try/catch ao conectar carteira:", error);
-      if (error.code === 4001) {
-        alert("Conexão da carteira rejeitada pelo usuário.");
-      } else {
-        alert(`Falha ao conectar a carteira: ${error.message || 'Erro desconhecido'}`);
-      }
+  const handleConnect = () => {
+    const injectedConnector = connectors.find(c => c.id === 'injected');
+    if (injectedConnector) {
+      connect({ connector: injectedConnector });
+    } else {
+      alert("Conector Metamask (injected) não encontrado. Verifique se o Metamask está instalado e ativo.");
+      // Você poderia iterar por `connectors` para mostrar outras opções de carteira se configuradas
     }
   };
 
@@ -74,12 +42,8 @@ export default function HomePage() {
     }
   };
 
-  const apostar = async () => {
-    if (!isClient || !connected || typeof window.ethereum === "undefined") {
-      alert("Por favor, conecte sua carteira primeiro.");
-      return;
-    }
-    const numerosParaEnviar: number[] = [];
+  const prepararNumerosParaAposta = () => {
+    const numeros: number[] = [];
     let formatoInvalido = false;
     for (const p of prognosticos) {
       if (!/^\d+\/\d+$/.test(p)) {
@@ -89,70 +53,150 @@ export default function HomePage() {
       if (isNaN(numeroAntesDaBarra)) {
         formatoInvalido = true; break;
       }
-      numerosParaEnviar.push(numeroAntesDaBarra);
+      numeros.push(numeroAntesDaBarra);
     }
-    if (formatoInvalido || numerosParaEnviar.length !== 5) {
-      alert("Por favor, preencha todos os 5 prognósticos no formato número/número (ex: 10/25).");
+    if (formatoInvalido || numeros.length !== 5 || numeros.some(n => n === 0)) { // Adicionado verificação de 0
+      setUiMessageType('error');
+      setUiMessage("Por favor, preencha todos os 5 prognósticos no formato número/número (ex: 10/25) e com números válidos (não zero).");
+      return false;
+    }
+    setNumerosParaEnviar(numeros);
+    return true;
+  };
+
+  const { data: simulateData, error: simulateError, refetch: refetchSimulate } = useSimulateContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: CONTRACT_ABI,
+    functionName: 'apostar',
+    args: [numerosParaEnviar],
+    value: parseEther('0.01'),
+    query: {
+      enabled: false, // Só simular quando formos chamar a aposta
+    }
+  });
+
+  const { writeContract, data: writeTxHash, isPending: isWritePending, error: writeError } = useWriteContract();
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed, error: receiptError } = useWaitForTransactionReceipt({
+    hash: writeTxHash,
+  });
+
+  useEffect(() => {
+    if (isConnectPending) {
+      setUiMessageType(null);
+      setUiMessage("Conectando carteira...");
+    } else if (connectError) {
+      setUiMessageType('error');
+      setUiMessage(`Erro ao conectar: ${connectError.message}`);
+    } else if (isConnected) {
+      setUiMessageType('success');
+      setUiMessage(`Carteira conectada: ${address}`);
+    } else {
+      setUiMessageType(null);
+      setUiMessage(null);
+    }
+  }, [isConnected, address, connectError, isConnectPending]);
+
+
+  useEffect(() => {
+    if (isWritePending) {
+      setUiMessageType(null);
+      setUiMessage("Enviando transação... Por favor, aprove no Metamask.");
+      setIsSubmitting(true);
+    }
+  }, [isWritePending]);
+
+  useEffect(() => {
+    if (isConfirming) {
+      setUiMessageType(null);
+      setUiMessage("Processando sua aposta... Aguarde a confirmação da transação.");
+    }
+  }, [isConfirming]);
+
+  useEffect(() => {
+    if (isConfirmed && writeTxHash) {
+      setUiMessageType('success');
+      setUiMessage(`Aposta realizada com sucesso! Hash: ${writeTxHash}`);
+      setPrognosticos(Array(5).fill(""));
+      setIsSubmitting(false);
+    }
+  }, [isConfirmed, writeTxHash]);
+
+  useEffect(() => {
+    if (simulateError) {
+      setUiMessageType('error');
+      setUiMessage(`Erro ao preparar aposta (simulação): ${simulateError.message}`);
+      setIsSubmitting(false);
+    }
+    if (writeError) {
+      setUiMessageType('error');
+      setUiMessage(`Erro ao enviar aposta: ${writeError.message}`);
+      setIsSubmitting(false);
+    }
+    if (receiptError) {
+      setUiMessageType('error');
+      setUiMessage(`Erro no recibo da transação: ${receiptError.message}`);
+      setIsSubmitting(false);
+    }
+  }, [simulateError, writeError, receiptError]);
+
+
+  const handleApostar = async () => {
+    if (!prepararNumerosParaAposta()) {
       return;
     }
+    setIsSubmitting(true);
+    setUiMessageType(null);
+    setUiMessage("Preparando aposta...");
 
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum as any);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      const taxa = ethers.parseEther("0.01");
-      const tx = await contract.apostar(numerosParaEnviar, { value: taxa });
-      alert("Processando sua aposta... Aguarde a confirmação da transação.");
-      await tx.wait();
-      alert("Aposta realizada com sucesso!");
-      setPrognosticos(Array(5).fill(""));
-    } catch (error: any) {
-      console.error("Erro ao apostar:", error);
-      let message = "Erro desconhecido ao apostar.";
-      if (error.reason) {
-        message = `Erro no contrato: ${error.reason}`;
-      } else if (error.data?.message) {
-        message = `Erro no contrato: ${error.data.message}`;
-      } else if (error.message) {
-        message = error.message;
+      const simulationResult = await refetchSimulate();
+      if (simulationResult.error || !simulationResult.data?.request) {
+        console.error("Erro na simulação via refetch:", simulationResult.error);
+        setUiMessageType('error');
+        setUiMessage(`Erro ao preparar aposta: ${simulationResult.error?.message || 'Falha na simulação.'}`);
+        setIsSubmitting(false);
+        return;
       }
-      if (error.code === 4001) {
-        message = "Transação rejeitada pelo usuário.";
-      } else if (error.code === -32603 && error.data?.message?.includes("insufficient funds")) {
-        message = "Fundos insuficientes para a transação.";
-      }
-      alert(message);
+      writeContract(simulationResult.data.request);
+    } catch (e: any) {
+      console.error("Erro inesperado ao apostar:", e);
+      setUiMessageType('error');
+      setUiMessage(`Erro inesperado: ${e.message}`);
+      setIsSubmitting(false);
     }
   };
 
-  if (!isClient) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <p>Carregando...</p>
-      </div>
-    );
-  }
-
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9', textAlign: 'center' }}>
-      <h1 style={{ color: '#333' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é Animal!</h1>
+      <h1 style={{ color: '#333' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é animal!</h1>
       
-      {!connected ? (
+      {uiMessage && (
+        <p style={{
+          padding: '10px',
+          margin: '15px 0',
+          borderRadius: '4px',
+          backgroundColor: uiMessageType === 'error' ? '#ffebee' : uiMessageType === 'success' ? '#e8f5e9' : '#e3f2fd',
+          color: uiMessageType === 'error' ? '#c62828' : uiMessageType === 'success' ? '#2e7d32' : '#0d47a1',
+          border: `1px solid ${uiMessageType === 'error' ? '#c62828' : uiMessageType === 'success' ? '#2e7d32' : '#0d47a1'}`
+        }}>
+          {uiMessage}
+        </p>
+      )}
+
+      {!isConnected ? (
         <div style={{ marginTop: '20px' }}>
           <button 
-            onClick={() => {
-              console.log(">>> BOTÃO CLICADO! <<<");
-              connectWallet();
-            }} 
+            onClick={handleConnect}
+            disabled={isConnectPending}
             style={{ padding: '12px 25px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', borderRadius: '5px', border: 'none', fontSize: '16px' }}
           >
-            Conectar Wallet Metamask
+            {isConnectPending ? 'Conectando...' : 'Conectar Wallet Metamask'}
           </button>
         </div>
       ) : (
         <div>
           <h3 style={{ color: '#555', marginTop: '20px' }}>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!</h3>
-          <p style={{ textAlign: 'center' }}>Carteira conectada: <strong>{walletAddress}</strong></p>
           
           <p style={{ marginTop: '10px', marginBottom: '20px', textAlign: 'center', fontSize: '0.9em' }}>
             <a href="https://www.valeoescrito.com.br/tabela_de_prognosticos.htm" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>
@@ -187,6 +231,7 @@ export default function HomePage() {
                     value={numero}
                     onChange={(e) => handleInputChange(index, e.target.value)}
                     style={{ width: '80px', textAlign: 'center', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
+                    disabled={isSubmitting || isWritePending || isConfirming}
                   />
                 ))}
               </div>
@@ -194,8 +239,17 @@ export default function HomePage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '25px' }}>
-            <button onClick={apostar} style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px' }}>
-              Apostar (0.01 ETH)
+            <button 
+              onClick={handleApostar} 
+              disabled={!isConnected || isSubmitting || isWritePending || isConfirming || !numerosParaEnviar.length}
+              style={{ padding: '12px 25px', fontSize: '16px', cursor: 'pointer', backgroundColor: (isSubmitting || isWritePending || isConfirming) ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '5px' }}
+            >
+              {isWritePending ? 'Aguarde Metamask...' : isConfirming ? 'Confirmando Aposta...' : isSubmitting ? 'Processando...' : 'Apostar (0.01 ETH)'}
+            </button>
+          </div>
+          <div style={{ marginTop: '20px' }}>
+            <button onClick={() => disconnect()} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: '#6c757d', color: 'white', borderRadius: '5px', border: 'none', fontSize: '14px' }}>
+              Desconectar
             </button>
           </div>
         </div>
