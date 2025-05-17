@@ -1,0 +1,27 @@
+SEU_PROJETO_RAIZ/
+├── contracts/                     <-- AQUI VAI SEU SMART CONTRACT (.sol)
+│   └── BlockChainBetBrasil.sol
+│
+├── artifacts/                     <-- GERADO PELO HARDHAT APÓS COMPILAR
+│   └── contracts/
+│       └── BlockChainBetBrasil.sol/
+│           └── BlockChainBetBrasil.json  <-- AQUI ESTÁ O ABI GERADO AUTOMATICAMENTE
+│
+├── scripts/                       <-- AQUI VAI SEU SCRIPT DE DEPLOY (ex: deploy.js)
+│   └── deploy.js                  (ou deploy.ts)
+│
+├── src/                           <-- SEU CÓDIGO FRONTEND (NEXT.JS)
+│   ├── components/
+│   ├── pages/                     (ou app/ se for Next.js com App Router)
+│   │   └── page.tsx
+│   ├── config/                    <-- BOM LUGAR PARA CONFIGS DO CONTRATO NO FRONTEND
+│   │   └── contractConfig.ts      (ou contractConstants.js, etc.)
+│   ├── utils/
+│   └── ...outras pastas do src
+│
+├── .env.local                     <-- AQUI VOCÊ PODE COLOCAR O ENDEREÇO DO CONTRATO
+├── hardhat.config.js              (ou .ts)
+├── next.config.js                 (ou .mjs)
+├── package.json
+├── tsconfig.json                  (se estiver usando TypeScript)
+└── ...outros arquivos de configuração (tailwind.config.js, postcss.config.js, etc.)
