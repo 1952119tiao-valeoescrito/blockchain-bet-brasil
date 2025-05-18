@@ -276,7 +276,7 @@ export default function HomePage() {
 
   const EmojisJogoDoBicho = () => (
     <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.8rem', wordSpacing: '0.5rem' }}>
-       <span>🐦</span> 
+       <span>🦤</span> 
        <span>🦅</span> <span>🐴</span> <span>🦋</span> <span>🐶</span> <span>🐐</span> <span>🐏</span> <span>🐫</span> <span>🐍</span> <span>🐇</span> <span>🐴</span> <span>🐘</span> <span>🐓</span> <span>🐈</span> <span>🐊</span> <span>🦁</span> <span>🐒</span> <span>🐖</span> <span>🦚</span> <span>🦃</span> <span>🐂</span> <span>🐅</span> <span>🐻</span> <span>🦌</span> <span>🐄</span>
     </div>
   );
