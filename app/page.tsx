@@ -8,9 +8,12 @@ import {
   useSimulateContract,
   useWriteContract,
   useWaitForTransactionReceipt,
-  useBalance // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< IMPORTADO useBalance
+  useBalance,
+  useChainId,
+  useSwitchChain,
 } from 'wagmi';
-import { parseEther } from 'viem'; // formatEther não é estritamente necessário aqui pois useBalance já formata
+import { sepolia } from 'wagmi/chains';
+import { parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/constants';
 
 const gerarPrognosticosValidos = (): string[] => {
@@ -25,10 +28,14 @@ const gerarPrognosticosValidos = (): string[] => {
 
 const validPrognosticsSet = new Set(gerarPrognosticosValidos());
 
+
 export default function HomePage() {
-  const { address, isConnected, connector, isConnecting } = useAccount();
+  const { address, isConnected, connector, isConnecting, chain } = useAccount();
   const { connect, connectors, error: connectError, isPending: isConnectPending } = useConnect();
   const { disconnect } = useDisconnect();
+  // const chainId = useChainId(); // chainId não está sendo usado diretamente, 'chain' de useAccount é mais rico
+  const { switchChain, isPending: isSwitchingChain, error: switchChainError } = useSwitchChain();
+
 
   const [prognosticos, setPrognosticos] = useState<string[]>(Array(5).fill(""));
   const [numerosXParaEnviar, setNumerosXParaEnviar] = useState<number[]>([]);
@@ -37,14 +44,50 @@ export default function HomePage() {
   const [uiMessage, setUiMessage] = useState<string | null>(null);
   const [uiMessageType, setUiMessageType] = useState<'success' | 'error' | 'info' | null>(null);
   const [isPreparingBet, setIsPreparingBet] = useState(false);
+  const [showTestnetWarning, setShowTestnetWarning] = useState(true);
 
-  // HOOK useBalance PARA PEGAR O SALDO REAL
   const { data: balanceData, isLoading: isBalanceLoading, error: balanceError, refetch: refetchBalance } = useBalance({
     address: address,
-    // watch: true, // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< LINHA REMOVIDA
   });
 
+
+  useEffect(() => {
+    if (isConnected && chain && chain.id !== sepolia.id) {
+      setUiMessageType('error');
+      setUiMessage(`ATENÇÃO: Você está conectado à rede ${chain.name}, mas este DApp opera na rede Sepolia. Por favor, mude sua carteira para a rede Sepolia.`);
+    } else if (isConnected && chain && chain.id === sepolia.id) {
+        if (uiMessage?.startsWith("ATENÇÃO: Você está conectado à rede")) {
+            setUiMessage(null);
+            setUiMessageType(null);
+             let connectedMessage = `Carteira: ${address?.substring(0, 6)}...${address?.substring(address.length - 4)}`;
+              if (isBalanceLoading) {
+                connectedMessage += " (Carregando saldo...)";
+              } else if (balanceError) {
+                const shortBalanceError = (balanceError as any)?.shortMessage || balanceError.message;
+                connectedMessage += ` (Erro saldo: ${shortBalanceError})`;
+              } else if (balanceData) {
+                connectedMessage += ` | Saldo: ${balanceData.formatted} ${balanceData.symbol}`;
+              }
+            setUiMessageType('success');
+            setUiMessage(connectedMessage);
+        }
+    }
+  }, [isConnected, chain, sepolia.id, /* removido switchChain daqui pois não é usado diretamente neste useEffect */ uiMessage, address, balanceData, balanceError, isBalanceLoading]);
+
+  useEffect(() => {
+    if(isSwitchingChain) {
+        setUiMessageType('info');
+        setUiMessage("Tentando mudar para a rede Sepolia...");
+    } else if (switchChainError) {
+        setUiMessageType('error');
+        setUiMessage(`Erro ao mudar para Sepolia: ${(switchChainError as any)?.shortMessage || switchChainError.message}. Por favor, mude manually em sua carteira.`);
+    }
+  }, [isSwitchingChain, switchChainError]);
+
+
   const handleConnect = () => {
+    // if (chain && chain.id !== sepolia.id) { // Lógica de switch antes de conectar pode ser complexa UX-wise
+    // }
     const injectedConnector = connectors.find(c => c.type === 'injected');
     if (injectedConnector) {
       connect({ connector: injectedConnector });
@@ -81,13 +124,13 @@ export default function HomePage() {
         if (!trimmedP) {
             campoVazio = true; break;
         }
-        if (!validPrognosticsSet.has(trimmedP)) { 
+        if (!validPrognosticsSet.has(trimmedP)) {
             invalidoOuForaDoRange = true; break;
         }
         const partes = trimmedP.split('/');
         const numeroAntesDaBarra = Number(partes[0]);
         const numeroDepoisDaBarra = Number(partes[1]);
-        
+
         if (isNaN(numeroAntesDaBarra) || isNaN(numeroDepoisDaBarra) ||
             numeroAntesDaBarra < 1 || numeroAntesDaBarra > 25 ||
             numeroDepoisDaBarra < 1 || numeroDepoisDaBarra > 25) {
@@ -109,8 +152,6 @@ export default function HomePage() {
     }
     setNumerosXParaEnviar(numerosX);
     setNumerosYParaEnviar(numerosY);
-    setUiMessage(null); 
-    setUiMessageType(null);
     return true;
   };
 
@@ -122,7 +163,9 @@ export default function HomePage() {
     value: parseEther('0.01'),
     query: {
       enabled: false,
-    }
+      retry: false,
+    },
+    chainId: sepolia.id
   });
 
   const { writeContract, data: writeTxHash, isPending: isWritePending, error: writeError } = useWriteContract();
@@ -143,28 +186,33 @@ export default function HomePage() {
       const message = (connectError as any)?.shortMessage || connectError.message;
       setUiMessage(`Erro ao conectar: ${message}`);
     } else if (isConnected && address) {
-      let connectedMessage = `Carteira: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-      if (isBalanceLoading) {
-        connectedMessage += " (Carregando saldo...)";
-      } else if (balanceError) {
-        const shortBalanceError = (balanceError as any)?.shortMessage || balanceError.message;
-        connectedMessage += ` (Erro saldo: ${shortBalanceError})`;
-      } else if (balanceData) {
-        connectedMessage += ` | Saldo: ${balanceData.formatted} ${balanceData.symbol}`;
+      if (chain && chain.id !== sepolia.id) {
+        setUiMessageType('error');
+        setUiMessage(`ATENÇÃO: Você está conectado à rede ${chain.name}, mas este DApp opera na rede Sepolia. Por favor, mude sua carteira para a rede Sepolia ou clique abaixo para tentar mudar.`);
+      } else {
+        let connectedMessage = `Carteira: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+        if (isBalanceLoading) {
+          connectedMessage += " (Carregando saldo...)";
+        } else if (balanceError) {
+          const shortBalanceError = (balanceError as any)?.shortMessage || balanceError.message;
+          connectedMessage += ` (Erro saldo: ${shortBalanceError})`;
+        } else if (balanceData) {
+          connectedMessage += ` | Saldo: ${balanceData.formatted} ${balanceData.symbol} (Sepolia)`;
+        }
+        setUiMessageType('success');
+        setUiMessage(connectedMessage);
       }
-      setUiMessageType('success');
-      setUiMessage(connectedMessage);
-    } else {
+    } else if (!isConnected) {
        setUiMessageType(null);
        setUiMessage("Conecte sua carteira para apostar.");
     }
-  }, [isConnected, address, connectError, isConnecting, isConnectPending, connector, balanceData, isBalanceLoading, balanceError]);
+  }, [isConnected, address, connectError, isConnecting, isConnectPending, connector, balanceData, isBalanceLoading, balanceError, chain, sepolia.id]);
 
   useEffect(() => {
     if (isSimulating) {
         setUiMessageType('info');
         setUiMessage("Verificando a aposta (simulação)...");
-        setIsSubmitting(true); 
+        setIsSubmitting(true);
     } else if (isWritePending) {
       setUiMessageType('info');
       setUiMessage("Aguardando confirmação na sua carteira (Metamask)...");
@@ -185,9 +233,9 @@ export default function HomePage() {
       setNumerosYParaEnviar([]);
       setIsSubmitting(false);
       setIsPreparingBet(false);
-      refetchBalance(); 
+      refetchBalance();
     }
-  }, [isConfirmed, writeTxHash, refetchBalance]); 
+  }, [isConfirmed, writeTxHash, refetchBalance]);
 
   useEffect(() => {
     let errorToSet: string | null = null;
@@ -220,43 +268,59 @@ export default function HomePage() {
         setUiMessage("Por favor, conecte sua carteira primeiro.");
         return;
     }
-    if (prepararNumerosParaAposta()) { 
+    if (chain && chain.id !== sepolia.id) {
+        setUiMessageType('error');
+        setUiMessage("Impossível apostar. Mude para a rede Sepolia em sua carteira.");
+        // A verificação 'if (switchChain)' foi removida daqui, pois causava erro de tipo.
+        // A mensagem de erro já foi setada. O botão para trocar de rede
+        // aparecerá no componente de mensagem se 'switchChain' estiver disponível no JSX.
+        return;
+    }
+
+    if (prepararNumerosParaAposta()) {
       setUiMessageType('info');
       setUiMessage("Preparando para enviar a aposta...");
-      setIsPreparingBet(true); 
+      setIsPreparingBet(true);
     } else {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
       setIsPreparingBet(false);
     }
   };
 
   useEffect(() => {
     if (!isPreparingBet || numerosXParaEnviar.length !== 5 || numerosYParaEnviar.length !== 5) {
-      if (isPreparingBet) { 
+      if (isPreparingBet) {
         setIsPreparingBet(false);
       }
       return;
     }
+    if (chain && chain.id !== sepolia.id) {
+        setUiMessageType('error');
+        setUiMessage("Ação cancelada. Por favor, conecte-se à rede Sepolia.");
+        setIsPreparingBet(false);
+        setIsSubmitting(false);
+        return;
+    }
 
     const executeAposta = async () => {
       console.log("Tentando simulação com X:", numerosXParaEnviar, "Y:", numerosYParaEnviar);
-      setIsSubmitting(true); 
+      setIsSubmitting(true);
       try {
         const simulationResult = await refetchSimulate();
 
         if (simulationResult.isError || !simulationResult.data?.request) {
           console.error("Erro na simulação (useEffect executeAposta):", simulationResult.error);
-          const message = (simulationResult.error as any)?.cause?.shortMessage || 
-                          (simulationResult.error as any)?.shortMessage || 
-                          simulationResult.error?.message || 
+          const message = (simulationResult.error as any)?.cause?.shortMessage ||
+                          (simulationResult.error as any)?.shortMessage ||
+                          simulationResult.error?.message ||
                           'Falha desconhecida na simulação.';
           setUiMessageType('error');
           setUiMessage(`Erro ao preparar aposta: ${message}`);
-          setIsSubmitting(false); 
+          setIsSubmitting(false);
           setIsPreparingBet(false);
           return;
         }
-        
+
         setUiMessageType('info');
         setUiMessage("Simulação OK. Aguardando assinatura na carteira...");
         writeContract(simulationResult.data.request);
@@ -264,27 +328,49 @@ export default function HomePage() {
         console.error("Erro inesperado no executeAposta (useEffect):", e);
         setUiMessageType('error');
         setUiMessage(`Erro inesperado ao executar aposta: ${e.message}`);
-        setIsSubmitting(false); 
+        setIsSubmitting(false);
         setIsPreparingBet(false);
       }
     };
-
     executeAposta();
-
-  }, [isPreparingBet, numerosXParaEnviar, numerosYParaEnviar, refetchSimulate, writeContract]);
-
+  }, [isPreparingBet, numerosXParaEnviar, numerosYParaEnviar, refetchSimulate, writeContract, chain, sepolia.id]);
 
   const EmojisJogoDoBicho = () => (
     <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.8rem', wordSpacing: '0.5rem' }}>
-       <span>🦤</span> 
+       <span>🦩</span>
        <span>🦅</span> <span>🐴</span> <span>🦋</span> <span>🐶</span> <span>🐐</span> <span>🐏</span> <span>🐫</span> <span>🐍</span> <span>🐇</span> <span>🐴</span> <span>🐘</span> <span>🐓</span> <span>🐈</span> <span>🐊</span> <span>🦁</span> <span>🐒</span> <span>🐖</span> <span>🦚</span> <span>🦃</span> <span>🐂</span> <span>🐅</span> <span>🐻</span> <span>🦌</span> <span>🐄</span>
     </div>
   );
+  // AQUI NÃO DEVE HAVER NADA ENTRE O FIM DA DEFINIÇÃO DE EmojisJogoDoBicho E O RETURN ABAIXO
 
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9', fontFamily: 'Arial, sans-serif' }}>
+
+      {showTestnetWarning && (
+        <div style={{
+          backgroundColor: '#fff3cd',
+          color: '#856404',
+          padding: '15px 20px',
+          margin: '-25px -25px 25px -25px',
+          borderBottom: '1px solid #ffeeba',
+          textAlign: 'center',
+          fontSize: '0.95em',
+          borderRadius: '8px 8px 0 0',
+        }}>
+          <p style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>
+            ⚠️ ATENÇÃO: MODO DE TESTE ATIVO! ⚠️
+          </p>
+          <p style={{ margin: '0' }}>
+            Este site opera na <strong>rede de testes Sepolia (Ethereum)</strong>.
+            Qualquer "ETH" ou valor aqui é <strong>APENAS PARA TESTE</strong> e não possui valor real.
+            Funcionalidades podem apresentar erros.
+          </p>
+        </div>
+      )}
+
       <h1 style={{ color: '#333', textAlign: 'center' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é Animal!</h1>
       <EmojisJogoDoBicho />
+
       {uiMessage && (
         <p style={{
           padding: '12px 15px', margin: '20px 0', borderRadius: '4px', textAlign: 'center',
@@ -294,8 +380,28 @@ export default function HomePage() {
           wordWrap: 'break-word'
         }}>
           {uiMessage}
+           {isConnected && chain && chain.id !== sepolia.id && switchChain && (
+            <button
+              onClick={() => switchChain({ chainId: sepolia.id })}
+              disabled={isSwitchingChain}
+              style={{
+                display: 'block',
+                margin: '10px auto 0 auto',
+                padding: '8px 15px',
+                cursor: 'pointer',
+                backgroundColor: '#007bff',
+                color: 'white',
+                borderRadius: '5px',
+                border: 'none',
+                fontSize: '14px',
+              }}
+            >
+              {isSwitchingChain ? "Mudando para Sepolia..." : "Mudar para Rede Sepolia"}
+            </button>
+          )}
         </p>
       )}
+
       {!isConnected ? (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <button
@@ -331,7 +437,7 @@ export default function HomePage() {
                     key={index} type="text" placeholder="ex: 10/25" value={numero}
                     onChange={(e) => handleInputChange(index, e.target.value)}
                     style={{ width: '90px', textAlign: 'center', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
-                    disabled={isSubmitting || isPreparingBet } 
+                    disabled={isSubmitting || isPreparingBet }
                   />
                 ))}
               </div>
@@ -340,19 +446,20 @@ export default function HomePage() {
           <div style={{ textAlign: 'center', marginTop: '25px' }}>
             <button
               onClick={handleSubmitBetClick}
-              disabled={!isConnected || isSubmitting || isPreparingBet}
+              disabled={!isConnected || isSubmitting || isPreparingBet || (chain && chain.id !== sepolia.id)}
               style={{
                   padding: '12px 25px', fontSize: '16px',
-                  cursor: (!isConnected || isSubmitting || isPreparingBet) ? 'not-allowed' : 'pointer',
-                  backgroundColor: (!isConnected || isSubmitting || isPreparingBet) ? '#ccc' : '#28a745',
+                  cursor: (!isConnected || isSubmitting || isPreparingBet || (chain && chain.id !== sepolia.id)) ? 'not-allowed' : 'pointer',
+                  backgroundColor: (!isConnected || isSubmitting || isPreparingBet || (chain && chain.id !== sepolia.id)) ? '#ccc' : '#28a745',
                   color: 'white', border: 'none', borderRadius: '5px',
-                  opacity: (!isConnected || isSubmitting || isPreparingBet) ? 0.6 : 1,
+                  opacity: (!isConnected || isSubmitting || isPreparingBet || (chain && chain.id !== sepolia.id)) ? 0.6 : 1,
                }}
             >
-              {isPreparingBet && !isSimulating && !isWritePending && !isConfirming ? 'Preparando...' : 
-               isSimulating ? 'Verificando...' : 
-               isWritePending ? 'Assine na Carteira...' : 
-               isConfirming ? 'Confirmando...' : 
+              {isPreparingBet && !isSimulating && !isWritePending && !isConfirming ? 'Preparando...' :
+               isSimulating ? 'Verificando...' :
+               isWritePending ? 'Assine na Carteira...' :
+               isConfirming ? 'Confirmando...' :
+               (chain && chain.id !== sepolia.id) ? 'Mude para Rede Sepolia' :
                'Apostar (0.01 ETH)'}
             </button>
           </div>

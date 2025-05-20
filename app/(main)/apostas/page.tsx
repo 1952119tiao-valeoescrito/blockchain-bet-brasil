@@ -1,15 +1,12 @@
-// ApostasPage.jsx (Exemplo usando React e ethers.js)
+"use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ethers } from 'ethers';
-// Importe o ABI do seu contrato.
-// Certifique-se que o caminho para o arquivo JSON está correto.
-import BlockChainBetBrasilABI from './BlockChainBetBrasil.json'; // Ou o caminho correto para seu ABI
+// Importações específicas da Ethers v6
+import { BrowserProvider, Contract, formatEther as ethersFormatEther, JsonRpcSigner } from 'ethers';
+import BlockChainBetBrasilABI from './BlockChainBetBrasil.json';
 
-// ENDEREÇO DO SEU CONTRATO DEPLOYADO
 const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138";
 
-// Enum StatusRodada (para facilitar a leitura do código)
 const StatusRodada = {
     INATIVA: 0,
     ABERTA: 1,
@@ -19,48 +16,57 @@ const StatusRodada = {
 };
 
 function ApostasPage() {
-    // Estado da Conexão e Wallet
-    const [walletAddress, setWalletAddress] = useState(null);
+    const [walletAddress, setWalletAddress] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [provider, setProvider] = useState(null);
-    const [signer, setSigner] = useState(null);
-    const [contract, setContract] = useState(null);
+    const [provider, setProvider] = useState<BrowserProvider | null>(null);
+    const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
+    const [contract, setContract] = useState<Contract | null>(null);
     const [networkError, setNetworkError] = useState('');
 
-    // Estado dos Dados da Rodada
-    const [currentRoundId, setCurrentRoundId] = useState(null);
-    const [roundData, setRoundData] = useState(null); // { id, status, ticketPrice, totalArrecadado, numApostas }
+    const [currentRoundId, setCurrentRoundId] = useState<number | null>(null);
+    const [roundData, setRoundData] = useState<{
+        id: number;
+        status: number;
+        ticketPrice: bigint;
+        totalArrecadado: bigint;
+        numApostas: number;
+    } | null>(null);
 
-    // Estado da Aposta do Usuário
     const [prognosticosX, setPrognosticosX] = useState(Array(5).fill(''));
     const [prognosticosY, setPrognosticosY] = useState(Array(5).fill(''));
 
-    // Estado de UI/Feedback
     const [isLoading, setIsLoading] = useState(false);
-    const [feedbackMessage, setFeedbackMessage] = useState({ type: '', text: '' }); // type: 'success' ou 'error'
+    const [feedbackMessage, setFeedbackMessage] = useState({ type: '', text: '' });
 
-    // 1. CONECTAR CARTEIRA
+    const formatDisplayEther = (weiValue: bigint | undefined) => {
+        if (typeof weiValue === 'undefined') return '0';
+        try {
+            return ethersFormatEther(weiValue);
+        } catch { return 'N/A'; }
+    };
+
     const connectWallet = useCallback(async () => {
         if (typeof window.ethereum !== 'undefined') {
             try {
                 setNetworkError('');
-                const ethProvider = new ethers.providers.Web3Provider(window.ethereum);
+                // CORREÇÃO APLICADA AQUI: Usando BrowserProvider diretamente
+                const ethProvider = new BrowserProvider(window.ethereum);
                 setProvider(ethProvider);
 
                 const accounts = await ethProvider.send("eth_requestAccounts", []);
                 if (accounts.length > 0) {
-                    const accSigner = ethProvider.getSigner();
+                    const accSigner = await ethProvider.getSigner();
                     setSigner(accSigner);
                     setWalletAddress(accounts[0]);
                     setIsConnected(true);
 
-                    const bettingContract = new ethers.Contract(CONTRACT_ADDRESS, BlockChainBetBrasilABI.abi, accSigner);
+                    const bettingContract = new Contract(CONTRACT_ADDRESS, BlockChainBetBrasilABI.abi, accSigner);
                     setContract(bettingContract);
                 } else {
                     setIsConnected(false);
                     setFeedbackMessage({ type: 'error', text: 'Nenhuma conta selecionada.' });
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Erro ao conectar carteira:", error);
                 setNetworkError('Erro ao conectar. Verifique se a MetaMask está instalada/desbloqueada.');
                 if (error.code === 4001) {
@@ -71,27 +77,27 @@ function ApostasPage() {
                 setIsConnected(false);
             }
         } else {
-            setNetworkError("MetaMask (ou outra carteira Ethereum) não detectada. Por favor, instale-a ou use o navegador da sua carteira mobile.");
+            setNetworkError("MetaMask (ou outra carteira Ethereum) não detectada.");
             setIsConnected(false);
         }
     }, []);
 
-    // 2. BUSCAR DADOS DA RODADA (Pode ser chamada com ou sem signer)
     const fetchRoundData = useCallback(async () => {
-        let activeContract = contract; // Contrato com signer, se conectado
-        if (!activeContract && provider) { // Se não conectado mas provider existe (leitura pública)
-            activeContract = new ethers.Contract(CONTRACT_ADDRESS, BlockChainBetBrasilABI.abi, provider);
-        } else if (!activeContract && typeof window.ethereum !== 'undefined') { // Tenta criar provider para leitura
+        let activeContract: Contract | null = contract;
+        let tempProviderInstance: BrowserProvider | null = null;
+
+        if (!activeContract && provider) {
+            activeContract = new Contract(CONTRACT_ADDRESS, BlockChainBetBrasilABI.abi, provider);
+        } else if (!activeContract && typeof window.ethereum !== 'undefined') {
             try {
-                const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-                activeContract = new ethers.Contract(CONTRACT_ADDRESS, BlockChainBetBrasilABI.abi, tempProvider);
+                tempProviderInstance = new BrowserProvider(window.ethereum);
+                activeContract = new Contract(CONTRACT_ADDRESS, BlockChainBetBrasilABI.abi, tempProviderInstance);
             } catch (e) {
                 console.error("Não foi possível criar provider para leitura de dados da rodada", e);
-                setNetworkError("Não foi possível ler dados da blockchain. Verifique sua conexão ou provedor Ethereum.");
+                setNetworkError("Não foi possível ler dados da blockchain.");
                 return;
             }
         }
-
 
         if (!activeContract) {
             if (!networkError) setNetworkError("Conecte sua carteira para ver os dados da rodada.");
@@ -101,57 +107,52 @@ function ApostasPage() {
         setIsLoading(true);
         setFeedbackMessage({ type: '', text: '' });
         try {
-            const roundIdBigNum = await activeContract.rodadaAtualId();
-            const roundId = roundIdBigNum.toNumber();
+            const roundIdBigInt = await activeContract.rodadaAtualId();
+            const roundId = Number(roundIdBigInt);
             setCurrentRoundId(roundId);
 
             if (roundId > 0) {
                 const info = await activeContract.getRodadaInfoBasica(roundId);
-                // const timestamps = await activeContract.getRodadaTimestamps(roundId); // Opcional
                 setRoundData({
-                    id: info.id.toNumber(),
+                    id: Number(info.id),
                     status: info.status,
                     ticketPrice: info.ticketPrice,
                     totalArrecadado: info.totalArrecadado,
-                    numApostas: info.numApostas.toNumber(),
-                    // timestampAbertura: timestamps.timestampAbertura.toNumber(), // Opcional
+                    numApostas: Number(info.numApostas),
                 });
             } else {
-                setRoundData(null); // Nenhuma rodada ativa
+                setRoundData(null);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erro ao buscar dados da rodada:", error);
             setFeedbackMessage({ type: 'error', text: `Erro ao carregar dados da rodada: ${error.message?.substring(0,100)}` });
         } finally {
             setIsLoading(false);
         }
-    }, [contract, provider, networkError]); // Adicionado networkError para reavaliar
+    }, [contract, provider, networkError]);
 
-    // EFEITOS (Lógica que roda em certos momentos do ciclo de vida do componente)
     useEffect(() => {
-        // Tenta buscar dados da rodada ao carregar, mesmo sem carteira conectada (leitura pública)
         if (!isConnected) {
             fetchRoundData();
         }
-    }, [isConnected, fetchRoundData]); // Rodar quando isConnected mudar ou fetchRoundData for recriado
+    }, [isConnected, fetchRoundData]);
 
     useEffect(() => {
-        // Se o contrato for instanciado (após conectar), busca os dados
         if (contract) {
             fetchRoundData();
         }
-    }, [contract, fetchRoundData]); // Rodar quando 'contract' mudar
+    }, [contract, fetchRoundData]);
 
     useEffect(() => {
-        const handleAccountsChanged = (accounts) => {
+        const handleAccountsChanged = (accounts: string[]) => {
             if (accounts.length === 0) {
                 setIsConnected(false);
                 setWalletAddress(null);
                 setSigner(null);
-                setContract(null); // Pode optar por manter para leitura ou anular
+                setContract(null);
                 setFeedbackMessage({ type: 'info', text: 'Carteira desconectada.' });
             } else {
-                connectWallet(); // Reconecta com a nova conta
+                connectWallet();
             }
         };
         const handleChainChanged = () => window.location.reload();
@@ -160,7 +161,7 @@ function ApostasPage() {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
             window.ethereum.on('chainChanged', handleChainChanged);
         }
-        return () => { // Cleanup
+        return () => {
             if (window.ethereum?.removeListener) {
                 window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
                 window.ethereum.removeListener('chainChanged', handleChainChanged);
@@ -168,10 +169,8 @@ function ApostasPage() {
         };
     }, [connectWallet]);
 
-    // 3. HANDLER PARA MUDANÇA NOS INPUTS DE PROGNÓSTICO
-    const handlePrognosticoChange = (index, value, type) => {
+    const handlePrognosticoChange = (index: number, value: string, type: 'X' | 'Y') => {
         const newPrognosticos = type === 'X' ? [...prognosticosX] : [...prognosticosY];
-        // Permite limpar o campo, mas valida o número se não estiver vazio
         if (value === '') {
             newPrognosticos[index] = '';
         } else {
@@ -183,14 +182,11 @@ function ApostasPage() {
             } else if (!isNaN(numValue) && numValue > 25) {
                 newPrognosticos[index] = '25';
             }
-            // Se não for um número válido, não atualiza ou mantém o valor anterior (depende da UX desejada)
         }
-
         if (type === 'X') setPrognosticosX(newPrognosticos);
         else setPrognosticosY(newPrognosticos);
     };
 
-    // 4. FUNÇÃO PARA REALIZAR APOSTA
     const handleBet = async () => {
         if (!contract || !signer || !roundData || roundData.status !== StatusRodada.ABERTA) {
             setFeedbackMessage({ type: 'error', text: 'Não é possível apostar. Verifique conexão/status da rodada.' });
@@ -210,12 +206,12 @@ function ApostasPage() {
         try {
             const tx = await contract.apostar(pX, pY, { value: roundData.ticketPrice });
             setFeedbackMessage({ type: 'info', text: `Aposta enviada (Tx: ${tx.hash.substring(0,10)}...). Aguardando confirmação...` });
-            await tx.wait(); // Espera a transação ser minerada
+            await tx.wait();
             setFeedbackMessage({ type: 'success', text: 'Aposta realizada com sucesso!' });
             setPrognosticosX(Array(5).fill(''));
             setPrognosticosY(Array(5).fill(''));
-            fetchRoundData(); // Atualiza informações da rodada
-        } catch (error) {
+            fetchRoundData();
+        } catch (error: any) {
             console.error("Erro ao apostar:", error);
             let userMessage = "Erro ao realizar aposta.";
             if (error.reason) userMessage = `Falha na aposta: ${error.reason}`;
@@ -228,17 +224,8 @@ function ApostasPage() {
         }
     };
 
-    // Funções auxiliares de formatação
-    const formatEther = (weiValue) => {
-        if (!weiValue) return '0';
-        try {
-            return ethers.utils.formatEther(weiValue);
-        } catch { return 'N/A'; }
-    };
-
-    // RENDERIZAÇÃO CONDICIONAL DA INTERFACE DE APOSTAS
     const renderBettingInterface = () => {
-        if (isLoading && !roundData) return <p>Carregando dados da rodada...</p>; // Se carregando dados iniciais
+        if (isLoading && !roundData) return <p>Carregando dados da rodada...</p>;
         if (!currentRoundId || currentRoundId === 0 || !roundData) {
             return <p>Nenhuma rodada ativa no momento. Volte em breve!</p>;
         }
@@ -248,10 +235,9 @@ function ApostasPage() {
                 return (
                     <div>
                         <h3>Rodada #{roundData.id} Aberta para Apostas!</h3>
-                        <p><strong>Preço do Bilhete:</strong> {formatEther(roundData.ticketPrice)} ETH</p>
-                        <p><strong>Pote Atual:</strong> {formatEther(roundData.totalArrecadado)} ETH</p>
+                        <p><strong>Preço do Bilhete:</strong> {formatDisplayEther(roundData.ticketPrice)} ETH</p>
+                        <p><strong>Pote Atual:</strong> {formatDisplayEther(roundData.totalArrecadado)} ETH</p>
                         <p><strong>Apostas Realizadas:</strong> {roundData.numApostas}</p>
-                        {/* <p>Aberta em: {new Date(roundData.timestampAbertura * 1000).toLocaleString()}</p> */}
 
                         {!isConnected ? (
                             <p style={{color: "orange"}}>Conecte sua carteira para poder apostar.</p>
@@ -275,7 +261,7 @@ function ApostasPage() {
                                     ))}
                                 </div>
                                 <button onClick={handleBet} disabled={isLoading || !isConnected}>
-                                    {isLoading ? 'Aguarde...' : `Apostar (${formatEther(roundData.ticketPrice)} ETH)`}
+                                    {isLoading ? 'Aguarde...' : `Apostar (${formatDisplayEther(roundData.ticketPrice)} ETH)`}
                                 </button>
                             </>
                         )}
@@ -285,21 +271,20 @@ function ApostasPage() {
                 return (
                     <div>
                         <h3>Rodada #{roundData.id} - Apostas Encerradas</h3>
-                        <p>Pote Final: {formatEther(roundData.totalArrecadado)} ETH. Aguardando resultados.</p>
+                        <p>Pote Final: {formatDisplayEther(roundData.totalArrecadado)} ETH. Aguardando resultados.</p>
                     </div>
                 );
-            default: // RESULTADO_DISPONIVEL, PAGA, INATIVA
+            default:
                 return (
                     <div>
                         <h3>Rodada #{roundData.id}</h3>
-                        <p>Status: {Object.keys(StatusRodada).find(key => StatusRodada[key] === roundData.status) || 'Desconhecido'}</p>
+                        <p>Status: {Object.keys(StatusRodada).find(key => StatusRodada[key as keyof typeof StatusRodada] === roundData.status) || 'Desconhecido'}</p>
                         <p>Esta rodada não está aberta para apostas. Confira os <a href="/resultados">Resultados</a>.</p>
                     </div>
                 );
         }
     };
 
-    // JSX PRINCIPAL DO COMPONENTE
     return (
         <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', maxWidth: '600px', margin: 'auto' }}>
             <h2>Página de Apostas</h2>
@@ -314,8 +299,7 @@ function ApostasPage() {
                 </button>
             ) : (
                 <div>
-                    <p>Carteira Conectada: <strong title={walletAddress}>{`${walletAddress?.substring(0, 6)}...${walletAddress?.substring(walletAddress.length - 4)}`}</strong></p>
-                    {/* Botão de Desconectar seria útil aqui, mas para simplificar, não adicionei o estado de "desconexão intencional" */}
+                    <p>Carteira Conectada: <strong title={walletAddress || ''}>{`${walletAddress?.substring(0, 6)}...${walletAddress?.substring(walletAddress.length - 4)}`}</strong></p>
                 </div>
             )}
 
@@ -339,4 +323,3 @@ function ApostasPage() {
 }
 
 export default ApostasPage;
-}
