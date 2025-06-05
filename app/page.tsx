@@ -585,7 +585,7 @@ export default function HomePage() {
   // useEffect para writeDespausarHash...
 
 
-  const EmojisJogoDoBicho = () => ( /* ... (seu código) ... */ );
+  const EmojisJogoDoBicho = () => ( /* ... (null);
 
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9', fontFamily: 'Arial, sans-serif' }}>
