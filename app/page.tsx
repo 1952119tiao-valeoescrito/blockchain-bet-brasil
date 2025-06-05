@@ -585,11 +585,11 @@ export default function HomePage() {
   // useEffect para writeDespausarHash...
 
 
-  const EmojisJogoDoBicho = () => ( /* ... (null);
+ const EmojisJogoDoBicho = () => null;
 
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9', fontFamily: 'Arial, sans-serif' }}>
-      {showTestnetWarning && ( /* ... (seu código) ... */ )}
+      {showTestnetWarning && (null /* Seu comentário pode continuar aqui se quiser */ )}
       <h1 style={{ color: '#333', textAlign: 'center' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é Animal!</h1>
       <EmojisJogoDoBicho />
 
