@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react'; // Adicionado useCallback
+import { useState, useEffect, useCallback } from 'react';
 import {
   useAccount,
   useConnect,
@@ -9,12 +9,11 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
   useBalance,
-  // useChainId, // Comentado pois chain de useAccount é usado
   useSwitchChain,
-  useReadContract, // Adicionado
+  useReadContract,
 } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
-import { parseEther, formatEther, Address } from 'viem'; // Adicionado formatEther e Address
+import { parseEther, formatEther, Address } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/constants';
 
 const gerarPrognosticosValidos = (): string[] => {
@@ -29,7 +28,6 @@ const gerarPrognosticosValidos = (): string[] => {
 
 const validPrognosticsSet = new Set(gerarPrognosticosValidos());
 
-// Mapeamento de Status da Rodada
 const STATUS_RODADA_MAP: { [key: number]: string } = {
     0: "INATIVA",
     1: "ABERTA",
@@ -40,7 +38,7 @@ const STATUS_RODADA_MAP: { [key: number]: string } = {
 
 interface RodadaInfo {
     id: bigint;
-    status: number; // enum é uint8
+    status: number;
     ticketPrice: bigint;
     totalArrecadado: bigint;
     premioTotal: bigint;
@@ -54,24 +52,21 @@ interface RodadaResultados {
     resultadosY: readonly bigint[];
 }
 
-
 export default function HomePage() {
   const { address, isConnected, connector, isConnecting, chain } = useAccount();
   const { connect, connectors, error: connectError, isPending: isConnectPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: isSwitchingChain, error: switchChainError } = useSwitchChain();
 
-  // Estados da UI e formulários
   const [prognosticos, setPrognosticos] = useState<string[]>(Array(5).fill(""));
   const [numerosXParaEnviar, setNumerosXParaEnviar] = useState<number[]>([]);
   const [numerosYParaEnviar, setNumerosYParaEnviar] = useState<number[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Genérico para qualquer submit
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [uiMessage, setUiMessage] = useState<string | null>(null);
   const [uiMessageType, setUiMessageType] = useState<'success' | 'error' | 'info' | null>(null);
   const [isPreparingBet, setIsPreparingBet] = useState(false);
-  const [showTestnetWarning, setShowTestnetWarning] = useState(true);
+  const [showTestnetWarning, setShowTestnetWarning] = useState(true); // Mantenha true se quiser o aviso
 
-  // Estados para dados do contrato
   const [contractOwner, setContractOwner] = useState<Address | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [rodadaAtualId, setRodadaAtualId] = useState<bigint | null>(null);
@@ -82,8 +77,6 @@ export default function HomePage() {
   const [isContractPaused, setIsContractPaused] = useState<boolean>(false);
   const [taxasAcumuladas, setTaxasAcumuladas] = useState<bigint | null>(null);
 
-
-  // Estados para formulários de Admin
   const [adminTicketPrice, setAdminTicketPrice] = useState('');
   const [adminRodadaIdFechar, setAdminRodadaIdFechar] = useState('');
   const [adminRodadaIdResultados, setAdminRodadaIdResultados] = useState('');
@@ -92,17 +85,14 @@ export default function HomePage() {
   const [adminNovaTaxaPlat, setAdminNovaTaxaPlat] = useState('');
   const [adminRetirarTaxasPara, setAdminRetirarTaxasPara] = useState('');
 
-
-  // Estado para Reivindicar Prêmio
   const [reivindicarRodadaId, setReivindicarRodadaId] = useState('');
   const [premioParaReivindicar, setPremioParaReivindicar] = useState<bigint | null>(null);
   const [jaReivindicou, setJaReivindicou] = useState<boolean>(false);
 
-
   // --- Hooks useReadContract ---
   const { data: balanceData, isLoading: isBalanceLoading, error: balanceError, refetch: refetchBalance } = useBalance({
     address: address,
-    chainId: sepolia.id, // Especificar chainId é bom
+    chainId: sepolia.id,
   });
 
   const { data: ownerReadData, refetch: refetchOwner } = useReadContract({
@@ -136,7 +126,7 @@ export default function HomePage() {
     functionName: 'getRodadaResultados',
     args: rodadaAtualId !== null && rodadaAtualId !== 0n ? [rodadaAtualId] : undefined,
     chainId: sepolia.id,
-    query: { enabled: isConnected && chain?.id === sepolia.id && rodadaAtualId !== null && rodadaAtualId !== 0n && rodadaInfo?.status !== 0 && rodadaInfo?.status !== 1 }, // Só busca se rodada não for inativa/aberta
+    query: { enabled: isConnected && chain?.id === sepolia.id && rodadaAtualId !== null && rodadaAtualId !== 0n && rodadaInfo?.status !== 0 && rodadaInfo?.status !== 1 },
   });
 
   const { data: ticketPriceBaseReadData, refetch: refetchTicketPriceBase } = useReadContract({
@@ -152,8 +142,6 @@ export default function HomePage() {
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'taxasAcumuladas', chainId: sepolia.id, query: { enabled: isConnected && chain?.id === sepolia.id && isOwner }
   });
 
-
-  // Hooks para Reivindicar Prêmio
   const { data: premioParaReivindicarReadData, refetch: refetchPremioParaReivindicar } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
@@ -171,28 +159,26 @@ export default function HomePage() {
     query: { enabled: !!(reivindicarRodadaId && address && isConnected && chain?.id === sepolia.id) }
   });
 
-
-  // --- Função para dar Refresh em todos os dados relevantes ---
   const refreshAllContractData = useCallback(async () => {
     if (isConnected && chain?.id === sepolia.id) {
         console.log("Refreshing all contract data...");
         await refetchOwner();
-        const idData = await refetchRodadaAtualId(); // Captura o resultado para usar abaixo
+        const idData = await refetchRodadaAtualId();
         if (idData && typeof idData.data === 'bigint' && idData.data !== 0n) {
              await refetchRodadaInfo();
-             await refetchRodadaResultados(); // Pode condicionar melhor se necessário
+             await refetchRodadaResultados();
+        } else if (idData && typeof idData.data === 'bigint' && idData.data === 0n) {
+            setRodadaInfo(null); // Limpa info da rodada se ID for 0
+            setRodadaResultados(null);
         }
         await refetchTicketPriceBase();
         await refetchTaxaPlataforma();
         await refetchPaused();
-        if (isOwner) await refetchTaxasAcumuladas(); // Só refetch se for owner
+        if (isOwner) await refetchTaxasAcumuladas();
         if (address) await refetchBalance();
-        // Para reivindicar prêmio, o refetch é mais específico (quando o ID é digitado)
     }
   }, [isConnected, chain, address, isOwner, refetchOwner, refetchRodadaAtualId, refetchRodadaInfo, refetchRodadaResultados, refetchTicketPriceBase, refetchTaxaPlataforma, refetchPaused, refetchTaxasAcumuladas, refetchBalance, sepolia.id]);
 
-
-  // --- useEffects para atualizar estados com dados lidos ---
   useEffect(() => {
     if (ownerReadData) setContractOwner(ownerReadData as Address);
   }, [ownerReadData]);
@@ -224,7 +210,6 @@ export default function HomePage() {
     }
   }, [rodadaResultadosReadData, rodadaAtualId, rodadaInfo]);
 
-
   useEffect(() => {
     if (typeof ticketPriceBaseReadData === 'bigint') setTicketPriceBase(ticketPriceBaseReadData);
     if (typeof taxaPlataformaReadData === 'bigint') setTaxaPlataforma(taxaPlataformaReadData);
@@ -237,80 +222,126 @@ export default function HomePage() {
     if (typeof jaReivindicouReadData === 'boolean') setJaReivindicou(jaReivindicouReadData);
   }, [premioParaReivindicarReadData, jaReivindicouReadData]);
 
-  // --- useEffects para UI Messages e Conexão (seus existentes, com pequenas adaptações) ---
   useEffect(() => {
     if (isConnected && chain && chain.id !== sepolia.id) {
       setUiMessageType('error');
       setUiMessage(`ATENÇÃO: Você está conectado à rede ${chain.name}, mas este DApp opera na rede Sepolia. Por favor, mude sua carteira para a rede Sepolia.`);
     } else if (isConnected && chain && chain.id === sepolia.id) {
-        // Só limpa a mensagem de aviso de rede, não outras mensagens
         if (uiMessage?.startsWith("ATENÇÃO: Você está conectado à rede")) {
-            setUiMessage(null); // Limpa a mensagem de aviso de rede
+            setUiMessage(null);
             setUiMessageType(null);
         }
-        // Atualiza mensagem de conectado com saldo (pode ser movido para um useEffect que depende de balanceData)
         let connectedMessage = `Carteira: ${address?.substring(0, 6)}...${address?.substring(address.length - 4)}`;
         if (isBalanceLoading) connectedMessage += " (Carregando saldo...)";
         else if (balanceError) connectedMessage += ` (Erro saldo: ${(balanceError as any)?.shortMessage || balanceError.message})`;
         else if (balanceData) connectedMessage += ` | Saldo: ${balanceData.formatted} ${balanceData.symbol}`;
 
-        // Mostrar mensagem de conectado apenas se não houver outra mensagem importante
-        if (!uiMessage || uiMessageType === null || uiMessageType === 'success') {
+        if (!uiMessage || uiMessageType === null || uiMessageType === 'success' || uiMessage === "Conectando carteira...") {
              setUiMessageType('success');
              setUiMessage(connectedMessage);
         }
     }
   }, [isConnected, chain, sepolia.id, uiMessage, uiMessageType, address, balanceData, balanceError, isBalanceLoading]);
 
-
-  useEffect(() => { // Para mensagens de conexão e saldo
+  useEffect(() => {
     if (isConnecting || isConnectPending) {
       setUiMessageType('info');
       setUiMessage("Conectando carteira...");
     } else if (connectError) {
       setUiMessageType('error');
       setUiMessage(`Erro ao conectar: ${(connectError as any)?.shortMessage || connectError.message}`);
-    } else if (isConnected && address && chain?.id === sepolia.id) {
-        // Atualiza periodicamente ou quando balanceData muda.
-        // A lógica de mensagem de conectado com saldo já está no useEffect acima.
-        // Este useEffect pode focar em limpar a mensagem de "conectando"
-        if (uiMessage === "Conectando carteira...") {
-             // A mensagem de sucesso com saldo será definida pelo useEffect acima.
-             // Aqui podemos apenas limpar a mensagem de "Conectando..." se necessário
-             // ou deixar o outro useEffect tratar. Para evitar conflito,
-             // vamos deixar o outro useEffect lidar com a mensagem de sucesso.
-        }
-    } else if (!isConnected && uiMessage !== "Conecte sua carteira para apostar.") { // Evita setar msg se já tem uma
+    } else if (!isConnected && uiMessage !== "Conecte sua carteira para apostar." && !uiMessage?.startsWith("Erro ao conectar:")) {
        setUiMessageType(null);
        setUiMessage("Conecte sua carteira para apostar.");
     }
-  }, [isConnected, address, connectError, isConnecting, isConnectPending, chain, sepolia.id, balanceData, isBalanceLoading, balanceError, uiMessage]);
-
+  }, [isConnected, connectError, isConnecting, isConnectPending, uiMessage]);
 
   useEffect(() => {
-    if(isSwitchingChain) { /* ... (seu código) ... */ }
-    else if (switchChainError) { /* ... (seu código) ... */ }
+    if(isSwitchingChain) {
+        setUiMessageType('info');
+        setUiMessage("Mudando de rede...");
+    } else if (switchChainError) {
+        setUiMessageType('error');
+        setUiMessage(`Erro ao mudar de rede: ${switchChainError.message}`);
+    }
   }, [isSwitchingChain, switchChainError]);
 
-  // Chamar refreshAllContractData quando conectar à Sepolia
   useEffect(() => {
     if (isConnected && chain?.id === sepolia.id) {
         refreshAllContractData();
     }
   }, [isConnected, chain, sepolia.id, refreshAllContractData]);
 
+  const handleConnect = () => {
+    if (connectors.length > 0) {
+        // Idealmente, permitir ao usuário escolher o conector se houver mais de um.
+        // Por simplicidade, conectar com o primeiro disponível (ex: Injected/Metamask).
+        const preferredConnector = connectors.find(c => c.id === 'io.metamask') || connectors[0];
+        if (preferredConnector) {
+            connect({ connector: preferredConnector, chainId: sepolia.id });
+        } else {
+            setUiMessageType('error');
+            setUiMessage("Nenhum conector de carteira encontrado.");
+        }
+    } else {
+        setUiMessageType('error');
+        setUiMessage("Nenhum conector de carteira disponível.");
+    }
+  };
 
-  const handleConnect = () => { /* ... (seu código) ... */ };
-  const handleInputChange = (index: number, value: string) => { /* ... (seu código) ... */ };
-  const prepararNumerosParaAposta = () => { /* ... (seu código) ... */ };
+  const handleInputChange = (index: number, value: string) => {
+    const novosPrognosticos = [...prognosticos];
+    novosPrognosticos[index] = value;
+    setPrognosticos(novosPrognosticos);
+  };
 
-  // --- Hooks e Handlers para APOSTAR (seu código existente) ---
+  const prepararNumerosParaAposta = (): boolean => {
+    setUiMessage(null);
+    setUiMessageType(null);
+
+    const prognosticosPreenchidos = prognosticos.filter(p => p.trim() !== "");
+
+    if (prognosticosPreenchidos.length === 0) {
+      setUiMessageType('error');
+      setUiMessage("Por favor, preencha pelo menos um prognóstico para apostar.");
+      return false;
+    }
+
+    if (prognosticosPreenchidos.length !== prognosticos.length) {
+        setUiMessageType('error');
+        setUiMessage(`Por favor, preencha todos os ${prognosticos.length} campos de prognóstico.`);
+        return false;
+    }
+
+    const novosNumerosX: number[] = [];
+    const novosNumerosY: number[] = [];
+
+    for (let i = 0; i < prognosticosPreenchidos.length; i++) {
+      const prognostico = prognosticosPreenchidos[i];
+      if (!validPrognosticsSet.has(prognostico)) {
+        setUiMessageType('error');
+        setUiMessage(`Prognóstico "${prognostico}" (no campo ${i + 1}) é inválido. Use o formato NÚMERO/NÚMERO, com números de 1 a 25.`);
+        return false;
+      }
+      const partes = prognostico.split('/');
+      const x = parseInt(partes[0], 10);
+      const y = parseInt(partes[1], 10);
+      novosNumerosX.push(x);
+      novosNumerosY.push(y);
+    }
+
+    setNumerosXParaEnviar(novosNumerosX);
+    setNumerosYParaEnviar(novosNumerosY);
+    console.log("Números preparados para aposta:", novosNumerosX, novosNumerosY);
+    return true;
+  };
+
   const { data: simulateData, error: simulateError, refetch: refetchSimulate, isLoading: isSimulating } = useSimulateContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'apostar',
-    args: [numerosXParaEnviar, numerosYParaEnviar],
-    value: (rodadaInfo && rodadaInfo.ticketPrice) ? rodadaInfo.ticketPrice : parseEther('0.01'), // Usa ticketPrice da rodada
+    args: [numerosXParaEnviar, numerosYParaEnviar], // Estes serão atualizados antes do refetchSimulate
+    value: (rodadaInfo && rodadaInfo.ticketPrice) ? rodadaInfo.ticketPrice : parseEther('0.01'), // Atualizado antes do refetchSimulate
     query: { enabled: false, retry: false, },
     chainId: sepolia.id
   });
@@ -320,12 +351,17 @@ export default function HomePage() {
     query: { enabled: !!writeTxHash, }
   });
 
-  // useEffects para feedback da aposta (seu código existente, mas chame refreshAllContractData no sucesso)
   useEffect(() => {
-    if (isSimulating) { /* ... (seu código) ... */ }
-    else if (isWritePending) { /* ... (seu código) ... */ }
-    else if (isConfirming) { /* ... (seu código) ... */ }
-  }, [isSimulating, isWritePending, isConfirming]);
+    if (isSimulating) {
+        // A mensagem de "Simulando transação da aposta..." já é setada no useEffect de executeAposta
+    } else if (isWritePending) {
+        setUiMessageType('info');
+        setUiMessage("Aguardando aprovação da transação na carteira...");
+    } else if (isConfirming) {
+        setUiMessageType('info');
+        setUiMessage(`Processando aposta... Hash: ${writeTxHash?.substring(0,10)}...`);
+    }
+  }, [isSimulating, isWritePending, isConfirming, writeTxHash]);
 
   useEffect(() => {
     if (isConfirmed && writeTxHash) {
@@ -335,45 +371,115 @@ export default function HomePage() {
       setNumerosXParaEnviar([]);
       setNumerosYParaEnviar([]);
       setIsSubmitting(false);
-      setIsPreparingBet(false);
-      // refetchBalance(); // Removido, pois refreshAllContractData já faz
-      refreshAllContractData(); // <--- ATUALIZADO
+      setIsPreparingBet(false); // <<< Adicionado
+      refreshAllContractData();
     }
-  }, [isConfirmed, writeTxHash, refreshAllContractData]); // Adicionado refreshAllContractData
+  }, [isConfirmed, writeTxHash, refreshAllContractData]);
 
-  useEffect(() => { // Erros da aposta
+  useEffect(() => {
     let errorToSet: string | null = null;
-    let shouldResetSubmitting = false;
-    if (simulateError) { /* ... (seu código) ... */ }
-    else if (writeError) { /* ... (seu código) ... */ }
-    else if (receiptError) { /* ... (seu código) ... */ }
-    if (errorToSet) { /* ... (seu código) ... */ }
-    if (shouldResetSubmitting) { /* ... (seu código) ... */ }
+    let typeToSet: 'error' | null = null;
+
+    if (simulateError) {
+      errorToSet = `Erro ao simular aposta: ${(simulateError as any)?.cause?.shortMessage || (simulateError as any)?.shortMessage || simulateError.message}`;
+      typeToSet = 'error';
+    } else if (writeError) {
+      errorToSet = `Erro ao enviar aposta: ${(writeError as any)?.cause?.shortMessage || (writeError as any)?.shortMessage || writeError.message}`;
+      typeToSet = 'error';
+    } else if (receiptError) {
+      errorToSet = `Erro na confirmação da aposta: ${receiptError.message}`;
+      typeToSet = 'error';
+    }
+
+    if (errorToSet) {
+      setUiMessageType(typeToSet);
+      setUiMessage(errorToSet);
+      setIsSubmitting(false);
+      setIsPreparingBet(false); // <<< Adicionado
+    }
   }, [simulateError, writeError, receiptError]);
 
-  const handleSubmitBetClick = () => { /* ... (seu código, verifique rodadaInfo.status === 1) ... */
-    if (!isConnected || !address) { /* ... */ return; }
-    if (chain && chain.id !== sepolia.id) { /* ... */ return; }
-    if (!rodadaInfo || rodadaInfo.status !== 1) {
-        setUiMessageType('error');
-        setUiMessage(rodadaInfo ? `Apostas para esta rodada estão ${STATUS_RODADA_MAP[rodadaInfo.status].toLowerCase()}.` : "Informações da rodada não carregadas.");
-        return;
+  const handleSubmitBetClick = () => {
+    if (!isConnected || !address) {
+      setUiMessageType('error');
+      setUiMessage("Conecte sua carteira para apostar.");
+      return;
     }
-    if (prepararNumerosParaAposta()) { /* ... */ }
-    else { /* ... */ }
+    if (chain && chain.id !== sepolia.id) {
+      setUiMessageType('error');
+      setUiMessage("Por favor, mude sua carteira para a rede Sepolia para apostar.");
+      return;
+    }
+    if (!rodadaInfo || rodadaInfo.status !== 1) {
+      setUiMessageType('error');
+      setUiMessage(rodadaInfo ? `Apostas para esta rodada estão ${STATUS_RODADA_MAP[rodadaInfo.status].toLowerCase()}.` : "Informações da rodada não carregadas ou rodada não está aberta.");
+      return;
+    }
+     if (isContractPaused) {
+      setUiMessageType('error');
+      setUiMessage("O contrato está pausado. Novas apostas não são permitidas no momento.");
+      return;
+    }
+
+    if (prepararNumerosParaAposta()) {
+      setIsPreparingBet(true);
+      setUiMessageType('info');
+      setUiMessage("Validando prognósticos e preparando aposta...");
+    } else {
+      setIsPreparingBet(false);
+    }
   };
 
-  useEffect(() => { // executeAposta
-    if (!isPreparingBet || numerosXParaEnviar.length !== 5 || numerosYParaEnviar.length !== 5) { /* ... */ return; }
-    if (chain && chain.id !== sepolia.id) { /* ... */ return; }
-    const executeAposta = async () => { /* ... (seu código) ... */ };
+  useEffect(() => {
+    if (!isPreparingBet || numerosXParaEnviar.length === 0 || numerosYParaEnviar.length === 0) {
+      return;
+    }
+    if (chain && chain.id !== sepolia.id) {
+      setUiMessageType('error');
+      setUiMessage("Mude para a rede Sepolia antes de prosseguir com a aposta.");
+      setIsPreparingBet(false);
+      setIsSubmitting(false);
+      return;
+    }
+
+    const executeAposta = async () => {
+      if (!rodadaInfo || !rodadaInfo.ticketPrice) {
+        setUiMessageType('error');
+        setUiMessage("Não foi possível obter o preço do ticket da rodada.");
+        setIsPreparingBet(false);
+        setIsSubmitting(false);
+        return;
+      }
+      
+      setIsSubmitting(true);
+      setUiMessageType('info');
+      setUiMessage("Simulando transação da aposta...");
+
+      try {
+        const simulation = await refetchSimulate();
+        if (simulation.isError || !simulation.data?.request) {
+          console.error("Erro na simulação:", simulation.error);
+          const errorMsg = (simulation.error as any)?.cause?.shortMessage || (simulation.error as any)?.shortMessage || simulation.error?.message || "Erro desconhecido na simulação.";
+          setUiMessageType('error');
+          setUiMessage(`Erro ao simular aposta: ${errorMsg}`);
+          setIsPreparingBet(false);
+          setIsSubmitting(false);
+          return;
+        }
+        setUiMessage("Simulação bem-sucedida. Por favor, aprove a transação na sua carteira.");
+        writeContract(simulation.data.request);
+      } catch (e: any) {
+        console.error("Exceção ao executar aposta:", e);
+        const errorMsg = (e as any)?.cause?.shortMessage || (e as any)?.shortMessage || e.message || "Erro inesperado ao preparar aposta.";
+        setUiMessageType('error');
+        setUiMessage(`Erro: ${errorMsg}`);
+        setIsPreparingBet(false);
+        setIsSubmitting(false);
+      }
+    };
     executeAposta();
-  }, [isPreparingBet, numerosXParaEnviar, numerosYParaEnviar, refetchSimulate, writeContract, chain, sepolia.id]);
+  }, [isPreparingBet, numerosXParaEnviar, numerosYParaEnviar, refetchSimulate, writeContract, chain, sepolia.id, rodadaInfo, setIsSubmitting, setUiMessageType, setUiMessage]);
 
-
-  // --- NOVAS FUNÇÕES E HOOKS PARA ADMIN E REIVINDICAR ---
-
-  // --- INICIAR NOVA RODADA (Admin) ---
   const { data: simIniciarRodadaData, error: simIniciarRodadaError, refetch: refetchSimIniciarRodada } = useSimulateContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'iniciarNovaRodada',
     args: [adminTicketPrice ? parseEther(adminTicketPrice) : 0n],
@@ -410,11 +516,9 @@ export default function HomePage() {
     }
   }, [isWriteIniciarRodadaPending, isConfirmingIniciarRodada, isConfirmedIniciarRodada, simIniciarRodadaError, writeIniciarRodadaError, receiptIniciarRodadaError, refreshAllContractData]);
 
-
-  // --- FECHAR APOSTAS (Admin) ---
   const { data: simFecharApostasData, error: simFecharApostasError, refetch: refetchSimFecharApostas } = useSimulateContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'fecharApostas',
-    args: adminRodadaIdFechar ? [BigInt(adminRodadaIdFechar)] : (rodadaAtualId && rodadaAtualId !== 0n ? [rodadaAtualId] : undefined), // Usa ID atual se não especificado
+    args: adminRodadaIdFechar ? [BigInt(adminRodadaIdFechar)] : (rodadaAtualId && rodadaAtualId !== 0n ? [rodadaAtualId] : undefined),
     query: { enabled: false, retry: false }, chainId: sepolia.id,
   });
   const { writeContract: writeFecharApostas, data: writeFecharApostasHash, isPending: isWriteFecharApostasPending, error: writeFecharApostasError } = useWriteContract();
@@ -424,14 +528,9 @@ export default function HomePage() {
     if (!isOwner) { setUiMessageType('error'); setUiMessage("Ação restrita ao proprietário."); return; }
     const idToClose = adminRodadaIdFechar ? BigInt(adminRodadaIdFechar) : rodadaAtualId;
     if (!idToClose || idToClose === 0n) { setUiMessageType('error'); setUiMessage("ID da rodada inválido para fechar."); return; }
-
     setIsSubmitting(true); setUiMessageType('info'); setUiMessage(`Preparando para fechar apostas da rodada ${idToClose}...`);
     try {
-        // Precisamos garantir que `args` no hook `useSimulateContract` seja atualizado antes de refetch.
-        // Uma forma é passar os args diretamente para o refetch se a lib permitir, ou reconfigurar o hook.
-        // Wagmi v1 `refetch` não aceita novos args. Re-executar com args corretos é mais complexo.
-        // Por simplicidade, vamos assumir que o hook já tem o arg correto ou o usuário preencheu o input.
-        const simResult = await refetchSimFecharApostas(); // Este refetch usará o args definido no hook.
+        const simResult = await refetchSimFecharApostas();
         if (simResult.isError || !simResult.data?.request) {
             throw simResult.error || new Error("Falha na simulação de fechar apostas.");
         }
@@ -455,10 +554,6 @@ export default function HomePage() {
     }
   }, [isWriteFecharApostasPending, isConfirmingFecharApostas, isConfirmedFecharApostas, simFecharApostasError, writeFecharApostasError, receiptFecharApostasError, refreshAllContractData]);
 
-
-  // --- REGISTRAR RESULTADOS (Admin) ---
-  // (Estrutura similar a iniciarNovaRodada e fecharApostas)
-  // Args: [BigInt(adminRodadaIdResultados), adminMilhares.map(m => BigInt(m))]
   const { data: simRegResultData, error: simRegResultError, refetch: refetchSimRegResult } = useSimulateContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'registrarResultadosDaFederalEProcessar',
     args: (adminRodadaIdResultados && adminMilhares.every(m => m !== "" && !isNaN(Number(m)))) ?
@@ -499,9 +594,6 @@ export default function HomePage() {
     }
   }, [isWriteRegResultPending, isConfirmingRegResult, isConfirmedRegResult, simRegResultError, writeRegResultError, receiptRegResultError, refreshAllContractData]);
 
-
-  // --- REIVINDICAR PRÊMIO (Usuário) ---
-  // (Verificar premioParaReivindicarReadData e jaReivindicouReadData antes de simular/escrever)
   const { data: simReivindicarData, error: simReivindicarError, refetch: refetchSimReivindicar } = useSimulateContract({
     address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'reivindicarPremio',
     args: reivindicarRodadaId ? [BigInt(reivindicarRodadaId)] : undefined,
@@ -515,7 +607,6 @@ export default function HomePage() {
     if (!reivindicarRodadaId) { setUiMessageType('error'); setUiMessage("Informe o ID da rodada."); return; }
     if (jaReivindicou) { setUiMessageType('info'); setUiMessage("Você já reivindicou o prêmio para esta rodada."); return; }
     if (!premioParaReivindicar || premioParaReivindicar === 0n) { setUiMessageType('info'); setUiMessage("Nenhum prêmio para reivindicar nesta rodada."); return; }
-
     setIsSubmitting(true); setUiMessageType('info'); setUiMessage(`Preparando para reivindicar prêmio da rodada ${reivindicarRodadaId}...`);
     try {
         const simResult = await refetchSimReivindicar();
@@ -535,7 +626,7 @@ export default function HomePage() {
     else if (isConfirmedReivindicar) {
         setUiMessageType('success'); setUiMessage("Prêmio reivindicado com sucesso!");
         setIsSubmitting(false); setReivindicarRodadaId(''); setPremioParaReivindicar(null); setJaReivindicou(true);
-        refreshAllContractData(); // Para atualizar saldos e potencialmente infos da rodada se ela mudar para PAGA
+        refreshAllContractData();
     } else if (simReivindicarError || writeReivindicarError || receiptReivindicarError) {
         const error = simReivindicarError || writeReivindicarError || receiptReivindicarError;
         setUiMessageType('error'); setUiMessage(`Erro ao reivindicar prêmio: ${(error as any)?.cause?.shortMessage || (error as any)?.shortMessage || error?.message}`);
@@ -543,7 +634,6 @@ export default function HomePage() {
     }
   }, [isWriteReivindicarPending, isConfirmingReivindicar, isConfirmedReivindicar, simReivindicarError, writeReivindicarError, receiptReivindicarError, refreshAllContractData]);
 
-  // Efeito para buscar dados do prêmio quando o ID da rodada de reivindicação mudar
   useEffect(() => {
     if (reivindicarRodadaId && address && isConnected && chain?.id === sepolia.id) {
         refetchPremioParaReivindicar();
@@ -554,52 +644,98 @@ export default function HomePage() {
     }
   }, [reivindicarRodadaId, address, isConnected, chain, sepolia.id, refetchPremioParaReivindicar, refetchJaReivindicou]);
 
+  // --- Efeitos para Pausar/Despausar ---
+  // (Simulação omitida por simplicidade, adicione se necessário)
+  const { data: writePausarTxData, isPending: isPausarPending, error: pausarError, writeContract: execPausar } = useWriteContract();
+  const { isSuccess: isPausarSuccess, isLoading: isPausarConfirming, error: pausarReceiptError } = useWaitForTransactionReceipt({ hash: writePausarTxData });
+  const { data: writeDespausarTxData, isPending: isDespausarPending, error: despausarError, writeContract: execDespausar } = useWriteContract();
+  const { isSuccess: isDespausarSuccess, isLoading: isDespausarConfirming, error: despausarReceiptError } = useWaitForTransactionReceipt({ hash: writeDespausarTxData });
 
-  // --- Outras Funções de Admin (Pausar, Despausar, Setar Taxas, etc.) ---
-  // Implementar seguindo o mesmo padrão:
-  // 1. useSimulateContract
-  // 2. useWriteContract
-  // 3. useWaitForTransactionReceipt
-  // 4. Handler function
-  // 5. useEffects para feedback
-
-  const { writeContract: writePausar, data: writePausarHash, isPending: isWritePausarPending, error: writePausarError } = useWriteContract(); // etc. para pausar
   const handlePausar = async () => {
-    if (!isOwner) { /* ... */ return; }
-    // Idealmente simular antes, mas para funções simples sem args:
+    if (!isOwner) { setUiMessageType('error'); setUiMessage("Ação restrita ao proprietário."); return; }
     setIsSubmitting(true); setUiMessageType('info'); setUiMessage("Pausando contrato...");
     try {
-        writePausar({ address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'pausar' });
-    } catch (e: any) { /* ... */ setIsSubmitting(false); }
+        execPausar({ address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'pausar' });
+    } catch (e: any) {
+        setUiMessageType('error'); setUiMessage(`Erro ao pausar: ${e.message}`);
+        setIsSubmitting(false);
+    }
   };
-  // useEffect para writePausarHash...
+   useEffect(() => {
+    if (isPausarPending) { setUiMessage("Aguardando assinatura para pausar..."); }
+    else if (isPausarConfirming) { setUiMessage("Processando pausa do contrato..."); }
+    else if (isPausarSuccess) {
+        setUiMessageType('success'); setUiMessage("Contrato pausado com sucesso!");
+        setIsSubmitting(false); refreshAllContractData();
+    } else if (pausarError || pausarReceiptError) {
+        const error = pausarError || pausarReceiptError;
+        setUiMessageType('error'); setUiMessage(`Erro ao pausar: ${(error as any)?.cause?.shortMessage || (error as any)?.shortMessage || error?.message}`);
+        setIsSubmitting(false);
+    }
+  }, [isPausarPending, isPausarConfirming, isPausarSuccess, pausarError, pausarReceiptError, refreshAllContractData]);
 
-  const { writeContract: writeDespausar, data: writeDespausarHash, isPending: isWriteDespausarPending, error: writeDespausarError } = useWriteContract();
+
   const handleDespausar = async () => {
-    if (!isOwner) { /* ... */ return; }
+    if (!isOwner) { setUiMessageType('error'); setUiMessage("Ação restrita ao proprietário."); return; }
     setIsSubmitting(true); setUiMessageType('info'); setUiMessage("Despausando contrato...");
     try {
-        writeDespausar({ address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'despausar' });
-    } catch (e: any) { /* ... */ setIsSubmitting(false); }
+        execDespausar({ address: CONTRACT_ADDRESS, abi: CONTRACT_ABI, functionName: 'despausar' });
+    } catch (e: any) {
+        setUiMessageType('error'); setUiMessage(`Erro ao despausar: ${e.message}`);
+        setIsSubmitting(false);
+    }
   };
-  // useEffect para writeDespausarHash...
+  useEffect(() => {
+    if (isDespausarPending) { setUiMessage("Aguardando assinatura para despausar..."); }
+    else if (isDespausarConfirming) { setUiMessage("Processando despausa do contrato..."); }
+    else if (isDespausarSuccess) {
+        setUiMessageType('success'); setUiMessage("Contrato despausado com sucesso!");
+        setIsSubmitting(false); refreshAllContractData();
+    } else if (despausarError || despausarReceiptError) {
+        const error = despausarError || despausarReceiptError;
+        setUiMessageType('error'); setUiMessage(`Erro ao despausar: ${(error as any)?.cause?.shortMessage || (error as any)?.shortMessage || error?.message}`);
+        setIsSubmitting(false);
+    }
+  }, [isDespausarPending, isDespausarConfirming, isDespausarSuccess, despausarError, despausarReceiptError, refreshAllContractData]);
 
 
- const EmojisJogoDoBicho = () => null;
+ const EmojisJogoDoBicho = () => null; // Placeholder
+
+  // --- ESTILOS (exemplo, você pode mover para um arquivo CSS) ---
+  const buttonStyle = {
+    backgroundColor: '#4CAF50', color: 'white', padding: '10px 20px', margin: '5px',
+    border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1em'
+  };
+  const disabledButtonStyle = { ...buttonStyle, backgroundColor: '#ccc', cursor: 'not-allowed' };
+  const inputStyle = { padding: '8px', margin: '5px', borderRadius: '4px', border: '1px solid #ccc', width: 'calc(100% - 22px)' };
+  const errorStyle = { backgroundColor: '#ffdddd', borderLeft: '6px solid #f44336', color: 'black', padding: '10px', marginTop: '15px', marginBottom: '15px' };
+  const successStyle = { backgroundColor: '#ddffdd', borderLeft: '6px solid #4CAF50', color: 'black', padding: '10px', marginTop: '15px', marginBottom: '15px' };
+  const infoStyle = { backgroundColor: '#e7f3fe', borderLeft: '6px solid #2196F3', color: 'black', padding: '10px', marginTop: '15px', marginBottom: '15px' };
+
 
   return (
     <div style={{ maxWidth: '900px', margin: '30px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9', fontFamily: 'Arial, sans-serif' }}>
-      {showTestnetWarning && (null /* Seu comentário pode continuar aqui se quiser */ )}
+      {showTestnetWarning && (
+        <div style={{ backgroundColor: 'orange', color: 'black', padding: '10px', textAlign: 'center', fontWeight: 'bold', marginBottom: '15px' }}>
+            ⚠️ ATENÇÃO: Este site está em FASE DE TESTES utilizando a rede de teste Sepolia. NÃO UTILIZE FUNDOS REAIS.
+        </div>
+      )}
       <h1 style={{ color: '#333', textAlign: 'center' }}>Blockchain Bet Brasil - O BBB da Web3 - Esse Jogo é Animal!</h1>
       <EmojisJogoDoBicho />
 
-      {/* Mensagem UI Centralizada */}
       {uiMessage && (
-        <p style={{ /* ... (seu estilo) ... */ }}>
+        <p style={
+            uiMessageType === 'error' ? errorStyle :
+            uiMessageType === 'success' ? successStyle :
+            uiMessageType === 'info' ? infoStyle :
+            { padding: '10px', textAlign: 'center', marginTop: '15px', marginBottom: '15px' }
+        }>
           {uiMessage}
           {isConnected && chain && chain.id !== sepolia.id && switchChain && (
-            <button onClick={() => switchChain({ chainId: sepolia.id })} disabled={isSwitchingChain || isSubmitting }
-              style={{ /* ... (seu estilo) ... */ }}
+            <button
+                onClick={() => switchChain({ chainId: sepolia.id })}
+                disabled={isSwitchingChain || isSubmitting }
+                style={isSwitchingChain || isSubmitting ? disabledButtonStyle : buttonStyle}
             >
               {isSwitchingChain ? "Mudando..." : "Mudar para Rede Sepolia"}
             </button>
@@ -607,20 +743,21 @@ export default function HomePage() {
         </p>
       )}
 
-      {/* Conexão Wallet */}
       {!isConnected ? (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={handleConnect} disabled={isConnecting || isConnectPending || isSubmitting}
-            style={{ /* ... (seu estilo) ... */ }}
+          <button
+            onClick={handleConnect}
+            disabled={isConnecting || isConnectPending || isSubmitting}
+            style={(isConnecting || isConnectPending || isSubmitting) ? disabledButtonStyle : buttonStyle}
           >
             {isConnecting || isConnectPending ? 'Conectando...' : 'Conectar Wallet'}
           </button>
         </div>
       ) : (
-        <div> {/* Conteúdo Principal Pós-Conexão */}
-          <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '20px', fontSize: '0.9em', wordBreak: 'break-all' }}>
-            <span>Owner: {contractOwner || "Carregando..."} {isOwner && "(Você é o Owner!)"}</span><br/>
-            <span>Contrato Pausado: {isContractPaused ? "SIM" : "NÃO"}</span><br/>
+        <div>
+          <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '20px', fontSize: '0.9em', wordBreak: 'break-all', border: '1px solid #eee', padding: '10px', borderRadius: '4px' }}>
+            <span>Owner: {contractOwner ? `${contractOwner.substring(0,6)}...${contractOwner.substring(contractOwner.length - 4)}` : "Carregando..."} {isOwner && <strong style={{color: 'green'}}>(Você é o Owner!)</strong>}</span><br/>
+            <span>Contrato Pausado: <strong style={{color: isContractPaused ? 'red' : 'green'}}>{isContractPaused ? "SIM" : "NÃO"}</strong></span><br/>
             <span>Ticket Base: {ticketPriceBase ? formatEther(ticketPriceBase) : "N/A"} ETH</span> |
             <span> Taxa Plataforma: {taxaPlataforma ? taxaPlataforma.toString() : "N/A"}%</span>
           </div>
@@ -629,7 +766,7 @@ export default function HomePage() {
           <h2>Informações da Rodada Atual #{rodadaAtualId ? rodadaAtualId.toString() : "N/A"}</h2>
           {(isLoadingRodadaInfo || isLoadingRodadaResultados) && <p>Carregando dados da rodada...</p>}
           {rodadaInfo && chain?.id === sepolia.id ? (
-            <div>
+            <div style={{border: '1px solid #eee', padding: '15px', borderRadius: '4px', marginBottom: '20px'}}>
               <p>Status: <strong>{STATUS_RODADA_MAP[rodadaInfo.status] || "Desconhecido"}</strong></p>
               <p>Preço do Ticket: {formatEther(rodadaInfo.ticketPrice)} ETH</p>
               <p>Total Arrecadado: {formatEther(rodadaInfo.totalArrecadado)} ETH</p>
@@ -638,40 +775,59 @@ export default function HomePage() {
               <p>Número de Vencedores: {rodadaInfo.numeroDeVencedores.toString()}</p>
               {rodadaResultados && rodadaResultados.milharesForamInseridos && (
                 <div>
-                    <h4>Resultados da Rodada:</h4>
-                    <p>Milhares Sorteados: {rodadaResultados.milharesSorteados.map(m => m.toString()).join(', ')}</p>
+                    <h4>Resultados da Rodada #{rodadaInfo.id.toString()}:</h4>
+                    <p>Milhares Sorteados: {rodadaResultados.milharesSorteados.map(m => m.toString().padStart(4, '0')).join(', ')}</p>
                     <p>Resultados X: {rodadaResultados.resultadosX.map(x => x.toString()).join(', ')}</p>
                     <p>Resultados Y: {rodadaResultados.resultadosY.map(y => y.toString()).join(', ')}</p>
                 </div>
               )}
             </div>
-          ) : rodadaAtualId === 0n && chain?.id === sepolia.id ? (
-            <p>Nenhuma rodada ativa no momento.</p>
+          ) : rodadaAtualId === 0n && chain?.id === sepolia.id && !isLoadingRodadaInfo ? (
+            <p>Nenhuma rodada ativa no momento. O proprietário pode iniciar uma nova rodada.</p>
           ) : !isConnected ? (
             <p>Conecte sua carteira.</p>
           ) : chain?.id !== sepolia.id ? (
             <p>Mude para a rede Sepolia.</p>
-          ) : null}
+          ) : isLoadingRodadaInfo ? null : (
+             <p>Não foi possível carregar informações da rodada. Tente atualizar a página ou verifique sua conexão.</p>
+          )}
 
-          {/* Seção de Apostar (seu código com adaptações) */}
           {isConnected && chain?.id === sepolia.id && rodadaInfo && rodadaInfo.status === 1 && !isContractPaused && (
             <>
               <hr />
-              <h3 style={{ /* ... */ }}>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!</h3>
-              {/* ... (seu formulário de aposta) ... */}
+              <h3 style={{ textAlign: 'center', color: '#4CAF50' }}>Faça sua Aposta na Rodada #{rodadaInfo.id.toString()}!</h3>
+              <p style={{textAlign: 'center', fontSize: '0.9em'}}>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!</p>
+              <div style={{ margin: '20px 0' }}>
+                {prognosticos.map((prog, index) => (
+                  <div key={index} style={{ marginBottom: '10px' }}>
+                    <label htmlFor={`prognostico-${index}`} style={{ display: 'block', marginBottom: '5px' }}>
+                      Prognóstico {index + 1} (X/Y):
+                    </label>
+                    <input
+                      id={`prognostico-${index}`}
+                      type="text"
+                      value={prog}
+                      onChange={(e) => handleInputChange(index, e.target.value)}
+                      placeholder="Ex: 12/25"
+                      style={inputStyle}
+                      disabled={isSubmitting || isPreparingBet}
+                    />
+                  </div>
+                ))}
+              </div>
                <div style={{ textAlign: 'center', marginTop: '25px' }}>
-                <button onClick={handleSubmitBetClick}
-                  disabled={isSubmitting || isPreparingBet || (rodadaInfo?.status !== 1)} // Adicionado rodadaInfo?.status !== 1
-                  style={{ /* ... (seu estilo) ... */ }}
+                <button
+                  onClick={handleSubmitBetClick}
+                  disabled={isSubmitting || isPreparingBet || (rodadaInfo?.status !== 1) || isContractPaused}
+                  style={(isSubmitting || isPreparingBet || (rodadaInfo?.status !== 1) || isContractPaused) ? disabledButtonStyle : buttonStyle}
                 >
-                  {/* ... (sua lógica de texto do botão) ... */}
-                  Apostar ({rodadaInfo ? formatEther(rodadaInfo.ticketPrice) : 'N/A'} ETH)
+                  {isPreparingBet ? "Preparando..." : isSubmitting ? "Processando Aposta..." : `Apostar (${rodadaInfo ? formatEther(rodadaInfo.ticketPrice) : 'N/A'} ETH)`}
                 </button>
               </div>
             </>
           )}
            {isConnected && chain?.id === sepolia.id && rodadaInfo && rodadaInfo.status !== 1 && (
-            <p style={{textAlign: 'center', color: 'orange', marginTop: '15px'}}>
+            <p style={{textAlign: 'center', color: 'orange', fontWeight: 'bold', marginTop: '15px'}}>
                 Apostas para a rodada atual estão: {STATUS_RODADA_MAP[rodadaInfo.status]}.
             </p>
            )}
@@ -681,98 +837,107 @@ export default function HomePage() {
             </p>
            )}
 
-
-          {/* Seção Reivindicar Prêmio */}
           {isConnected && chain?.id === sepolia.id && (
             <>
-                <hr />
-                <h2>Reivindicar Prêmio</h2>
-                <div>
-                    ID da Rodada: <input type="number" value={reivindicarRodadaId} onChange={(e) => setReivindicarRodadaId(e.target.value)} placeholder="Ex: 1" disabled={isSubmitting} />
+                <hr style={{marginTop: '30px'}} />
+                <h2 style={{textAlign: 'center'}}>Reivindicar Prêmio</h2>
+                <div style={{border: '1px solid #eee', padding: '15px', borderRadius: '4px', marginBottom: '20px'}}>
+                    ID da Rodada: <input type="number" value={reivindicarRodadaId} onChange={(e) => setReivindicarRodadaId(e.target.value)} placeholder="Ex: 1" disabled={isSubmitting} style={{...inputStyle, width: '100px', marginRight: '10px'}} />
+                    <button
+                        onClick={handleReivindicarPremio}
+                        disabled={isSubmitting || !reivindicarRodadaId || jaReivindicou || !premioParaReivindicar || premioParaReivindicar === 0n}
+                        style={(isSubmitting || !reivindicarRodadaId || jaReivindicou || !premioParaReivindicar || premioParaReivindicar === 0n) ? disabledButtonStyle : buttonStyle}
+                    >
+                        {isSubmitting ? "Processando..." : "Reivindicar Prêmio"}
+                    </button>
                     {premioParaReivindicar !== null && reivindicarRodadaId && (
-                        <p>
-                            Prêmio a receber nesta rodada: {formatEther(premioParaReivindicar)} ETH.
-                            {jaReivindicou && " (Você já reivindicou este prêmio)"}
+                        <p style={{marginTop: '10px'}}>
+                            Prêmio a receber para rodada #{reivindicarRodadaId}: <strong>{formatEther(premioParaReivindicar)} ETH</strong>.
+                            {jaReivindicou && <span style={{color: 'green', fontWeight: 'bold'}}> (Você já reivindicou este prêmio)</span>}
                         </p>
                     )}
-                    <button onClick={handleReivindicarPremio} disabled={isSubmitting || !reivindicarRodadaId || jaReivindicou || !premioParaReivindicar || premioParaReivindicar === 0n}>
-                        {isSubmitting ? "Processando..." : "Reivindicar"}
-                    </button>
+                     {!premioParaReivindicar && reivindicarRodadaId && !jaReivindicou && (
+                        <p style={{marginTop: '10px'}}>Nenhum prêmio para reivindicar nesta rodada ou dados ainda não carregados.</p>
+                    )}
                 </div>
             </>
           )}
 
-
-          {/* Painel de Admin */}
           {isOwner && isConnected && chain?.id === sepolia.id && (
             <>
               <hr style={{marginTop: '30px', marginBottom: '30px', borderTop: '2px dashed #ccc'}}/>
               <h2 style={{color: 'green', textAlign: 'center'}}>Painel do Administrador</h2>
               {isContractPaused && <p style={{color: 'red', textAlign: 'center', fontWeight: 'bold'}}>CONTRATO PAUSADO</p>}
 
-              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px'}}>
+              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px', borderRadius: '4px'}}>
                 <h3>Controle de Pausa</h3>
-                <button onClick={handlePausar} disabled={isSubmitting || isContractPaused}>Pausar Contrato</button>
-                <button onClick={handleDespausar} disabled={isSubmitting || !isContractPaused} style={{marginLeft: '10px'}}>Despausar Contrato</button>
+                <button onClick={handlePausar} disabled={isSubmitting || isContractPaused || isPausarPending || isPausarConfirming} style={(isSubmitting || isContractPaused || isPausarPending || isPausarConfirming) ? disabledButtonStyle : buttonStyle}>
+                    {isPausarPending || isPausarConfirming ? "Pausando..." : "Pausar Contrato"}
+                </button>
+                <button onClick={handleDespausar} disabled={isSubmitting || !isContractPaused || isDespausarPending || isDespausarConfirming} style={{marginLeft: '10px', ...((isSubmitting || !isContractPaused || isDespausarPending || isDespausarConfirming) ? disabledButtonStyle : buttonStyle)}}>
+                    {isDespausarPending || isDespausarConfirming ? "Despausando..." : "Despausar Contrato"}
+                </button>
               </div>
 
-              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px'}}>
+              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px', borderRadius: '4px'}}>
                 <h3>Gerenciar Rodada</h3>
                 <div>
                   Preço do Ticket para Nova Rodada (ETH, opcional, ex: 0.01):
-                  <input type="text" value={adminTicketPrice} onChange={(e) => setAdminTicketPrice(e.target.value)} placeholder="Padrão: Base" disabled={isSubmitting} />
-                  <button onClick={handleIniciarNovaRodada} disabled={isSubmitting || isContractPaused}>Iniciar Nova Rodada</button>
+                  <input type="text" value={adminTicketPrice} onChange={(e) => setAdminTicketPrice(e.target.value)} placeholder="Padrão: Base" disabled={isSubmitting || isWriteIniciarRodadaPending || isConfirmingIniciarRodada} style={inputStyle} />
+                  <button onClick={handleIniciarNovaRodada} disabled={isSubmitting || isContractPaused || isWriteIniciarRodadaPending || isConfirmingIniciarRodada} style={(isSubmitting || isContractPaused || isWriteIniciarRodadaPending || isConfirmingIniciarRodada) ? disabledButtonStyle : buttonStyle}>
+                    {isWriteIniciarRodadaPending || isConfirmingIniciarRodada ? "Iniciando..." : "Iniciar Nova Rodada"}
+                  </button>
                 </div>
                 <div style={{marginTop: '10px'}}>
                   ID da Rodada para Fechar (padrão: atual):
-                  <input type="number" value={adminRodadaIdFechar} onChange={(e) => setAdminRodadaIdFechar(e.target.value)} placeholder={`Atual: ${rodadaAtualId?.toString()}`} disabled={isSubmitting} />
-                  <button onClick={handleFecharApostas} disabled={isSubmitting || isContractPaused || !rodadaInfo || rodadaInfo.status !== 1}>Fechar Apostas</button>
+                  <input type="number" value={adminRodadaIdFechar} onChange={(e) => setAdminRodadaIdFechar(e.target.value)} placeholder={`Atual: ${rodadaAtualId?.toString() || 'N/A'}`} disabled={isSubmitting || isWriteFecharApostasPending || isConfirmingFecharApostas} style={inputStyle} />
+                  <button onClick={handleFecharApostas} disabled={isSubmitting || isContractPaused || !rodadaInfo || rodadaInfo.status !== 1 || isWriteFecharApostasPending || isConfirmingFecharApostas} style={(isSubmitting || isContractPaused || !rodadaInfo || rodadaInfo.status !== 1 || isWriteFecharApostasPending || isConfirmingFecharApostas) ? disabledButtonStyle : buttonStyle}>
+                    {isWriteFecharApostasPending || isConfirmingFecharApostas ? "Fechando..." : "Fechar Apostas"}
+                  </button>
                 </div>
                 <div style={{marginTop: '10px'}}>
                   <h4>Registrar Resultados da Federal</h4>
-                  ID da Rodada: <input type="number" value={adminRodadaIdResultados} onChange={e => setAdminRodadaIdResultados(e.target.value)} placeholder="ID da Rodada Fechada" disabled={isSubmitting} />
+                  ID da Rodada: <input type="number" value={adminRodadaIdResultados} onChange={e => setAdminRodadaIdResultados(e.target.value)} placeholder="ID da Rodada Fechada" disabled={isSubmitting || isWriteRegResultPending || isConfirmingRegResult} style={{...inputStyle, width: 'auto', marginRight: '10px'}} />
                   <br/>
                   {Array(5).fill(0).map((_, i) => (
-                    <div key={`milhar-adm-${i}`} style={{display: 'inline-block', marginRight: '10px'}}>
-                      Milhar {i + 1}: <input type="number" style={{width: '80px'}} value={adminMilhares[i]} onChange={(e) => {
+                    <div key={`milhar-adm-${i}`} style={{display: 'inline-block', marginRight: '10px', marginTop: '5px'}}>
+                      Milhar {i + 1}: <input type="number" style={{...inputStyle, width: '80px'}} value={adminMilhares[i]} onChange={(e) => {
                         const newMilhares = [...adminMilhares]; newMilhares[i] = e.target.value; setAdminMilhares(newMilhares);
-                      }} min="0" max="9999" disabled={isSubmitting} />
+                      }} min="0" max="9999" disabled={isSubmitting || isWriteRegResultPending || isConfirmingRegResult} />
                     </div>
                   ))}
-                  <button onClick={handleRegistrarResultados} disabled={isSubmitting || isContractPaused || !adminRodadaIdResultados || adminMilhares.some(m => m === "")}>Registrar Resultados</button>
+                  <button onClick={handleRegistrarResultados} disabled={isSubmitting || isContractPaused || !adminRodadaIdResultados || adminMilhares.some(m => m === "") || isWriteRegResultPending || isConfirmingRegResult} style={(isSubmitting || isContractPaused || !adminRodadaIdResultados || adminMilhares.some(m => m === "") || isWriteRegResultPending || isConfirmingRegResult) ? disabledButtonStyle : buttonStyle}>
+                    {isWriteRegResultPending || isConfirmingRegResult ? "Registrando..." : "Registrar Resultados"}
+                  </button>
                 </div>
               </div>
 
-              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px'}}>
-                <h3>Configurações Globais</h3>
+              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px', borderRadius: '4px'}}>
+                <h3>Configurações Globais (TODO)</h3>
                 <div>
                     Novo Preço Base do Ticket (ETH):
-                    <input type="text" value={adminNovoTicketBase} onChange={e => setAdminNovoTicketBase(e.target.value)} placeholder={`Atual: ${ticketPriceBase ? formatEther(ticketPriceBase) : 'N/A'}`} disabled={isSubmitting}/>
-                    {/* Implementar handleSetTicketPriceBase similar às outras funções de escrita */}
-                    <button onClick={() => alert("TODO: handleSetTicketPriceBase")} disabled={isSubmitting || isContractPaused}>Atualizar Preço Base</button>
+                    <input type="text" value={adminNovoTicketBase} onChange={e => setAdminNovoTicketBase(e.target.value)} placeholder={`Atual: ${ticketPriceBase ? formatEther(ticketPriceBase) : 'N/A'}`} disabled={isSubmitting} style={inputStyle}/>
+                    <button onClick={() => alert("TODO: handleSetTicketPriceBase")} disabled={isSubmitting || isContractPaused} style={buttonStyle}>Atualizar Preço Base</button>
                 </div>
                 <div style={{marginTop: '10px'}}>
                     Nova Taxa da Plataforma (%):
-                    <input type="number" value={adminNovaTaxaPlat} onChange={e => setAdminNovaTaxaPlat(e.target.value)} placeholder={`Atual: ${taxaPlataforma ? taxaPlataforma.toString() : 'N/A'}`} disabled={isSubmitting}/>
-                    {/* Implementar handleSetTaxaPlataforma similar */}
-                    <button onClick={() => alert("TODO: handleSetTaxaPlataforma")} disabled={isSubmitting || isContractPaused}>Atualizar Taxa</button>
+                    <input type="number" value={adminNovaTaxaPlat} onChange={e => setAdminNovaTaxaPlat(e.target.value)} placeholder={`Atual: ${taxaPlataforma ? taxaPlataforma.toString() : 'N/A'}`} disabled={isSubmitting} style={inputStyle}/>
+                    <button onClick={() => alert("TODO: handleSetTaxaPlataforma")} disabled={isSubmitting || isContractPaused} style={buttonStyle}>Atualizar Taxa</button>
                 </div>
               </div>
-              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px'}}>
-                <h3>Finanças</h3>
+              <div style={{border: '1px solid #eee', padding: '15px', marginBottom: '15px', borderRadius: '4px'}}>
+                <h3>Finanças (TODO)</h3>
                 <p>Taxas Acumuladas: {taxasAcumuladas ? formatEther(taxasAcumuladas) : "0.00"} ETH</p>
                 Endereço para Retirar Taxas:
-                <input type="text" value={adminRetirarTaxasPara} onChange={e => setAdminRetirarTaxasPara(e.target.value)} placeholder={address || "Seu endereço"} style={{width: '300px'}} disabled={isSubmitting}/>
-                {/* Implementar handleRetirarTaxas similar */}
-                <button onClick={() => alert("TODO: handleRetirarTaxas")} disabled={isSubmitting || !taxasAcumuladas || taxasAcumuladas === 0n}>Retirar Taxas</button>
+                <input type="text" value={adminRetirarTaxasPara} onChange={e => setAdminRetirarTaxasPara(e.target.value)} placeholder={address || "Seu endereço"} style={{...inputStyle, width: '300px'}} disabled={isSubmitting}/>
+                <button onClick={() => alert("TODO: handleRetirarTaxas")} disabled={isSubmitting || !taxasAcumuladas || taxasAcumuladas === 0n} style={buttonStyle}>Retirar Taxas</button>
               </div>
             </>
           )}
 
-          {/* Botão de Desconectar */}
           {isConnected && (
             <div style={{ textAlign: 'center', marginTop: '30px' }}>
-              <button onClick={() => disconnect()} style={{ /* ... (seu estilo) ... */ }} disabled={isSubmitting}>
+              <button onClick={() => disconnect()} style={isSubmitting ? disabledButtonStyle : buttonStyle} disabled={isSubmitting}>
                 Desconectar
               </button>
             </div>
