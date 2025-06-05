@@ -563,7 +563,7 @@ export default function HomePage() {
   // 4. Handler function
   // 5. useEffects para feedback
 
-  const { writeContract: writePausar, data: writePausarHash, ... } = useWriteContract(); // etc. para pausar
+  const { writeContract: writePausar, data: writePausarHash, isPending: isWritePausarPending, error: writePausarError } = useWriteContract(); // etc. para pausar
   const handlePausar = async () => {
     if (!isOwner) { /* ... */ return; }
     // Idealmente simular antes, mas para funções simples sem args:
@@ -574,7 +574,7 @@ export default function HomePage() {
   };
   // useEffect para writePausarHash...
 
-  const { writeContract: writeDespausar, data: writeDespausarHash, ... } = useWriteContract();
+  const { writeContract: writeDespausar, data: writeDespausarHash, isPending: isWriteDespausarPending, error: writeDespausarError } = useWriteContract();
   const handleDespausar = async () => {
     if (!isOwner) { /* ... */ return; }
     setIsSubmitting(true); setUiMessageType('info'); setUiMessage("Despausando contrato...");
