@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "lib": [
+    "lib": [ // "esnext" aqui já inclui ES2020, então está bom.
       "dom",
       "dom.iterable",
       "esnext"
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": false, // Considere habilitar "strict": true no futuro para um código mais robusto.
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "target": "ES2017",
+    "target": "ES2020", // <-- ALTERAÇÃO AQUI
     "plugins": [
       {
         "name": "next"
