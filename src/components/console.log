@@ -1,0 +1,33 @@
+// Dentro do seu componente React
+
+useEffect(() => {
+  const fetchContractData = async () => {
+    try {
+      console.log("1. Tentando buscar dados do contrato..."); // <-- Adicione este
+      setIsLoading(true); // Você mostra a mensagem "Carregando..."
+
+      // Sua lógica para chamar o contrato (exemplo com ethers.js)
+      const owner = await contract.owner();
+      const isPaused = await contract.isPaused();
+      const ticketPrice = await contract.ticketPrice();
+      // ... etc
+
+      console.log("2. Dados recebidos com sucesso!", { owner, isPaused, ticketPrice }); // <-- Adicione este
+
+      // Atualiza o estado com os dados
+      setOwner(owner);
+      setIsPaused(isPaused);
+      // ...etc
+
+    } catch (error) {
+      console.error("3. OCORREU UM ERRO AO BUSCAR DADOS!", error); // <-- Adicione este para pegar erros silenciosos
+    } finally {
+      console.log("4. Finalizando o carregamento."); // <-- Adicione este
+      setIsLoading(false); // Você deveria esconder a mensagem "Carregando..." aqui
+    }
+  };
+
+  if (contract) { // Garante que o contrato já foi instanciado
+    fetchContractData();
+  }
+}, [contract]); // Dependência do useEffect
