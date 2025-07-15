@@ -2,7 +2,7 @@
 
 import { createWeb3Modal } from '@web3modal/wagmi/react'
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-import { WagmiProvider } from 'wagmi'
+
 import { sepolia } from 'wagmi/chains' // Use a rede de teste que você estiver usando
 
 // 1. Obtenha o projectId no https://cloud.walletconnect.com

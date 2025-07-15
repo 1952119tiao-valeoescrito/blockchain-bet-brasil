@@ -1,6 +1,6 @@
 // components/WalletButton.js
 
-import { useEffect, useState } from 'react';
+
 
 // Substitua essa importação pela que você usa para o WalletConnect
 // Exemplo: import { EthereumProvider } from '@walletconnect/ethereum-provider'

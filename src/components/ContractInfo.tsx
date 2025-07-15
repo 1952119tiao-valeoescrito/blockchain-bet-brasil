@@ -13,8 +13,7 @@ const formatAddress = (addr?: string) => {
 
 export function ContractInfo() {
   const { data: owner } = useContractRead({ address: contractAddress, abi: contractAbi, functionName: 'owner' });
-  const { isConnected } = useAccount();
-
+ 
   // O componente só renderiza se o endereço do dono for carregado
   if (!owner) {
     return (

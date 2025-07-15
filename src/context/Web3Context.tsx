@@ -21,7 +21,7 @@ interface Web3ContextType {
     // --- Lógica do BlockchainContext (CORE) ---
     currentAccount: string;
     connectWallet: () => Promise<void>;
-    placeBet: (prognosticosX: number[], prognosticosY: number[]) => Promise<void>;
+    placeBet: (_prognosticosX: number[], _prognosticosY: number[]) => Promise<void>;
 
     // --- Funções de Controle ---
     setUiMessage: (message: UiMessage | null) => void;
@@ -75,11 +75,11 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     };
 
     // --- A GRANDE MÁGICA: A FUSÃO EM AÇÃO! ---
-    const placeBet = async (prognosticosX: number[], prognosticosY: number[]) => {
+    const placeBet = async (_prognosticosX: number[], _prognosticosY: number[]) => {
         setIsSubmitting(true); // <--- Lógica do BetContext
         setUiMessage({ text: "Processando sua aposta...", type: 'info' }); // <--- Lógica do BetContext
         try {
-            const lotteryContract = getLotteryContract(); // <--- Lógica do BlockchainContext
+            // const lotteryContract = getLotteryContract(); // <--- Lógica do BlockchainContext
             
             // !! AQUI VAI A LÓGICA DE APROVAR + APOSTAR !!
             // 1. Chamar o 'approve' do contrato do token
