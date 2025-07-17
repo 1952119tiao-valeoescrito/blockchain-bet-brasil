@@ -8,7 +8,7 @@ import { useAccount, useReadContract } from 'wagmi';
 import AdminRegisterResults from '@/components/AdminRegisterResults';
 import AdminRoundControls from '@/components/AdminRoundControls';
 import AdminSettings from '@/components/AdminSettings';
-import BlockChainBet.json from '@/abi/BlockChainBet.json';
+import BlockChainBet from '@/abi/BlockChainBet.json';
 
 export default function AdminPage() {
   const { address: userAddress, isConnected } = useAccount();
