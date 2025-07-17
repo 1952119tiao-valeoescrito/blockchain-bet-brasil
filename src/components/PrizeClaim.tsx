@@ -3,7 +3,7 @@
 "use client";
 
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/constants';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts'; 
 
 interface PrizeClaimProps {
   rodadaId: number;

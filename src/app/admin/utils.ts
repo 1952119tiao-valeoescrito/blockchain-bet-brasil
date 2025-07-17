@@ -25,10 +25,17 @@ export const handleAdminAction = async (
     try {
         await writeContractAsync(request);
         // O hook useWaitForTransactionReceipt cuidará da mensagem de sucesso
-    } catch (error: any) {
-        console.error(`Erro ao ${actionName}:`, error);
-        const errorMessage = error.shortMessage || "Ocorreu um erro na transação.";
-        setUiMessage({ text: `Falha: ${errorMessage}`, type: 'error' });
-        setIsSubmitting(false);
+   } catch (err: unknown) { // 1. Use 'unknown' em vez de 'any'
+    setIsSubmitting(false);
+    let errorMessage = "Ocorreu um erro desconhecido.";
+
+    // 2. Verifica se o erro é de fato um objeto de Erro
+    if (err instanceof Error) {
+        // As propriedades de erro do wagmi/viem não são padrão do tipo Error,
+        // então um 'as any' aqui é um mal menor e localizado.
+        errorMessage = (err as any).shortMessage || err.message;
     }
-};
+    
+    console.error(`Erro ao ${actionName}:`, err);
+    setUiMessage({ text: `Falha: ${errorMessage}`, type: 'error' });
+}

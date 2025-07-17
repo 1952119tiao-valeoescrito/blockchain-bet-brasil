@@ -1,10 +1,16 @@
+// src/app/premiacao/page.tsx - VERSÃO CORRIGIDA E LIMPA
+
 'use client';
 
 import { useState } from 'react';
-// Importamos o seu componente gênio!
+// Importamos o componente que faz o trabalho pesado.
 import PrizeClaim from '@/components/PrizeClaim';
 
-export default function PaginaDePremiacao() {
+// 1. LIMPEZA: A importação de Address e ABI foi removida.
+// Ela não era usada aqui e estava apontando para o lugar errado ('@/constants').
+// O componente 'PrizeClaim' já cuida de suas próprias importações.
+
+export default function PremiacaoPage() {
   // Estado para guardar o que o usuário digita no input
   const [numeroRodada, setNumeroRodada] = useState('');
   
@@ -12,9 +18,13 @@ export default function PaginaDePremiacao() {
   const [rodadaParaChecar, setRodadaParaChecar] = useState(0);
 
   const handleCheckRound = () => {
+    // Validação robusta para garantir que é um número positivo
     const id = parseInt(numeroRodada, 10);
     if (!isNaN(id) && id > 0) {
       setRodadaParaChecar(id);
+    } else {
+      // Opcional: Limpa a checagem se o input for inválido
+      setRodadaParaChecar(0);
     }
   };
 
@@ -34,11 +44,13 @@ export default function PaginaDePremiacao() {
             value={numeroRodada}
             onChange={(e) => setNumeroRodada(e.target.value)}
             placeholder="Nº da Rodada"
+            // 2. MELHORIA SEMÂNTICA: Adicionado 'min' para guiar o navegador
+            min="1"
             className="bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white text-center focus:ring-2 focus:ring-cyan-500"
           />
           <button
             onClick={handleCheckRound}
-            className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-6 rounded-md"
+            className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-6 rounded-md transition-colors"
           >
             Verificar Rodada
           </button>
@@ -46,9 +58,9 @@ export default function PaginaDePremiacao() {
       </div>
 
       {/* 
-        A MÁGICA FINAL!
-        A gente só renderiza o seu componente de lógica se o usuário
-        tiver de fato selecionado uma rodada para checar.
+        A MÁGICA ACONTECE AQUI!
+        O componente 'PrizeClaim' só é renderizado (e só faz chamadas na blockchain)
+        quando temos um número de rodada válido para verificar. Isso é muito eficiente.
       */}
       {rodadaParaChecar > 0 && (
         <PrizeClaim rodadaId={rodadaParaChecar} />

@@ -1,14 +1,14 @@
-// Em: src/app/layout.tsx
+// src/app/layout.tsx - VERSÃO CORRIGIDA E ALINHADA
 
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Providers } from "./providers";
 
-// IMPORTAÇÃO SEM CHAVES - ESTA É A CURA!
+// 1. CORREÇÃO PRINCIPAL: Importando o componente correto do arquivo correto.
+// Usamos 'as Providers' para renomear na importação, mantendo seu código limpo.
+import { ClientProviders as Providers } from "@/app/ClientProviders";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-// PASSO 1: ADICIONE A IMPORTAÇÃO DO GOOGLE ANALYTICS AQUI
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,11 +25,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-br">
-      {/* PASSO 2: INSIRA O COMPONENTE DO GOOGLE ANALYTICS AQUI */}
+      {/* A inclusão do Google Analytics aqui está perfeita. */}
       <GoogleAnalytics />
 
       <body className={`${inter.className} bg-slate-900 text-white`}>
+        {/* 2. O 'Providers' agora é o componente certo, vindo de ClientProviders.tsx */}
         <Providers>
+          {/* 3. ESTRUTURA EXCELENTE: Este layout com flexbox para o "sticky footer" é uma ótima prática. */}
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow container mx-auto p-4 md:p-6">

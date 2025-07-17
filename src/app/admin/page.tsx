@@ -1,23 +1,25 @@
 // Localização: src/app/admin/page.tsx
+
 "use client";
 
+// 1. APENAS a importação centralizada. O resto foi apagado.
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
 import { useAccount, useReadContract } from 'wagmi';
-
-// <<< CAMINHO CORRIGIDO PARA A ESTRUTURA ORGANIZADA
 import AdminRegisterResults from '@/components/AdminRegisterResults';
 import AdminRoundControls from '@/components/AdminRoundControls';
 import AdminSettings from '@/components/AdminSettings';
 
-import contractAbi from '@/abi/BlockChainBet.json';
-
-const contractAddress = '0xf8e81D47203A594245E36C48e151709F0C19fBe8';
-
 export default function AdminPage() {
   const { address: userAddress, isConnected } = useAccount();
 
-  const { data: ownerAddress, isLoading: isLoadingOwner, error: ownerError } = useReadContract({
-    address: contractAddress,
-    abi: contractAbi,
+  // 2. CORREÇÃO: Pegamos isLoading e error do hook e damos os nomes certos
+  const { 
+    data: ownerAddress, 
+    isLoading: isLoadingOwner, 
+    error: ownerError 
+  } = useReadContract({
+    address: BlockchainBetBrasilAddress,
+    abi: BlockchainBetBrasilABI,
     functionName: 'owner',
   });
 
@@ -38,7 +40,8 @@ export default function AdminPage() {
               <h1 className="text-2xl font-bold text-yellow-300">Erro ao Consultar Contrato</h1>
               <p className="mt-4 text-yellow-200">
                   Não foi possível ler o dono do contrato. Verifique se o endereço do contrato em 
-                  <code className="bg-gray-700 p-1 rounded mx-1">{`'${contractAddress}'`}</code> 
+                  {/* 3. CORREÇÃO: Usando a variável certa para a mensagem de erro */}
+                  <code className="bg-gray-700 p-1 rounded mx-1">{`'${BlockchainBetBrasilAddress}'`}</code> 
                   está correto e se você está na rede certa.
               </p>
               <pre className="mt-2 text-xs text-left text-red-300 bg-black/30 p-2 rounded whitespace-pre-wrap">

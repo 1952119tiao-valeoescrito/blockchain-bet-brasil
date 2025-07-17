@@ -1,8 +1,13 @@
+// src/app/page.tsx - NENHUMA CORREÇÃO NECESSÁRIA. CÓDIGO EXEMPLAR.
+
 'use client';
 
 import { useAccount } from 'wagmi';
+// 1. COMPONENTIZAÇÃO PERFEITA: A lógica complexa do formulário está em seu próprio arquivo.
 import BettingForm from '@/components/BettingForm';
 
+// 2. COMPONENTE INTERNO: Criar um sub-componente para a tela de boas-vindas
+//    mantém o código principal ainda mais limpo e organizado.
 const WelcomeScreen = () => (
   <div className="text-center text-white">
     <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
@@ -20,9 +25,8 @@ export default function HomePage() {
   const { isConnected } = useAccount();
 
   return (
-    // ===============================================
-    //      A MÁGICA DA CENTRALIZAÇÃO ESTÁ AQUI!
-    // ===============================================
+    // 3. RENDERIZAÇÃO CONDICIONAL ELEGANTE: O uso do operador ternário aqui é a forma
+    //    mais limpa e legível de alternar entre os dois estados da página.
     <div className="py-10 flex items-center justify-center">
       { isConnected ? <BettingForm /> : <WelcomeScreen /> }
     </div>

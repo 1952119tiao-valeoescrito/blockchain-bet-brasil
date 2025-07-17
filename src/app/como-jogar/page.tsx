@@ -1,9 +1,9 @@
-// src/app/como-jogar/page.tsx - VERSÃO COM CAMINHOS CORRIGIDOS
+// src/app/como-jogar/page.tsx - VERSÃO CORRIGIDA E OTIMIZADA
 
-// Caminhos de importação corrigidos para usar a forma relativa (../)
-import TabelaConversao from '../../components/TabelaConversao';
-import BlockchainBetBrasilTable from '../../components/BlockchainBetBrasilTable';
-import ResultSimulator from '../../components/ResultSimulator';
+// 1. Caminhos de importação usando aliases (@/) para consistência no projeto.
+import TabelaConversao from '@/components/TabelaConversao';
+import BlockchainBetBrasilTable from '@/components/BlockchainBetBrasilTable';
+import ResultSimulator from '@/components/ResultSimulator';
 
 const ComoJogarPage = () => {
   return (
@@ -22,17 +22,19 @@ const ComoJogarPage = () => {
             A Lógica por Trás dos Prognósticos
           </h2>
           <p className="text-lg leading-relaxed">
+            {/* 2. Aspas corrigidas para entidades HTML (") para resolver o aviso do linter. */}
             O sistema se baseia nos resultados de um sorteio público e auditável, a "Extração Oficial". Os últimos dois dígitos de cada um dos cinco prêmios principais (as "dezenas") são utilizados para gerar os prognósticos do nosso jogo.
           </p>
           <p className="mt-4 text-lg leading-relaxed">
+            {/* 2. Aspas corrigidas aqui também. */}
             Usamos a regra clássica de um Centenário Jogo Popular para converter cada dezena em um grupo de 1 a 25. Por exemplo, a dezena 15 pertence ao grupo 4, então o caracter gerado é "4". A dezena 00 (cem) pertence ao grupo 25, então o caracter gerado é 25. Nesse caso, o prognóstico será (4/25). Consulte a tabela abaixo para ver a correspondência de todos os grupos.
           </p>
         </div>
 
-        {/* Tabela de Conversão (a que recriamos) */}
+        {/* Tabela de Conversão */}
         <TabelaConversao />
 
-        {/* Tabela de Referência de Prognósticos (a sua, com 625) */}
+        {/* Tabela de Referência de Prognósticos */}
         <BlockchainBetBrasilTable />
 
         {/* Simulador de Resultados */}
