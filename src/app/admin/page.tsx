@@ -71,9 +71,9 @@ export default function AdminPage() {
         <p className="mt-2 text-gray-400">Gestão completa do Blockchain Bet Brasil.</p>
       </div>
 
-      <AdminRoundControls />
-      <AdminRegisterResults />
-      <AdminSettings />
+     <@/components/AdminRegisterResults />
+      <@/components/AdminRoundControls />
+      <@/components/AdminSettings />
     </div>
   );
 }
