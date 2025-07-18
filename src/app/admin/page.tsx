@@ -66,14 +66,15 @@ export default function AdminPage() {
   // Se chegou até aqui, é o Admin!
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-8 p-4">
-      <div className="text-center border-b border-slate-700 pb-4">
-        <h1 className="text-4xl font-bold">Painel do Administrador</h1>
-        <p className="mt-2 text-gray-400">Gestão completa do Blockchain Bet Brasil.</p>
-      </div>
+        <div className="text-center border-b border-slate-700 pb-4">
+          <h1 className="text-4xl font-bold">Painel do Administrador</h1>
+          <p className="mt-2 text-gray-400">Gestão completa do Blockchain Bet Brasil.</p>
+        </div>
 
-     <@/components/AdminRegisterResults />
-      <@/components/AdminRoundControls />
-      <@/components/AdminSettings />
-    </div>
+        {/* CORRIGIDO! */}
+        <AdminRegisterResults />
+        <AdminRoundControls />
+        <AdminSettings />
+      </div>
   );
 }
