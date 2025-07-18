@@ -5,7 +5,7 @@
 // 1. APENAS a importação centralizada. O resto foi apagado.
 import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
 import { useAccount, useReadContract } from 'wagmi';
-import AdminRegisterResults from "@/components/AdminRegisterResults";
+import AdminRegisterResults from '@/components/AdminRegisterResults';
 import AdminRoundControls from '@/components/AdminRoundControls';
 import AdminSettings from '@/components/AdminSettings';
 import BlockChainBet from '@/abi/BlockChainBet.json';
