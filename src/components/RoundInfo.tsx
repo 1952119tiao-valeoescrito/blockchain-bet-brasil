@@ -4,7 +4,7 @@
 
 import { useReadContract } from 'wagmi';
 import { formatEther } from 'viem';
-import abi from '@/contracts/BlockChainBetBrasil.json';
+import abi from '@/contracts/BlockChainBet.json';
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 

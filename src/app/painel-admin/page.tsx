@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 // 1. FONTE ÚNICA DA VERDADE: Corrigido para buscar do local padrão do projeto.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilAbi } from '@/contracts';
 import { Skeleton } from "@/components/ui/skeleton";
 
 // --- FUNÇÕES AUXILIARES ---
@@ -62,7 +62,7 @@ export default function PainelAdminPage() {
     // 5. EXPERIÊNCIA DO USUÁRIO (UX): State para mensagens de feedback, muito melhor que 'alert()'.
     const [uiMessage, setUiMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
 
-    const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilABI };
+    const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilAbi };
 
     const { data: owner, isLoading: isLoadingOwner } = useReadContract({ ...contractConfig, functionName: 'owner' });
     const { data: rodadaAtualId, refetch: refetchRodadaId } = useReadContract({ ...contractConfig, functionName: 'rodadaAtualId' });

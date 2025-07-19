@@ -8,12 +8,12 @@ import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/constants'; // Supondo que
 
 // Se não tiver o arquivo de constantes, defina aqui mesmo
 // import contractAbi from '@/abi/BlockchainBetBrasil.json';
-// const contractAddress = '0xSEU_ENDERECO_AQUI';
+// const BlockchainBetBrasilAddrees = '0x9D586CbA6c856B4979C1D2e5115ecdBAc85184E8';
 
 export function RecentBets() {
 
   const { data: apostas, isLoading, error } = useReadContract({
-    address: CONTRACT_ADDRESS, // ou contractAddress
+    address: CONTRACT_ADDRESS, // ou BlockchainBetBrasilAddrees
     abi: CONTRACT_ABI, // ou contractAbi
     functionName: 'getApostasDaRodada',
     args: [1, 0, 100], // Pega as primeiras 100 apostas da rodada 1

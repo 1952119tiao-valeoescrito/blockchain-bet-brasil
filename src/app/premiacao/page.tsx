@@ -6,7 +6,7 @@ import { useState } from 'react';
 // Importamos o componente que faz o trabalho pesado.
 import PrizeClaim from '@/components/PrizeClaim';
 
-// 1. LIMPEZA: A importação de Address e ABI foi removida.
+// 1. LIMPEZA: A importação de Address e Abi foi removida.
 // Ela não era usada aqui e estava apontando para o lugar errado ('@/constants').
 // O componente 'PrizeClaim' já cuida de suas próprias importações.
 

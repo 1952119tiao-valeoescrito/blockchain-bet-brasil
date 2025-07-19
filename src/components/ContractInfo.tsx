@@ -5,7 +5,7 @@
 // 1. Hook 'useReadContract' (o correto) em vez de 'useContractRead'.
 import { useReadContract } from 'wagmi'; 
 // 2. Importação da nossa fonte única da verdade.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts'; 
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilAbi } from '@/contracts'; 
 
 // Helper para formatar o endereço (continua útil)
 const formatAddress = (addr?: string) => {
@@ -17,7 +17,7 @@ export function ContractInfo() {
   // 3. Usando a sintaxe correta do hook e as variáveis importadas corretamente.
   const { data: owner, isLoading } = useReadContract({ 
     address: BlockchainBetBrasilAddress, 
-    abi: BlockchainBetBrasilABI, 
+    abi: BlockchainBetBrasilAbi, 
     functionName: 'owner' 
   });
  
