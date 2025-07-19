@@ -23,7 +23,7 @@ export const handleAdminAction = async (
     }
 
     try {
-        await writeContractAsync(request);
+        await writeContractAsync(request as any); // Adicione "as any"
         // O hook useWaitForTransactionReceipt cuidará da mensagem de sucesso
    } catch (err: unknown) { // 1. Use 'unknown' em vez de 'any'
     setIsSubmitting(false);
