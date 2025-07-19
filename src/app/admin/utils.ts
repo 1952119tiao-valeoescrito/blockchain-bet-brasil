@@ -8,7 +8,7 @@ type SetIsSubmitting = (isSubmitting: boolean) => void;
 
 export const handleAdminAction = async (
     actionName: string,
-    request: SimulateContractReturnType['request'] | undefined,
+    request: useSimulateContractReturnType['request'] | undefined,
     writeContractAsync: WriteContractMutateAsync<any, any>,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
