@@ -20,6 +20,13 @@ const getStatusText = (status: number) => {
     }
 };
 
+// --- TIPAGEM DOS DADOS DO CONTRATO ---
+// ✅ CORREÇÃO 1: Definimos o "formato" exato que esperamos receber da blockchain.
+// O tipo [bigint, bigint] corresponde a uma tupla com dois uints (ex: id, status)
+// Ajuste este tipo se a sua struct 'Rodada' no Solidity tiver mais campos.
+type RodadaType = [bigint, bigint, ...any[]];
+
+
 // --- SUB-COMPONENTE PARA INPUTS ---
 // Tipagem forte e lógica de input isolada.
 type ResultadosInputProps = {
@@ -55,7 +62,6 @@ export default function PainelAdminPage() {
     const [uiMessage, setUiMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
 
     // --- LEITURA DE CONTRATO ---
-    // ✅ CORREÇÃO APLICADA: Parâmetros passados diretamente para cada hook, sem o objeto intermediário 'contractConfig'.
     const { data: owner, isLoading: isLoadingOwner } = useReadContract({
         address: BlockchainBetBrasilAddress,
         abi: BlockchainBetBrasilABI,
@@ -68,39 +74,30 @@ export default function PainelAdminPage() {
         functionName: 'rodadaAtualId'
     });
     
-    const { data: rodada, isLoading: isLoadingRodada, refetch: refetchRodada } = useReadContract({
+    // ✅ CORREÇÃO 2: Informamos ao hook qual o tipo de dado que ele vai receber usando <RodadaType>.
+    const { data: rodada, isLoading: isLoadingRodada, refetch: refetchRodada } = useReadContract<RodadaType>({
         address: BlockchainBetBrasilAddress,
         abi: BlockchainBetBrasilABI,
         functionName: 'rodadas',
-        args: [rodadaAtualId!], // O '!' é seguro por causa da checagem 'enabled' abaixo
-        query: { enabled: typeof rodadaAtualId === 'bigint' } // Hook só roda se rodadaAtualId for um bigint válido
+        args: [rodadaAtualId!], 
+        query: { enabled: typeof rodadaAtualId === 'bigint' }
     });
 
     // --- ESCRITA NO CONTRATO E FEEDBACK ---
-    const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
-    
-    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-  hash,
-});
+    const { data: hash, writeContract, isPending } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-    // Efeitos para limpar mensagens e mostrar erros
-    // Efeito para reagir ao SUCESSO da transação
-useEffect(() => {
-  // Se a bandeira 'isConfirmed' levantar (virar true)...
-  if (isConfirmed) {
-    // ...execute a nossa lógica de sucesso.
-    setUiMessage({ text: 'Ação executada com sucesso na blockchain!', type: 'success' });
-    refetchRodadaId();
-    refetchRodada();
-  }
-}, [isConfirmed, refetchRodadaId, refetchRodada]); // Dependências do efeito
+    useEffect(() => {
+      if (isConfirmed) {
+        setUiMessage({ text: 'Ação executada com sucesso na blockchain!', type: 'success' });
+        refetchRodadaId();
+        refetchRodada();
+      }
+    }, [isConfirmed, refetchRodadaId, refetchRodada]);
 
     // --- LÓGICA DE NEGÓCIO E AÇÕES ---
     const isAdmin = isConnected && !isLoadingOwner && owner === account;
-    const statusInfo = getStatusText(rodada ? Number(rodada[1]) : 0);
-    const statusRodada = rodada ? Number(rodada[1]) : -1;
-
-    // ✅ CORREÇÃO APLICADA: 'handleAction' também passa os parâmetros diretamente, sem 'contractConfig'.
+    
     const handleAction = (functionName: string, args: any[] = []) => {
         setUiMessage({ text: 'Abra sua carteira para assinar a transação...', type: 'info' });
         writeContract({
@@ -140,6 +137,11 @@ useEffect(() => {
 
     if (!isConnected) return <p className="text-center text-yellow-400 text-lg mt-10">Conecte sua carteira para acessar o painel.</p>;
     if (!isAdmin && !isLoadingOwner) return <p className="text-center text-red-500 text-lg mt-10">Acesso negado. Esta página é restrita ao administrador.</p>;
+
+    // ✅ CORREÇÃO 3: Movemos a lógica que DEPENDE da 'rodada' para depois da verificação de 'isLoading'.
+    // Agora, só tentamos ler 'rodada[1]' quando temos certeza que os dados já chegaram.
+    const statusRodada = isLoading || !rodada ? -1 : Number(rodada[1]);
+    const statusInfo = getStatusText(statusRodada);
 
     return (
         <main className="flex flex-col items-center justify-center w-full px-4 py-8" style={{ minHeight: 'calc(100vh - 160px)' }}>
