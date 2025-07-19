@@ -2,7 +2,7 @@
 
 // 1. O ENDEREÇO DO SEU CONTRATO NA REDE DE TESTE SEPOLIA
 //    Confirme se este é o endereço mais recente do seu deploy!
-export const BlockchainBetBrasilAddress = '0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B';
+export const BlockchainBetBrasilAddress = '0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B' as const;
 
 // 2. A ABI MAIS COMPLETA E ATUALIZADA DO SEU CONTRATO
 export const BlockchainBetBrasilABI = [
@@ -827,4 +827,4 @@ export const BlockchainBetBrasilABI = [
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-];
+] as const;
