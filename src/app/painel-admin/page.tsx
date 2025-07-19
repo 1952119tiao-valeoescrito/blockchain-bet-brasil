@@ -79,28 +79,21 @@ export default function PainelAdminPage() {
     // --- ESCRITA NO CONTRATO E FEEDBACK ---
     const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
     
-    const { isLoading: isConfirming } = useWaitForTransactionReceipt({
-      hash,
-      onSuccess: () => {
-        setUiMessage({ text: 'Ação executada com sucesso na blockchain!', type: 'success' });
-        refetchRodadaId();
-        refetchRodada();
-      },
-    });
+    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  hash,
+});
 
     // Efeitos para limpar mensagens e mostrar erros
-    useEffect(() => {
-        if (uiMessage) {
-            const timer = setTimeout(() => setUiMessage(null), 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [uiMessage]);
-    
-    useEffect(() => {
-        if (writeError) {
-            setUiMessage({ text: writeError.shortMessage || 'Falha na execução da transação.', type: 'error' });
-        }
-    }, [writeError]);
+    // Efeito para reagir ao SUCESSO da transação
+useEffect(() => {
+  // Se a bandeira 'isConfirmed' levantar (virar true)...
+  if (isConfirmed) {
+    // ...execute a nossa lógica de sucesso.
+    setUiMessage({ text: 'Ação executada com sucesso na blockchain!', type: 'success' });
+    refetchRodadaId();
+    refetchRodada();
+  }
+}, [isConfirmed, refetchRodadaId, refetchRodada]); // Dependências do efeito
 
     // --- LÓGICA DE NEGÓCIO E AÇÕES ---
     const isAdmin = isConnected && !isLoadingOwner && owner === account;
