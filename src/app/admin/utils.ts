@@ -1,14 +1,14 @@
 // src/components/admin/utils.ts
 
 import { WriteContractMutateAsync } from 'wagmi/query';
-import { type UseSimulateContractParameters } from 'wagmi'; 
+import { type UseSimulateContractReturnType } from 'wagmi'; 
 
 type SetUiMessage = (message: { text: string; type: 'success' | 'error' | 'info' }) => void;
 type SetIsSubmitting = (isSubmitting: boolean) => void;
 
 export const handleAdminAction = async (
     actionName: string,
-    request: UseSimulateContractParameters | undefined,
+    request: UseSimulateContractReturnType['data'] | undefined,
     writeContractAsync: WriteContractMutateAsync<any, any>,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
