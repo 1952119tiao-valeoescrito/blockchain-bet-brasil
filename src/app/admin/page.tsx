@@ -3,7 +3,7 @@
 "use client";
 
 // 1. APENAS a importação centralizada. O resto foi apagado.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilAbi } from '@/contracts';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
 import { useAccount, useReadContract } from 'wagmi';
 import AdminRegisterResults from "@/components/AdminRegisterResults";
 import AdminRoundControls from '@/components/AdminRoundControls';
@@ -20,7 +20,7 @@ export default function AdminPage() {
     error: ownerError 
   } = useReadContract({
     address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilAbi,
+    abi: BlockchainBetBrasilABI,
     functionName: 'owner',
   });
 

@@ -2,7 +2,7 @@
 
 // COLE A SUA ABI GIGANTE AQUI DENTRO DOS COLCHETES
 
-export const contractAbi = [
+export const BlockchainBetBrasilABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",

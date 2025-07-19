@@ -16,7 +16,7 @@ if (!projectId) {
 const metadata = {
   name: 'Blockchain Bet Brasil',
   description: 'Apostas descentralizadas na blockchain.',
-  url: 'http://localhost:3000', // Substitua pelo seu domínio em produção
+  url: 'https://blockchain-betbrasil.io', // Substitua pelo seu domínio em produção
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 

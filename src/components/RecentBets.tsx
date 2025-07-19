@@ -7,14 +7,14 @@ import { formatEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/lib/constants'; // Supondo que você tenha um arquivo assim
 
 // Se não tiver o arquivo de constantes, defina aqui mesmo
-// import contractAbi from '@/abi/BlockchainBetBrasil.json';
+// import contractABI from '@/abi/BlockchainBetBrasil.json';
 // const BlockchainBetBrasilAddrees = '0x9D586CbA6c856B4979C1D2e5115ecdBAc85184E8';
 
 export function RecentBets() {
 
   const { data: apostas, isLoading, error } = useReadContract({
     address: CONTRACT_ADDRESS, // ou BlockchainBetBrasilAddrees
-    abi: CONTRACT_ABI, // ou contractAbi
+    abi: CONTRACT_ABI, // ou contractABI
     functionName: 'getApostasDaRodada',
     args: [1, 0, 100], // Pega as primeiras 100 apostas da rodada 1
     // A MÁGICA: Isso faz o hook "ouvir" a blockchain e re-validar os dados a cada novo bloco!

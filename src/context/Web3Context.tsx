@@ -5,7 +5,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { ethers } from 'ethers';
 
 // ------ AS CHAVES DO NOSSO IMPÉRIO VIRÃO AQUI ------
-import { contractABI, contractAddress } from '../utils/constants'; 
+import { BlockchainBetBrasilABI, BlockchainBetBrasilAddress } from '../utils/constants'; 
 
 // --- DEFINIÇÃO DAS ESTRUTURAS (TypeScript) ---
 interface UiMessage {
@@ -38,7 +38,7 @@ const getLotteryContract = () => {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const lotteryContract = new ethers.Contract(contractAddress, contractABI, signer);
+    const lotteryContract = new ethers.Contract(BlockchainBetBrasilAddress, BlockchainBetBrasilABI, signer);
     return lotteryContract;
 }
 

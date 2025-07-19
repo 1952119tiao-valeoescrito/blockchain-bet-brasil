@@ -6,7 +6,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther } from 'viem';
 // 1. CORREÇÃO DE IMPORTAÇÃO: Corrigido o caminho para usar nossa fonte única da verdade.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilAbi } from '@/contracts';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
 
 interface SavedBet {
   id: string;
@@ -23,7 +23,7 @@ export default function BettingForm() {
     // 2. MELHORIA DE UX: Adicionado o mesmo sistema de feedback do painel de admin.
     const [uiMessage, setUiMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
 
-    const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilAbi };
+    const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilABI };
     
     const { data: rodadaAtualId } = useReadContract({ ...contractConfig, functionName: 'rodadaAtualId' });
     const { data: ticketPrice } = useReadContract({ ...contractConfig, functionName: 'ticketPriceBase' });

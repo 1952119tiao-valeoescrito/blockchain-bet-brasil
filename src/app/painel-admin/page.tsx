@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 // 1. FONTE ÚNICA DA VERDADE: Corrigido para buscar do local padrão do projeto.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilAbi } from '@/contracts';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
 import { Skeleton } from "@/components/ui/skeleton";
 
 // --- FUNÇÕES AUXILIARES ---

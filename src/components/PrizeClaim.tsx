@@ -3,7 +3,7 @@
 "use client";
 
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilAbi } from '@/contracts'; 
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts'; 
 
 interface PrizeClaimProps {
   rodadaId: number;
@@ -15,7 +15,7 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
   // 1. Verifica se a rodada atual já está em fase de pagamento
   const { data: infoBasica } = useReadContract({
     address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilAbi,
+    abi: BlockchainBetBrasilABI,
     functionName: 'getRodadaInfoBasica',
     args: [BigInt(rodadaId)],
     query: { enabled: rodadaId > 0 }
@@ -27,7 +27,7 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
   // 2. Busca o prêmio do usuário conectado
   const { data: premio, isLoading: loadingPremio } = useReadContract({
     address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilAbi,
+    abi: BlockchainBetBrasilABI,
     functionName: 'getPremioParaReivindicar',
     args: [BigInt(rodadaId), address],
     query: { enabled: isConnected && rodadaId > 0 && podeReivindicar } // Só busca se for relevante
@@ -36,7 +36,7 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
   // 3. Verifica se o prêmio já foi sacado
   const { data: foiReivindicado, isLoading: loadingReivindicado } = useReadContract({
     address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilAbi,
+    abi: BlockchainBetBrasilABI,
     functionName: 'checarSePremioFoiReivindicado',
     args: [BigInt(rodadaId), address],
     query: { enabled: isConnected && rodadaId > 0 && podeReivindicar }
@@ -50,7 +50,7 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
   const handleClaim = () => {
     writeContract({
       address: BlockchainBetBrasilAddress,
-      abi: BlockchainBetBrasilAbi,
+      abi: BlockchainBetBrasilABI,
       functionName: 'reivindicarPremio',
       args: [BigInt(rodadaId)],
     });

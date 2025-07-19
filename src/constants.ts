@@ -1,6 +1,6 @@
 // Garanta que o ABI do seu contrato esteja completo aqui dentro.
 // Você pode pegar isso do arquivo .json na pasta /artifacts/contracts/
-const BlockchainBetBrasilAbi = [
+const BlockchainBetBrasilABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -627,5 +627,5 @@ const const BlockchainBetBrasilAddress = "0xf8e81D47203A594245E36C48e151709F0C19
 // A linha mais importante: EXPORTAR o objeto com os nomes certos.
 export const BlockchainBetBrasilConfig = {
   address: BlockchainBetBrasilAddress,
-  abi: BlockchainBetBrasilAbi,
+  abi: BlockchainBetBrasilABI,
 };

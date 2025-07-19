@@ -1,6 +1,6 @@
 // src/contracts/index.ts
 
-export const BlockchainBetBrasilAbi = [
+export const BlockchainBetBrasilABI = [
 	{
 		"inputs": [
 			{
