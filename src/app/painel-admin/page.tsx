@@ -62,7 +62,7 @@ export default function PainelAdminPage() {
     // 5. EXPERIÊNCIA DO USUÁRIO (UX): State para mensagens de feedback, muito melhor que 'alert()'.
     const [uiMessage, setUiMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
 
-    const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilAbi };
+    const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilABI };
 
     const { data: owner, isLoading: isLoadingOwner } = useReadContract({ ...contractConfig, functionName: 'owner' });
     const { data: rodadaAtualId, refetch: refetchRodadaId } = useReadContract({ ...contractConfig, functionName: 'rodadaAtualId' });
