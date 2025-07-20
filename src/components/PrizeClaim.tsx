@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/constants/abi'; // Ajuste o caminho se necessário
+import { BlockchainBetBrasilABI, BlockchainBetBrasilAddress } from '@/constants/abi'; // Ajuste o caminho se necessário
 
 // Hook customizado para evitar chamadas excessivas à blockchain enquanto o usuário digita
 function useDebounce<T>(value: T, delay: number): T {
