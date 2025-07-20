@@ -1,5 +1,3 @@
-// tsconfig.json - VERSÃO FINAL E CORRIGIDA
-
 {
   "compilerOptions": {
     "lib": [
@@ -23,20 +21,14 @@
         "name": "next"
       }
     ],
+    "target": "ES2017",
 
-     // =========================================================
-    // =========== A CORREÇÃO ESTÁ NESSAS DUAS LINHAS ==========
-    // =========================================================
-    "baseUrl": ".", // <-- ESTA É A LINHA QUE FALTAVA! O PONTO DE PARTIDA.
+    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"  // <-- E este é o mapa. Agora eles funcionam juntos.
+        "./src/*"
       ]
-    },
-    // =========================================================
-    // =========================================================
-
-    "target": "ES2017"
+    }
   },
   "include": [
     "next-env.d.ts",
