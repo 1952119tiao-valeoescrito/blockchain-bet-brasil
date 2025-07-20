@@ -3,7 +3,7 @@
 "use client";
 
 // 1. APENAS a importação centralizada. O resto foi apagado.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
+import { BlockchainBetBrasilAddress, import { BlockchainBetBrasilABI } from '@/constants/abi';
 import { useAccount, useReadContract } from 'wagmi';
 import AdminRegisterResults from "@/components/AdminRegisterResults";
 import AdminRoundControls from '@/components/AdminRoundControls';
