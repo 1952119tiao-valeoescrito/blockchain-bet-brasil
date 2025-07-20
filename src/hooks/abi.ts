@@ -824,4 +824,4 @@ export const BlockchainBetBrasilABI = [
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-];
+] as const;
