@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "echo '--- INSPECIONANDO O ARQUIVO ABI ANTES DO BUILD ---' && cat ./src/contracts/BlockchainBetBrasilABI.ts && echo '--- FIM DA INSPEÇÃO ---' && next build",
+    "build": "next build"
     "start": "next start",
     "lint": "next lint"
   },
