@@ -14,6 +14,7 @@ export default function AdminPage() {
   const { address: userAddress, isConnected } = useAccount();
 
   // 2. CORREÇÃO: Pegamos isLoading e error do hook e damos os nomes certos
+console.log('INSPECIONANDO O ABI:', JSON.stringify(BlockchainBetBrasilABI, null, 2));
   const { 
     data: ownerAddress, 
     isLoading: isLoadingOwner, 
