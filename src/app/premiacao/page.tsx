@@ -63,7 +63,7 @@ export default function PremiacaoPage() {
         quando temos um número de rodada válido para verificar. Isso é muito eficiente.
       */}
       {rodadaParaChecar > 0 && (
-        <PrizeClaim rodadaId={rodadaParaChecar} />
+        <PrizeClaim />
       )}
 
     </div>
