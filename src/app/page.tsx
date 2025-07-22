@@ -27,8 +27,8 @@ export default function HomePage() {
         */}
         <p className="text-md text-gray-400">
           Ganha com 5, 4, 3, 2 e até com 1 ponto apenas. {' '}
-          <Link href="/premiacao" className="font-semibold text-cyan-400 hover:text-cyan-300 hover:underline transition">
-            Saiba mais sobre a premiação.
+          <Link href="/BlockchainBetBrasilTable" className="font-semibold text-cyan-400 hover:text-cyan-300 hover:underline transition">
+            Os prognósticos válidos.
           </Link>
         </p>
       </div>
