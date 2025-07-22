@@ -1,10 +1,10 @@
 // src/components/Profile.tsx
 
 import { useAccount, useBalance, useContractRead } from 'wagmi';
-import { bettingContractABI } from '../abi/BettingContract.json'; // Importando o Abi
+import { bettingContractABI } from '../abi/BettingContract.json'; // Importando o ABI
 import styles from './Profile.module.css';
 
-const BlockchainBetBrasilAddrees = '0x9D586CbA6c856B4979C1D2e5115ecdBAc85184E8'; // COLOQUE O ENDEREÇO DO SEU CONTRATO DEPLOYADO AQUI
+const contractAddress = '0x9D586CbA6c856B4979C1D2e5115ecdBAc85184E8'; // COLOQUE O ENDEREÇO DO SEU CONTRATO DEPLOYADO AQUI
 
 export function Profile() {
   const { address, isConnected } = useAccount();
@@ -12,7 +12,7 @@ export function Profile() {
 
   // Exemplo de leitura de contrato: ler o valor total de apostas
   const { data: totalApostas, isLoading: isLoadingTotalApostas } = useContractRead({
-    address: BlockchainBetBrasilAddrees,
+    address: contractAddress,
     abi: bettingContractABI,
     functionName: 'totalApostas', // Mude para o nome da função no seu contrato
     watch: true, // Fica "escutando" por mudanças

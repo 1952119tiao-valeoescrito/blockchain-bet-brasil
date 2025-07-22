@@ -2,7 +2,7 @@
 
 import { createWeb3Modal } from '@web3modal/wagmi/react'
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-
+import { WagmiProvider } from 'wagmi'
 import { sepolia } from 'wagmi/chains' // Use a rede de teste que você estiver usando
 
 // 1. Obtenha o projectId no https://cloud.walletconnect.com
@@ -16,7 +16,7 @@ if (!projectId) {
 const metadata = {
   name: 'Blockchain Bet Brasil',
   description: 'Apostas descentralizadas na blockchain.',
-  url: 'https://blockchain-betbrasil.io', // Substitua pelo seu domínio em produção
+  url: 'http://localhost:3000', // Substitua pelo seu domínio em produção
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 

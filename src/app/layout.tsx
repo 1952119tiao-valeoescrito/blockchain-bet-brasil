@@ -1,45 +1,40 @@
-// src/app/layout.tsx - VERSÃO CORRIGIDA E ALINHADA
+// src/app/layout.tsx
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import '@rainbow-me/rainbowkit/styles.css'; 
+import { ClientProviders } from './ClientProviders'; // Corrigido: ClientProviders
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
-import "./globals.css";
-import { Inter } from "next/font/google";
+const inter = Inter({ subsets: ['latin'] });
 
-// 1. CORREÇÃO PRINCIPAL: Importando o componente correto do arquivo correto.
-// Usamos 'as Providers' para renomear na importação, mantendo seu código limpo.
-import { ClientProviders as Providers } from "@/app/ClientProviders";
-
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import GoogleAnalytics from "@/components/GoogleAnalytics";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata = {
-  title: "BlockchainBet Brasil",
-  description: "O BBB da Web3 - Esse Jogo É Animal.",
+export const metadata: Metadata = {
+  title: 'Blockchain Bet Brasil',
+  description: 'O BBB da Web3!',
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
+   
   return (
-    <html lang="pt-br">
-      {/* A inclusão do Google Analytics aqui está perfeita. */}
-      <GoogleAnalytics />
-
-      <body className={`${inter.className} bg-slate-900 text-white`}>
-        {/* 2. O 'Providers' agora é o componente certo, vindo de ClientProviders.tsx */}
-        <Providers>
-          {/* 3. ESTRUTURA EXCELENTE: Este layout com flexbox para o "sticky footer" é uma ótima prática. */}
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow container mx-auto p-4 md:p-6">
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </Providers>
+    <html lang="pt-br" suppressHydrationWarning>
+      <body className={`${inter.className} bg-slate-900 text-slate-50 min-h-screen flex flex-col`}>
+        {/*
+          ESTA É A ESTRUTURA MAIS SEGURA E PADRÃO.
+          O ClientProviders envolve TUDO, garantindo que qualquer componente,
+          seja no Header, Footer ou na página principal, tenha acesso aos hooks.
+        */}
+        <ClientProviders>
+          <Header />
+          <main className="flex-grow p-4 md:p-6 flex justify-center">
+            {children}
+          </main>
+          <Footer />
+        </ClientProviders>
       </body>
     </html>
   );

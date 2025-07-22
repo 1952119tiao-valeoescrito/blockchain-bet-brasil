@@ -1,47 +1,36 @@
-// src/app/ClientProviders.tsx - VERSÃO CORRIGIDA E FUNCIONAL
+// src/app/ClientProviders.tsx
 
-'use client'; // Mantido, pois provedores de contexto são do lado do cliente.
+'use client'; // ESSA É A LINHA MAIS IMPORTANTE!
 
-// --- IMPORTS CORRIGIDOS ---
-// 1. LIMPEZA: Removido 'defaultWagmiConfig' do Web3Modal, que era a fonte do conflito.
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { WagmiProvider, createConfig, http } from 'wagmi'; // 2. IMPORTAÇÃO CORRETA: Adicionado 'createConfig' e 'http' do wagmi.
-import { sepolia } from 'wagmi/chains';
+import { WagmiProvider } from 'wagmi';
+import { sepolia } from 'wagmi/chains'; // Ou a rede que você estiver usando
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
 
-// --- CONFIGURAÇÃO ---
-
-const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+// 1. Obtenha o projectId no https://cloud.walletconnect.com
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID!;
 if (!projectId) {
-  // Mantido o erro, é uma ótima prática de segurança.
   throw new Error('Variável de ambiente NEXT_PUBLIC_PROJECT_ID não definida');
 }
 
-// 3. CONFIGURAÇÃO PADRÃO RAINBOWKIT: Esta é a maneira correta de configurar o wagmi para funcionar com o RainbowKit.
-// Agora sim estamos usando 'getDefaultWallets', que havia sido importado mas estava esquecido.
-const { connectors } = getDefaultWallets({
-  appName: 'Blockchain Bet Brasil', // O nome do seu app
+// 2. Configure as chains e crie a config do wagmi
+const chains = [sepolia] as const;
+const config = defaultWagmiConfig({
+  chains,
   projectId,
-});
-
-const config = createConfig({
-  connectors,
-  chains: [sepolia],
-  transports: {
-    // Para cada chain, definimos um 'transport'. 'http' é o padrão.
-    [sepolia.id]: http(),
+  metadata: {
+    name: 'Blockchain Bet Brasil',
+    description: 'O BBB da Web3!',
+    url: 'https://blockchain-betbrasil.io', // Altere para seu domínio
+    icons: ['https://avatars.githubusercontent.com/u/37784886'],
   },
-  // A propriedade 'metadata' não é usada aqui, o 'appName' em getDefaultWallets já ajuda.
 });
 
-// --- CLIENT ---
 const queryClient = new QueryClient();
 
-
-// --- PROVEDOR ---
 export function ClientProviders({ children }: { children: React.ReactNode }) {
-  // 4. ESTRUTURA MANTIDA: A ordem dos provedores estava correta. O problema era o 'config' injetado.
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

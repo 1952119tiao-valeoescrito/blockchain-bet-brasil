@@ -1,34 +1,41 @@
-// src/app/page.tsx - NENHUMA CORREÇÃO NECESSÁRIA. CÓDIGO EXEMPLAR.
+// src/app/page.tsx
 
-'use client';
+"use client"; 
 
-import { useAccount } from 'wagmi';
-// 1. COMPONENTIZAÇÃO PERFEITA: A lógica complexa do formulário está em seu próprio arquivo.
+// Importe o componente Link do Next.js
+import Link from 'next/link';
+
+// Importe o seu componente de formulário
 import BettingForm from '@/components/BettingForm';
 
-// 2. COMPONENTE INTERNO: Criar um sub-componente para a tela de boas-vindas
-//    mantém o código principal ainda mais limpo e organizado.
-const WelcomeScreen = () => (
-  <div className="text-center text-white">
-    <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
-      Bem-vindo <br /> BlockchainBet Brasil!
-    </h1>
-    <div className="mt-4 text-lg text-slate-300 space-y-1">
-      <p>O BBB da Web3 - Esse Jogo É Animal.</p>
-      <p>Você sonha, nós entregamos.</p>
-      <p>Ganha com 5, 4, 3, 2 e até com 1 ponto apenas.</p>
-    </div>
-  </div>
-);
-
 export default function HomePage() {
-  const { isConnected } = useAccount();
-
   return (
-    // 3. RENDERIZAÇÃO CONDICIONAL ELEGANTE: O uso do operador ternário aqui é a forma
-    //    mais limpa e legível de alternar entre os dois estados da página.
-    <div className="py-10 flex items-center justify-center">
-      { isConnected ? <BettingForm /> : <WelcomeScreen /> }
+    <div className="w-full max-w-4xl text-center flex flex-col items-center gap-8">
+      
+      {/* Container com o texto de chamada */}
+      <div className="flex flex-col items-center gap-2">
+        <h1 className="text-4xl md:text-5xl font-bold text-white">
+          Blockchain Bet Brasil
+        </h1>
+        <p className="text-lg text-gray-300">
+          O BBB da Web3 - Esse Jogo é Animal.
+        </p>
+
+        {/* 
+          <<<<< AQUI A MORALZINHA ESTRATÉGICA >>>>>
+          Adicionamos o link para a página de premiação.
+        */}
+        <p className="text-md text-gray-400">
+          Ganha com 5, 4, 3, 2 e até com 1 ponto apenas. {' '}
+          <Link href="/premiacao" className="font-semibold text-cyan-400 hover:text-cyan-300 hover:underline transition">
+            Saiba mais sobre a premiação.
+          </Link>
+        </p>
+      </div>
+
+      {/* Nosso formulário, que vai aparecer quando a carteira conectar */}
+      <BettingForm />
+
     </div>
   );
 }

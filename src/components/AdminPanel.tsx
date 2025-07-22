@@ -3,8 +3,8 @@
 // ... (seus imports continuam os mesmos)
 import { useState } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { BlockchainBetBrasilABI } from '@/contracts/abi';
-import { BlockchainBetBrasilAddrees } from '@/contracts/address';
+import { contractAbi } from '@/contracts/abi';
+import { contractAddress } from '@/contracts/address';
 import { sepolia } from 'wagmi/chains';
 import { parseEther } from 'viem';
 import { RodadaInfo } from '@/types';

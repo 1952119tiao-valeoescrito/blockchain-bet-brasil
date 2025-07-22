@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 
 // 2. Crie sua configuração do Wagmi
 // Use o seu Project ID do .env.local aqui
-const projectId = process.env.NEXT_PUBLIC_PROJECT_ID!; // O '!' garante ao TypeScript que essa variável existe
+const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID!; // O '!' garante ao TypeScript que essa variável existe
 
 export const config = createConfig({
   chains: [sepolia],

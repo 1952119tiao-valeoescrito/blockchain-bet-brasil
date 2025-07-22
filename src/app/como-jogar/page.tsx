@@ -1,48 +1,67 @@
-// src/app/como-jogar/page.tsx - VERSÃO CORRIGIDA E OTIMIZADA
+// Localização: src/app/como-jogar/page.tsx
 
-// 1. Caminhos de importação usando aliases (@/) para consistência no projeto.
-import TabelaConversao from '@/components/TabelaConversao';
-import BlockchainBetBrasilTable from '@/components/BlockchainBetBrasilTable';
-import ResultSimulator from '@/components/ResultSimulator';
+// Importação opcional para metadados da página
+import type { Metadata } from 'next';
 
-const ComoJogarPage = () => {
-  return (
-    <div className="container mx-auto px-4 py-8 text-gray-300">
-      <div className="max-w-7xl mx-auto flex flex-col gap-12">
-        
-        {/* Seção Principal */}
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-white mb-2">Como Funciona o Jogo</h1>
-          <p className="text-lg text-cyan-400">Transparência é nosso lema. Entenda cada passo do processo.</p>
-        </div>
-
-        {/* Card de Lógica */}
-        <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700 max-w-4xl mx-auto">
-          <h2 id="logica-prognosticos" className="text-2xl font-bold text-white mb-4">
-            A Lógica por Trás dos Prognósticos
-          </h2>
-          <p className="text-lg leading-relaxed">
-            {/* 2. Aspas corrigidas para entidades HTML (") para resolver o aviso do linter. */}
-            O sistema se baseia nos resultados de um sorteio público e auditável, a "Extração Oficial". Os últimos dois dígitos de cada um dos cinco prêmios principais (as "dezenas") são utilizados para gerar os prognósticos do nosso jogo.
-          </p>
-          <p className="mt-4 text-lg leading-relaxed">
-            {/* 2. Aspas corrigidas aqui também. */}
-            Usamos a regra clássica de um Centenário Jogo Popular para converter cada dezena em um grupo de 1 a 25. Por exemplo, a dezena 15 pertence ao grupo 4, então o caracter gerado é "4". A dezena 00 (cem) pertence ao grupo 25, então o caracter gerado é 25. Nesse caso, o prognóstico será (4/25). Consulte a tabela abaixo para ver a correspondência de todos os grupos.
-          </p>
-        </div>
-
-        {/* Tabela de Conversão */}
-        <TabelaConversao />
-
-        {/* Tabela de Referência de Prognósticos */}
-        <BlockchainBetBrasilTable />
-
-        {/* Simulador de Resultados */}
-        <ResultSimulator />
-
-      </div>
-    </div>
-  );
+export const metadata: Metadata = {
+  title: 'Como Jogar - Blockchain Bet Brasil',
+  description: 'Aprenda o passo a passo para fazer sua aposta e concorrer a prêmios na loteria Web3 mais transparente do Brasil.',
 };
 
-export default ComoJogarPage;
+// Componente de Estilização para as Seções (reutilizável)
+function InfoSection({ title, children }: { title: string, children: React.ReactNode }) {
+    return (
+        <section className="bg-slate-800/50 p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-blue-400 mb-4 border-b-2 border-blue-500 pb-2">
+                {title}
+            </h2>
+            <div className="prose prose-invert max-w-none text-slate-300">
+                {children}
+            </div>
+        </section>
+    );
+}
+
+export default function HowToPlayPage() {
+  return (
+    <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 text-left">
+        <div className="text-center">
+            <h1 className="text-4xl font-bold">Como Apostar na Blockchain Bet Brasil</h1>
+            <p className="mt-2 text-lg text-gray-400">É simples, rápido e 100% transparente. Siga o guia!</p>
+        </div>
+
+        <InfoSection title="Guia Rápido: 4 Passos Para a Vitória">
+            <ol className="list-decimal list-inside space-y-4">
+                <li>
+                    <strong>Conecte sua Carteira Digital:</strong> Primeiro, clique em "Conectar Carteira" no topo do site. Você precisa de uma carteira como a MetaMask para jogar e receber seus prêmios.
+                </li>
+                <li>
+                    <strong>Monte sua Aposta:</strong> No formulário, preencha os 5 campos com seus prognósticos no formato X/Y (ex: 23/2), onde X e Y são números de 1 a 25. Em seguida, defina o valor da aposta em ETH.
+                </li>
+                <li>
+                    <strong>Submeta e Confirme:</strong> Clique em "Submeter Aposta" e aprove a transação que aparecerá na sua carteira. Sua aposta será registrada de forma segura e imutável na blockchain.
+                </li>
+                <li>
+                    <strong>Acompanhe e Reivindique:</strong> Após o sorteio, volte ao site para ver os resultados. Se for um vencedor, um botão "Reivindicar Prêmio" aparecerá para você transferir seus ganhos diretamente para sua carteira.
+                </li>
+            </ol>
+        </InfoSection>
+
+        <InfoSection title="Entendendo o Jogo: A Magia da Transparência">
+            <h4>O que é um "Token de Aposta"?</h4>
+            <p>Cada aposta com 5 prognósticos que você faz é como um bilhete único, um "token" que representa sua participação no sorteio.</p>
+            
+            <h4>Como os Resultados são Gerados?</h4>
+            <p>Utilizamos os 5 milhares da Loteria Federal, que são processados pelo nosso Smart Contract em conjunto com a tecnologia <strong>Chainlink VRF (Verifiable Random Function)</strong>. Isso garante que os resultados (X/Y) sejam aleatórios, seguros e impossíveis de manipular.</p>
+
+            <h4>Por que na Blockchain?</h4>
+            <p><strong>Segurança e Justiça:</strong> Todo o processo é executado por um Smart Contract, sem intervenção humana. As regras são as mesmas para todos e não podem ser alteradas. <strong>Transparência Total:</strong> Qualquer pessoa pode auditar as transações e os resultados no Etherscan. <strong>Pagamentos Instantâneos:</strong> Você tem total controle sobre seus prêmios e os recebe em segundos.</p>
+        </InfoSection>
+        
+        <InfoSection title="Aumente Suas Chances!">
+             <p>Não há limites! Você pode fazer quantas apostas desejar em cada rodada. Mais "tokens" na disputa significam mais chances de ser um dos nossos grandes vencedores. Boa sorte!</p>
+        </InfoSection>
+
+    </div>
+  );
+}

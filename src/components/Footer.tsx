@@ -1,16 +1,16 @@
 // src/components/Footer.tsx
 
-import Link from 'next/link';
+import Link from 'next/link'; // Importe o componente Link do Next.js
 
-// A CORREÇÃO ESTÁ AQUI: O 'default' voltou para casa!
-export default function Footer() {
+export function Footer() {
     const currentYear = new Date().getFullYear();
   
     return (
-      <footer className="w-full bg-slate-800 p-4">
+      <footer className="bg-slate-800 p-4 mt-auto">
         <div className="container mx-auto text-center text-slate-400">
             <p>© {currentYear} Blockchain Bet Brasil. Todos os direitos reservados.</p>
             
+            {/* LINKS ADICIONADOS AQUI */}
             <div className="mt-2 flex justify-center items-center gap-x-4 text-sm">
                 <Link href="/termos-de-uso" className="hover:text-white hover:underline transition-colors">
                     Termos de Uso
@@ -23,4 +23,4 @@ export default function Footer() {
         </div>
       </footer>
     );
-}
+  }
