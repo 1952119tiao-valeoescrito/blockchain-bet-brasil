@@ -26,7 +26,7 @@ export default function ComoJogarPage() {
             Distribuição do Prêmio
           </h2>
           <p className="mb-4">
-            O montante total destinado à premiação dos jogadores corresponde a <strong>95% de toda a arrecadação bruta</strong> de cada concurso. Os 5% restantes são utilizados para cobrir os custos operacionais da plataforma e o reinvestimento na comunidade.
+            O montante total destinado à premiação dos jogadores corresponde a <strong>95% de toda a arrecadação bruta</strong> de cada concurso. Os 5% restantes são utilizados para cobrir os custos operacionais da plataforma.
           </p>
           <div className="bg-slate-900/50 p-6 rounded-md space-y-3">
             <p><strong><span className="text-green-400">●</span> 5 Acertos (Quina):</strong> 50% do prêmio</p>
@@ -36,7 +36,7 @@ export default function ComoJogarPage() {
             <p><strong><span className="text-orange-400">●</span> 1 Acerto (Ponto):</strong> 5% do prêmio</p>
           </div>
           <p className="text-sm mt-4 text-slate-400">
-            * Todos os acertos são baseados nos resultados do 1º ao 5º prêmio da extração oficial da Loteria Federal do Brasil.
+            * Todos os acertos são baseados nos resultados do 1º ao 5º prêmio da extração da Loteria Oficial do Brasil.
           </p>
         </section>
 
@@ -62,7 +62,7 @@ export default function ComoJogarPage() {
             </div>
             <div>
               <h3 className="text-xl font-bold text-slate-100">Quando e onde são realizados os sorteios?</h3>
-              <p>Nossos resultados são 100% baseados nas extrações oficiais da <strong>Loteria Federal do Brasil</strong>. Os concursos são periódicos e alinhados com o calendário da Loteria Federal.</p>
+              <p>Nossos resultados são 100% baseados nas extrações da <strong>Loteria Oficial do Brasil</strong>. Os concursos são periódicos e alinhados com o calendário da mencionada loteria.</p>
             </div>
           </div>
         </section>

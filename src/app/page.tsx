@@ -31,6 +31,7 @@ export default function HomePage() {
             Os prognósticos válidos.
           </Link>
         </p>
+<p>Você sonha, nós entregamos.</p>
       </div>
 
       {/* Nosso formulário, que vai aparecer quando a carteira conectar */}

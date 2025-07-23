@@ -10,7 +10,7 @@ import AdminSettings from '@/components/AdminSettings';
 
 import contractAbi from '@/abi/BlockChainBet.json';
 
-const contractAddress = '0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B';
+const contractAddress = '0x00376502EA15B19E5aD363B47126cBF4903cCbD0';
 
 export default function AdminPage() {
   const { address: userAddress, isConnected } = useAccount();

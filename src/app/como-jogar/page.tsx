@@ -36,13 +36,13 @@ export default function HowToPlayPage() {
                     <strong>Conecte sua Carteira Digital:</strong> Primeiro, clique em "Conectar Carteira" no topo do site. Você precisa de uma carteira como a MetaMask para jogar e receber seus prêmios.
                 </li>
                 <li>
-                    <strong>Monte sua Aposta:</strong> No formulário, preencha os 5 campos com seus prognósticos no formato X/Y (ex: 23/2), onde X e Y são números de 1 a 25. Em seguida, defina o valor da aposta em ETH.
+                    <strong>Monte sua Aposta:</strong> No formulário, preencha os 5 campos com seus prognósticos no formato X/Y (ex: 23/2), onde X e Y são números de 1 a 25. Em seguida, defina o valor da aposta em ETH/MATIC.
                 </li>
                 <li>
                     <strong>Submeta e Confirme:</strong> Clique em "Submeter Aposta" e aprove a transação que aparecerá na sua carteira. Sua aposta será registrada de forma segura e imutável na blockchain.
                 </li>
                 <li>
-                    <strong>Acompanhe e Reivindique:</strong> Após o sorteio, volte ao site para ver os resultados. Se for um vencedor, um botão "Reivindicar Prêmio" aparecerá para você transferir seus ganhos diretamente para sua carteira.
+                    <strong>Acompanhe e Reivindique:</strong> Após o sorteio, volte ao site para ver os resultados. Se for um vencedor com 5, 4, 3, 2 ou 1 ponto apenas, um botão "Reivindicar Prêmio" aparecerá para você transferir seus ganhos diretamente para sua carteira.
                 </li>
             </ol>
         </InfoSection>
@@ -52,14 +52,14 @@ export default function HowToPlayPage() {
             <p>Cada aposta com 5 prognósticos que você faz é como um bilhete único, um "token" que representa sua participação no sorteio.</p>
             
             <h4>Como os Resultados são Gerados?</h4>
-            <p>Utilizamos os 5 milhares da Loteria Federal, que são processados pelo nosso Smart Contract em conjunto com a tecnologia <strong>Chainlink VRF (Verifiable Random Function)</strong>. Isso garante que os resultados (X/Y) sejam aleatórios, seguros e impossíveis de manipular.</p>
+            <p>Utilizamos os 5 milhares sorteados aos sabados, pela Loteria Oficial do Brasil, que são processados pelo nosso Smart Contract em conjunto com a tecnologia <strong>Chainlink VRF (Verifiable Random Function)</strong>. Isso garante que os resultados finais (X/Y) sejam aleatórios, seguros e impossíveis de manipular.</p>
 
             <h4>Por que na Blockchain?</h4>
             <p><strong>Segurança e Justiça:</strong> Todo o processo é executado por um Smart Contract, sem intervenção humana. As regras são as mesmas para todos e não podem ser alteradas. <strong>Transparência Total:</strong> Qualquer pessoa pode auditar as transações e os resultados no Etherscan. <strong>Pagamentos Instantâneos:</strong> Você tem total controle sobre seus prêmios e os recebe em segundos.</p>
         </InfoSection>
         
         <InfoSection title="Aumente Suas Chances!">
-             <p>Não há limites! Você pode fazer quantas apostas desejar em cada rodada. Mais "tokens" na disputa significam mais chances de ser um dos nossos grandes vencedores. Boa sorte!</p>
+             <p>Não há limites! Você pode fazer quantas apostas desejar em cada rodada. Mais "tokens" na disputa significam mais chances de ser um dos nossos grandes vencedores, quer seja com 5, 4, 3, 2 ou 1 ponto apenas. Boa sorte!</p>
         </InfoSection>
 
     </div>
