@@ -9,7 +9,7 @@ type SetIsSubmitting = (isSubmitting: boolean) => void;
 export const handleAdminAction = async (
     actionName: string,
     request: SimulateContractReturnType['request'] | undefined,
-    writeContractAsync: WriteContractMutateAsync<any, any>,
+    writeContractAsync: WriteContractMutateAsync<string, string>,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
 ) => {
@@ -25,7 +25,7 @@ export const handleAdminAction = async (
     try {
         await writeContractAsync(request);
         // O hook useWaitForTransactionReceipt cuidará da mensagem de sucesso
-    } catch (error: any) {
+    } catch (error: string) {
         console.error(`Erro ao ${actionName}:`, error);
         const errorMessage = error.shortMessage || "Ocorreu um erro na transação.";
         setUiMessage({ text: `Falha: ${errorMessage}`, type: 'error' });

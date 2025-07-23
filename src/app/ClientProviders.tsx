@@ -3,7 +3,7 @@
 'use client'; // ESSA É A LINHA MAIS IMPORTANTE!
 
 import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import {RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { sepolia } from 'wagmi/chains'; // Ou a rede que você estiver usando
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
