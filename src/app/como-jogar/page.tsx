@@ -1,6 +1,5 @@
-// Localização: src/app/como-jogar/page.tsx
+// CÓDIGO FINAL E CORRIGIDO para: src/app/como-jogar/page.tsx
 
-// Importação opcional para metadados da página
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
