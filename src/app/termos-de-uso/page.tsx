@@ -1,4 +1,4 @@
-// src/app/termos-de-uso/page.tsx
+// Localização: src/app/termos-de-uso/page.tsx
 
 import type { Metadata } from 'next';
 
