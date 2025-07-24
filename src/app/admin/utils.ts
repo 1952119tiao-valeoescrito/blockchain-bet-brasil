@@ -1,15 +1,16 @@
 // src/app/admin/utils.ts
 
 import { WriteContractMutateAsync } from 'wagmi/query';
-import { UseSimulateContractReturnType } from 'wagmi';
+// MUDANÇA 1: Importamos o 'SimulateContractData'
+import { SimulateContractData } from 'wagmi';
 
 type SetUiMessage = (message: { text: string; type: 'success' | 'error' | 'info' }) => void;
 type SetIsSubmitting = (isSubmitting: boolean) => void;
 
 export const handleAdminAction = async (
     actionName: string,
-    // A MUDANÇA É EXATAMENTE AQUI: ['data']['request']
-    request: UseSimulateContractReturnType['data']['request'] | undefined,
+    // MUDANÇA 2: Usamos o tipo direto e mais limpo
+    request: SimulateContractData['request'] | undefined,
     writeContractAsync: WriteContractMutateAsync<string, string>,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
