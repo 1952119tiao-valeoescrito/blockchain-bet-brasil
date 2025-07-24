@@ -6,7 +6,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther } from 'viem';
 // 1. CORREÇÃO DE IMPORTAÇÃO: Corrigido o caminho para usar nossa fonte única da verdade.
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts/index';
 
 interface SavedBet {
   id: string;

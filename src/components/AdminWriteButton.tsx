@@ -1,4 +1,4 @@
-// CÓDIGO CORRIGIDO para: src/components/AdminWriteButton.tsx
+// src/components/AdminWriteButton.tsx
 
 "use client";
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
@@ -50,7 +50,8 @@ export default function AdminWriteButton({ functionName, message, args, onSucces
             </button>
             {error && (
                 <div className="mt-2 text-red-400 text-sm bg-red-900/50 p-2 rounded">
-                    Erro: {error.shortMessage || error.message}
+                    {/* <-- A ÚNICA MUDANÇA É AQUI! Usamos apenas .message --> */}
+                    Erro: {error.message}
                 </div>
             )}
         </div>
