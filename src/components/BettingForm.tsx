@@ -1,11 +1,10 @@
-// src/components/BettingForm.tsx - VERSÃO CORRIGIDA, SEGURA E COM MELHOR UX
+// src/components/BettingForm.tsx - VERSÃO FINAL, OBRA DE ARTE COMPLETA
 
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther } from 'viem';
-// 1. CORREÇÃO DE IMPORTAÇÃO: Corrigido o caminho para usar nossa fonte única da verdade.
 import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts';
 
 interface SavedBet {
@@ -16,11 +15,11 @@ interface SavedBet {
 }
 
 export default function BettingForm() {
+    // CORREÇÃO 1: O hook retorna 'address' (minúsculo).
     const { address: account, isConnected } = useAccount();
     
     const [prognosticos, setPrognosticos] = useState(Array(5).fill(''));
     const [historicoLocal, setHistoricoLocal] = useState<SavedBet[]>([]);
-    // 2. MELHORIA DE UX: Adicionado o mesmo sistema de feedback do painel de admin.
     const [uiMessage, setUiMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
 
     const contractConfig = { address: BlockchainBetBrasilAddress, abi: BlockchainBetBrasilABI };
@@ -28,16 +27,10 @@ export default function BettingForm() {
     const { data: rodadaAtualId } = useReadContract({ ...contractConfig, functionName: 'rodadaAtualId' });
     const { data: ticketPrice } = useReadContract({ ...contractConfig, functionName: 'ticketPriceBase' });
     
-    // 3. LÓGICA DE TRANSAÇÃO MODERNIZADA: Separamos o 'write' do 'wait'.
     const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
     
-    const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
       hash,
-      onSuccess: (receipt) => {
-        setUiMessage({ text: 'Aposta registrada com sucesso!', type: 'success' });
-        salvarApostaNoHistorico(); // Salva no histórico apenas com a confirmação da blockchain.
-        setPrognosticos(Array(5).fill(''));
-      },
     });
 
     // Efeitos para limpar mensagens e mostrar erros de forma reativa.
@@ -50,27 +43,36 @@ export default function BettingForm() {
     
     useEffect(() => {
         if (writeError) {
-            setUiMessage({ text: writeError.shortMessage || 'Erro ao enviar aposta.', type: 'error' });
+            // CORREÇÃO 2: Exorcizamos o fantasma do 'shortMessage' para sempre.
+            setUiMessage({ text: writeError.message || 'Erro ao enviar aposta.', type: 'error' });
         }
     }, [writeError]);
 
-
+    // Este useEffect agora vai funcionar corretamente com o 'account' (address) correto.
     useEffect(() => {
         if (account) {
             const historicoSalvo = localStorage.getItem(`historico_apostas_${account}`);
             if (historicoSalvo) setHistoricoLocal(JSON.parse(historicoSalvo));
         } else {
-            setHistoricoLocal([]); // Limpa o histórico se o usuário desconectar.
+            setHistoricoLocal([]);
         }
     }, [account]);
+
+    // Este useEffect cuida do sucesso da transação de forma limpa.
+    useEffect(() => {
+        if (isSuccess) {
+            setUiMessage({ text: 'Aposta registrada com sucesso!', type: 'success' });
+            salvarApostaNoHistorico();
+            setPrognosticos(Array(5).fill(''));
+        }
+    }, [isSuccess]);
 
     const formatarValor = (valor: bigint | undefined): string => {
         return typeof valor === 'bigint' ? formatEther(valor) : '...';
     };
 
-    // Esta função agora é chamada apenas no onSuccess do 'useWaitForTransactionReceipt'
     const salvarApostaNoHistorico = () => {
-        if (typeof rodadaAtualId !== 'bigint' || typeof ticketPrice !== 'bigint') return;
+        if (typeof rodadaAtualId !== 'bigint' || typeof ticketPrice !== 'bigint' || !account) return;
         const novaAposta: SavedBet = {
             id: hash || Date.now().toString(),
             rodadaId: Number(rodadaAtualId),
@@ -79,13 +81,10 @@ export default function BettingForm() {
         };
         const novoHistorico = [novaAposta, ...historicoLocal];
         setHistoricoLocal(novoHistorico);
-        if (account) {
-            localStorage.setItem(`historico_apostas_${account}`, JSON.stringify(novoHistorico));
-        }
+        localStorage.setItem(`historico_apostas_${account}`, JSON.stringify(novoHistorico));
     };
 
     const handleInputChange = (index: number, value: string) => {
-        // Regex um pouco mais restritivo para guiar o usuário.
         if (/^[\d\/]{0,5}$/.test(value)) {
             const novosPrognosticos = [...prognosticos];
             novosPrognosticos[index] = value;
@@ -95,15 +94,13 @@ export default function BettingForm() {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        setUiMessage(null); // Limpa mensagens antigas
+        setUiMessage(null);
 
         if (prognosticos.some(p => !/^\d{1,2}\/\d{1,2}$/.test(p))) {
             setUiMessage({ text: "Formato inválido. Use número/número (ex: 7/21).", type: 'error' });
             return;
         }
 
-        // 4. CORREÇÃO CRÍTICA DO BUG: A forma de extrair os números estava errada.
-        // A lógica anterior passava um array para Number(), o que resultava em NaN.
         try {
             const x = prognosticos.map(p => BigInt(p.split('/')[0]));
             const y = prognosticos.map(p => BigInt(p.split('/')[1]));
@@ -152,7 +149,6 @@ export default function BettingForm() {
                     <input type="text" readOnly value={formatarValor(ticketPrice)} className="w-full mt-1 bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white font-mono" />
                 </div>
 
-                {/* Bloco de Mensagem de Feedback */}
                 {uiMessage && (
                     <div className={`p-3 rounded-md text-center font-semibold ${uiMessage.type === 'success' ? 'bg-green-500/20 text-green-300' : uiMessage.type === 'error' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
                         {uiMessage.text}
@@ -164,7 +160,6 @@ export default function BettingForm() {
                 </button>
             </form>
 
-            {/* O histórico local continua funcionando como antes, agora com mais precisão */}
             {historicoLocal.length > 0 && (
                  <div className="mt-8 bg-slate-800/50 p-6 rounded-lg">
                     <h3 className="text-xl font-bold text-white text-center mb-4">Seu Histórico Recente (Local)</h3>
