@@ -5,7 +5,7 @@ import { useAccount, useReadContract } from 'wagmi';
 
 // <<< CAMINHO CORRIGIDO PARA A ESTRUTURA ORGANIZADA
 import AdminRegisterResults from '@/components/AdminRegisterResults';
-import AdminRoundControls from '@/components/AdminRoundControls';
+// import AdminRoundControls from '@/components/AdminRoundControls';
 import AdminSettings from '@/components/AdminSettings';
 
 import contractAbi from '@/abi/BlockChainBet.json';
@@ -67,7 +67,7 @@ export default function AdminPage() {
         <p className="mt-2 text-gray-400">Gestão completa do Blockchain Bet Brasil.</p>
       </div>
 
-      <AdminRoundControls />
+      // <AdminRoundControls />
       <AdminRegisterResults />
       <AdminSettings />
     </div>
