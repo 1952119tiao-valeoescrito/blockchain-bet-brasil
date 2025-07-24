@@ -1,55 +1,50 @@
-// src/components/BlockchainBetBrasilTable.tsx - VERSÃO COM TEXTO CORRIGIDO
+// CÓDIGO CORRIGIDO para: src/components/BlockchainBetBrasilTable.tsx
 
-'use client';
+"use client";
+import React, { useState } from 'react';
 
-// Este componente gera e exibe a tabela de referência com todos os 625 prognósticos.
-const BlockchainBetBrasilTable = () => {
-  // Gera os dados da tabela dinamicamente
-  const tableRows = Array.from({ length: 25 }, (_, i) => {
-    const rowNumber = i + 1;
-    const cells = Array.from({ length: 25 }, (_, j) => {
-      const cellNumber = j + 1;
-      return `${rowNumber}/${cellNumber}`;
-    });
-    return cells;
-  });
+// ... (outros imports se houver)
+
+// Mock de dados para demonstração
+const mockBets = [
+  { id: 1, user: '0x123...abc', bet: '10/5', amount: '0.01 ETH', status: 'Aberta' },
+  { id: 2, user: '0x456...def', bet: '22/1', amount: '0.05 ETH', status: 'Aberta' },
+  { id: 3, user: '0x789...ghi', bet: '7/19', amount: '0.02 ETH', status: 'Fechada' },
+];
+
+export default function BlockchainBetBrasilTable() {
+  const [bets] = useState(mockBets);
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex flex-col gap-8 text-gray-200 bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-lg p-6 md:p-8">
-      
-      {/* 1. Cabeçalho */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-cyan-400 sm:text-4xl">
-          Tabela de Referência de Prognósticos
-        </h1>
-        {/* TEXTO CORRIGIDO ABAIXO */}
-        <p className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto">
-          Esta tabela serve como uma referência completa de todos os 625 prognósticos possíveis em nosso sistema, no formato <span className="font-mono text-yellow-400">"x/y"</span>. Use-a para consultar e planejar suas apostas.
-        </p>
-      </div>
-
-      {/* 2. Tabela de Prognósticos */}
-      <div className="overflow-x-auto rounded-lg border border-slate-700">
-        <table className="min-w-full divide-y divide-slate-700">
-          <tbody className="bg-slate-800 divide-y divide-slate-700">
-            {tableRows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td 
-                    key={cellIndex} 
-                    className="p-2 whitespace-nowrap text-center font-mono text-sm text-gray-300 hover:bg-slate-700 transition-colors"
-                  >
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-slate-800/50 rounded-lg shadow-lg">
+        <thead className="bg-slate-900">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Apostador</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Aposta (X/Y)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Valor</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-700">
+          {bets.map((bet) => (
+            <tr key={bet.id} className="hover:bg-slate-700/50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{bet.id}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-mono" title={`Endereço completo: ${bet.user}`}>{bet.user}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{bet.bet}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{bet.amount}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  bet.status === 'Aberta' ? 'bg-green-800 text-green-100' : 'bg-red-800 text-red-100'
+                }`}>
+                  {bet.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
-
-export default BlockchainBetBrasilTable;
+}
