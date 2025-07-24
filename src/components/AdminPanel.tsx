@@ -1,107 +1,116 @@
+// src/components/AdminPanel.tsx - VERSÃO FINAL CONSTRUÍDA
+
 'use client';
 
-// ... (seus imports continuam os mesmos)
-import { useState } from 'react';
+// 1. FAXINA NOS IMPORTS: Mantemos só o que é usado de verdade.
+import { useEffect } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { BlockchainBetBrasilAbi } from '@/contracts/abi';
-import { BlockchainBetBrasilAddrees } from '@/contracts/address';
-import { sepolia } from 'wagmi/chains';
-import { parseEther } from 'viem';
+import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts'; // Usando nossa fonte única
 import { RodadaInfo } from '@/types';
 
+// 2. PROPS: Exatamente como você definiu. Perfeito.
 type AdminPanelProps = {
   isSubmitting: boolean;
   setIsSubmitting: (isSubmitting: boolean) => void;
-  setUiMessage: (message: string | null) => void;
-  setUiMessageType: (type: 'success' | 'error' | 'info' | null) => void;
-  refreshContractData: () => Promise<void>;
-  isPaused: boolean | undefined; // <-- Permitir undefined
-  currentRoundId: bigint | undefined; // <-- Permitir undefined
+  setUiMessage: (message: { text: string; type: 'success' | 'error' | 'info' }) => void;
+  isPaused: boolean | undefined;
+  currentRoundId: bigint | undefined;
   roundInfo: RodadaInfo | null;
 };
 
-export const AdminPanel = ({
+// O nome do componente agora bate com o export.
+export default function AdminPanel({
   isSubmitting,
   setIsSubmitting,
   setUiMessage,
-  setUiMessageType,
-  refreshContractData,
   isPaused,
   currentRoundId,
   roundInfo,
-}: AdminPanelProps) => {
-  const { data: hash, writeContract, isPending, error } = useWriteContract();
-
-  // ... (o hook useWaitForTransactionReceipt continua o mesmo)
-  const { isLoading: isConfirming } = 
-    useWaitForTransactionReceipt({ 
-      hash,
-      onSuccess: async () => { /* ... */ },
-      onError: (err) => { /* ... */ }
-    });
+}: AdminPanelProps) {
   
-  // ... (a função handleWrite continua a mesma)
-  const handleWrite = async (functionName: string, message: string, args?: any[]) => { /* ... */ };
-  const handleStartRound = () => { /* ... */ };
-  const handlePauseContract = () => { /* ... */ };
-  const handleUnpauseContract = () => { /* ... */ };
+  // 3. HOOKS: Usamos as variáveis que o inspetor reclamou.
+  const { data: hash, writeContractAsync, isPending, error: writeError } = useWriteContract();
 
-  // --- LÓGICA DE DESABILITAÇÃO REFINADA ---
-
-  // O botão de Pausa/Retomada deve estar desabilitado se a gente ainda não sabe o estado (isPaused === undefined)
-  const isPauseButtonDisabled = isSubmitting || isPaused === undefined;
+  const { isLoading: isConfirming, isSuccess, error: receiptError } = 
+    useWaitForTransactionReceipt({ hash });
   
-  // A condição para iniciar uma nova rodada agora é mais rigorosa.
-  // A gente só pode iniciar se:
-  // 1. O contrato NÃO está pausado (isPaused === false)
-  // 2. A rodada atual JÁ foi carregada e está Fechada (roundInfo.status === 2)
-  //    OU se ainda não existe rodada (currentRoundId === 0n).
+  // 4. LÓGICA DE FEEDBACK REATIVA (O JEITO CERTO)
+  useEffect(() => {
+    if (isSuccess) {
+      setUiMessage({ text: 'Ação executada com sucesso na blockchain!', type: 'success' });
+      setIsSubmitting(false);
+    }
+    if (isError || writeError) {
+        const error = receiptError || writeError;
+        setUiMessage({ text: error.message || 'Ocorreu um erro.', type: 'error' });
+        setIsSubmitting(false);
+    }
+  }, [isSuccess, isError, receiptError, writeError, setUiMessage, setIsSubmitting]);
+
+  // 5. FUNÇÃO CENTRALIZADA: Agora a gente usa essa função.
+  const handleWrite = async (functionName: string, message: string, args: unknown[] = []) => {
+    setUiMessage({ text: message, type: 'info' });
+    setIsSubmitting(true);
+    try {
+      await writeContractAsync({
+        address: BlockchainBetBrasilAddress,
+        abi: BlockchainBetBrasilABI,
+        functionName,
+        args,
+      });
+    } catch (err: any) {
+        // O erro já é pego pelo 'writeError' do hook, mas temos um fallback.
+        setUiMessage({ text: err.message || 'Erro ao enviar transação.', type: 'error' });
+        setIsSubmitting(false);
+    }
+  };
+
+  // Funções específicas que chamam a função central.
+  const handleStartRound = () => handleWrite('startNewRound', 'Iniciando nova rodada...');
+  const handlePauseContract = () => handleWrite('pause', 'Pausando o contrato...');
+  const handleUnpauseContract = () => handleWrite('unpause', 'Reativando o contrato...');
+
+  // --- SUA LÓGICA DE DESABILITAÇÃO (PERFEITA) ---
+  const isProcessing = isPending || isConfirming || isSubmitting;
+  const isPauseButtonDisabled = isProcessing || isPaused === undefined;
+  
   const canStartNewRound = 
     isPaused === false && 
-    (
-      (roundInfo && roundInfo.status === 2) || 
-      currentRoundId === 0n
-    );
+    ((roundInfo && roundInfo.status === 2) || currentRoundId === 0n);
   
-  const isStartButtonDisabled = isSubmitting || !canStartNewRound;
+  const isStartButtonDisabled = isProcessing || !canStartNewRound;
   
   return (
     <div className="w-full p-6 bg-slate-800/50 rounded-lg border border-slate-700">
       <h3 className="text-xl font-bold text-center text-slate-100 mb-4">Painel do Administrador</h3>
       
-      {/* ... (a parte de mensagens de status continua a mesma) */}
-      
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-        {/* Botão para Pausar/Retomar o Contrato */}
         {isPaused ? (
           <button
             onClick={handleUnpauseContract}
-            disabled={isPauseButtonDisabled} // <-- Usando a nova lógica
+            disabled={isPauseButtonDisabled}
             className="w-full sm:w-auto px-6 py-2 font-semibold text-white bg-emerald-600 rounded-md hover:bg-emerald-700 disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
           >
-            Reativar Contrato
+            {isProcessing ? 'Processando...' : 'Reativar Contrato'}
           </button>
         ) : (
           <button
             onClick={handlePauseContract}
-            disabled={isPauseButtonDisabled} // <-- Usando a nova lógica
+            disabled={isPauseButtonDisabled}
             className="w-full sm:w-auto px-6 py-2 font-semibold text-white bg-amber-600 rounded-md hover:bg-amber-700 disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
           >
-            Pausar Contrato
+            {isProcessing ? 'Processando...' : 'Pausar Contrato'}
           </button>
         )}
 
-        {/* Botão para Iniciar Nova Rodada */}
         <button
           onClick={handleStartRound}
-          disabled={isStartButtonDisabled} // <-- Usando a nova lógica
+          disabled={isStartButtonDisabled}
           className="w-full sm:w-auto px-6 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed transition-colors"
         >
-          Iniciar Nova Rodada
+          {isProcessing ? 'Processando...' : 'Iniciar Nova Rodada'}
         </button>
       </div>
-
-      {/* ... (a ajuda contextual continua a mesma) */}
     </div>
   );
 };
