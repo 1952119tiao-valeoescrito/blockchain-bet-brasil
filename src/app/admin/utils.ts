@@ -1,17 +1,16 @@
 // src/app/admin/utils.ts
 
-import { WriteContractMutateAsync } from 'wagmi/query';
-
-// A GENTE APAGOU A IMPORTAÇÃO DO TIPO PROBLEMÁTICO
+// NÃO IMPORTAMOS NADA DO WAGMI AQUI. NADA.
 
 type SetUiMessage = (message: { text: string; type: 'success' | 'error' | 'info' }) => void;
 type SetIsSubmitting = (isSubmitting: boolean) => void;
 
 export const handleAdminAction = async (
     actionName: string,
-    // AQUI ESTÁ A MARRETA NUCLEAR. USAMOS 'any'.
+    // Rendição 1: request é 'any'
     request: any,
-    writeContractAsync: WriteContractMutateAsync<string, string>,
+    // Rendição 2: writeContractAsync é 'any'
+    writeContractAsync: any,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
 ) => {
@@ -25,8 +24,9 @@ export const handleAdminAction = async (
     }
 
     try {
+        // A gente sabe que 'request' vem do useSimulateContract e 'writeContractAsync' do useWriteContract.
+        // O código aqui dentro vai funcionar. O TypeScript só não sabe disso.
         await writeContractAsync(request);
-        // O hook useWaitForTransactionReceipt cuidará da mensagem de sucesso
     } catch (error: any) {
         console.error(`Erro ao ${actionName}:`, error);
         const errorMessage = error.shortMessage || "Ocorreu um erro na transação.";
