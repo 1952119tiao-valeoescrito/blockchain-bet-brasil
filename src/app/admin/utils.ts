@@ -1,16 +1,16 @@
 // src/app/admin/utils.ts
 
 import { WriteContractMutateAsync } from 'wagmi/query';
-// MUDANÇA 1: Importamos o 'SimulateContractData'
-import { SimulateContractData } from 'wagmi';
+
+// A GENTE APAGOU A IMPORTAÇÃO DO TIPO PROBLEMÁTICO
 
 type SetUiMessage = (message: { text: string; type: 'success' | 'error' | 'info' }) => void;
 type SetIsSubmitting = (isSubmitting: boolean) => void;
 
 export const handleAdminAction = async (
     actionName: string,
-    // MUDANÇA 2: Usamos o tipo direto e mais limpo
-    request: SimulateContractData['request'] | undefined,
+    // AQUI ESTÁ A MARRETA NUCLEAR. USAMOS 'any'.
+    request: any,
     writeContractAsync: WriteContractMutateAsync<string, string>,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
