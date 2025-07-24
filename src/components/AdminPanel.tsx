@@ -1,7 +1,6 @@
 'use client';
 
 // ... (seus imports continuam os mesmos)
-import { useState } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { contractAbi } from '@/contracts/abi';
 import { contractAddress } from '@/contracts/address';
