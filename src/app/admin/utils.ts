@@ -1,7 +1,7 @@
 // src/components/admin/utils.ts
 
 import { WriteContractMutateAsync } from 'wagmi/query';
-import { SimulateContractReturnType } from 'wagmi';
+import { UseSimulateContractReturnType } from 'wagmi';
 
 type SetUiMessage = (message: { text: string; type: 'success' | 'error' | 'info' }) => void;
 type SetIsSubmitting = (isSubmitting: boolean) => void;
