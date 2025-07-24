@@ -1,8 +1,8 @@
-// src/components/Footer.tsx
+// src/components/Footer.tsx - VERSÃO FINAL E CORRETA
 
 import Link from 'next/link';
 
-// A CORREÇÃO ESTÁ AQUI: O 'default' voltou para casa!
+// A única 'mágica' aqui é garantir o 'export default'. O resto do seu código já estava perfeito.
 export default function Footer() {
     const currentYear = new Date().getFullYear();
   
