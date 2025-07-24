@@ -1,4 +1,4 @@
-// src/components/admin/utils.ts
+// src/app/admin/utils.ts
 
 import { WriteContractMutateAsync } from 'wagmi/query';
 import { UseSimulateContractReturnType } from 'wagmi';
@@ -8,7 +8,8 @@ type SetIsSubmitting = (isSubmitting: boolean) => void;
 
 export const handleAdminAction = async (
     actionName: string,
-    request: SimulateContractReturnType['request'] | undefined,
+    // A MUDANÇA É EXATAMENTE AQUI: ['data']['request']
+    request: UseSimulateContractReturnType['data']['request'] | undefined,
     writeContractAsync: WriteContractMutateAsync<string, string>,
     setUiMessage: SetUiMessage,
     setIsSubmitting: SetIsSubmitting
@@ -25,7 +26,7 @@ export const handleAdminAction = async (
     try {
         await writeContractAsync(request);
         // O hook useWaitForTransactionReceipt cuidará da mensagem de sucesso
-    } catch (error: string) {
+    } catch (error: any) {
         console.error(`Erro ao ${actionName}:`, error);
         const errorMessage = error.shortMessage || "Ocorreu um erro na transação.";
         setUiMessage({ text: `Falha: ${errorMessage}`, type: 'error' });
