@@ -1,0 +1,193 @@
+
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+ThinkingThoughts
+(experimental)
+Auto
+Expand to view model thoughts
+
+chevron_right
+Hahahahahahahahahahaha! Calma, meu parceiro! Pelo amor de Deus, não joga a toalha!
+Se eu te fudi, eu vou te "desfuder". A responsabilidade é minha. Vamos dar um passo para trás. A culpa é minha por ter mergulhado fundo demais, rápido demais.
+Pense assim: eu te mostrei a planta completa da Estrela da Morte. É intimidador, eu sei. Mas para construir, a gente começa com um tijolo de cada vez.
+Vamos fazer o seguinte. Esqueça o código gigante que eu mandei. Ele está guardado para quando precisarmos.
+Nosso objetivo agora é UM, e somente UM: fazer você se achar de novo.
+O Mapa para se Reencontrar (Onde estamos e para onde vamos, em 2D)
+Vamos visualizar o seu projeto como ele é AGORA, sem nenhuma alteração minha.
+SEU CONTRATO ATUAL (O ORIGINAL):
+Aposta: Um jogador aposta em 5 pares de números (X, Y).
+Sorteio: Você insere 5 milhares da Loteria Federal.
+Conversão: O contrato transforma esses 5 milhares em 5 pares de resultados (X, Y).
+Verificação: O contrato checa qual jogador acertou TODOS OS 5 PARES EXATAMENTE.
+Resultado:
+Se alguém acertou TUDO: O pote é dividido entre esses "super vencedores".
+Se NINGUÉM acertou tudo: O pote vai para a casa.
+O PROBLEMA: Esse sistema é "8 ou 80". Quase nunca vai ter um vencedor. Não é o seu negócio de "ganhe com 1, 2, 3, 4 ou 5 pontos".
+A "FODA" DESMISTIFICADA: A ÚNICA COISA QUE PRECISAMOS MUDAR
+A única coisa que precisamos mudar é o Passo 4 (Verificação) e o Passo 5 (Resultado).
+Todo o resto do seu contrato está PERFEITO. iniciarNovaRodada, apostar, reivindicarPremio... tudo isso está impecável.
+A nossa missão é apenas REESCREVER a função _calcularEAlocarPremios. Só isso.
+Vamos fazer isso juntos, passo a passo, como se estivéssemos desenhando num guardanapo.
+Passo 1 do Desenho no Guardanapo: Contar os pontos
+Primeiro, precisamos de uma forma de olhar para a aposta de um jogador e dizer: "Hmm, esse cara aqui acertou 3 pares".
+Vamos criar uma ferramentinha para isso. É a função _contarAcertos que eu sugeri. Ela é simples:
+Generated solidity
+// Ferramenta para contar pontos
+function _contarAcertos(Aposta storage _aposta, Rodada storage _rodada) internal view returns (uint256) {
+    uint256 acertos = 0;
+    // Para cada um dos 5 prognósticos...
+    for (uint j = 0; j < 5; j++) {
+        // ...se o par (X,Y) da aposta for igual ao par (X,Y) do resultado...
+        if (_aposta.prognosticosX[j] == _rodada.resultadosX[j] && 
+            _aposta.prognosticosY[j] == _rodada.resultadosY[j]) {
+            // ...a gente marca um ponto!
+            acertos++;
+        }
+    }
+    return acertos; // E no final, diz quantos pontos o cara fez.
+}
+Use code with caution.
+Solidity
+Conseguiu visualizar? Essa função é o nosso "juiz de futebol" que conta os gols. Simples, né?
+Passo 2 do Desenho no Guardanapo: Separar a Galera
+Agora, dentro da _calcularEAlocarPremios, a gente usa nosso "juiz" para separar os apostadores em times.
+Generated solidity
+// ... dentro da _calcularEAlocarPremios ...
+
+// Criamos umas "listas de chamada" vazias
+address[] memory time_dos_5_pontos;
+address[] memory time_dos_4_pontos;
+// ... etc
+
+// Agora a gente passa por cada apostador da rodada
+for (uint i = 0; i < rodada.apostas.length; i++) {
+    Aposta storage apostaAtual = rodada.apostas[i];
+    
+    // Pergunta pro juiz: "Quantos pontos esse cara fez?"
+    uint256 pontos = _contarAcertos(apostaAtual, rodada);
+
+    // E coloca o cara no time certo
+    if (pontos == 5) { /* adiciona na lista do time_dos_5_pontos */ }
+    else if (pontos == 4) { /* adiciona na lista do time_dos_4_pontos */ }
+    // ... e assim por diante.
+}
+Use code with caution.
+Solidity
+Até aqui, tudo bem? Estamos apenas organizando a casa.
+Passo 3 do Desenho no Guardanapo: Dividir o Dinheiro
+Agora que temos os times, a gente divide o "bicho".
+Generated solidity
+// ... ainda dentro da _calcularEAlocarPremios ...
+
+// Pega o dinheiro total do prêmio
+uint256 poteDePremios = rodada.premioTotal;
+
+// Se tiver gente no time dos 5 pontos...
+if (time_dos_5_pontos.length > 0) {
+    // A gente pega a fatia do bolo deles (ex: 50% do pote)
+    uint256 fatia_do_time_5_pontos = (poteDePremios * 50) / 100;
+    
+    // E divide igualmente entre eles
+    uint256 premio_pra_cada_um = fatia_do_time_5_pontos / time_dos_5_pontos.length;
+    
+    // E anota no caderninho: "Fulano tem X pra receber"
+    for (uint i = 0; i < time_dos_5_pontos.length; i++) {
+        address vencedor = time_dos_5_pontos[i];
+        rodada.premiosAReceber[vencedor] += premio_pra_cada_um;
+    }
+}
+
+// E repete a mesma lógica para o time dos 4 pontos, 3 pontos, etc.
+Use code with caution.
+Solidity
+É só isso! Essa é a "foda" inteira. São só esses três passos lógicos. O código que te mandei é apenas a tradução disso para a linguagem do computador.
+Não desiste, meu parceiro! A gente erra, a gente se perde, mas a gente se acha e volta mais forte. O seu projeto é bom demais pra morrer na praia por causa de um susto.
+Qual desses 3 passos do "guardanapo" ficou mais confuso? Me aponta o dedo na ferida que a gente cura ela. Vamos juntos, sem pressa.
