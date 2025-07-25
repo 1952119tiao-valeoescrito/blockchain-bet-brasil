@@ -1,25 +1,16 @@
-// src/app/como-jogar/page.tsx - VERSÃO FINAL E REFINADA
-
+// src/app/como-jogar/page.tsx - FAXINA COMPLETA
 import type { Metadata } from 'next';
-import Link from 'next/link'; // Adicionamos o Link para futuras melhorias
 
-// Componente auxiliar para seções de informação, mantido como você criou. Ótima ideia!
+export const metadata: Metadata = { title: 'Como Jogar - Blockchain Bet Brasil', description: 'Aprenda o passo a passo para fazer sua aposta e concorrer a prêmios na loteria Web3 mais transparente do Brasil.' };
+
 function InfoSection({ title, children }: { title: string, children: React.ReactNode }) {
     return (
         <section className="bg-slate-800/50 p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-blue-400 mb-4 border-b-2 border-blue-500 pb-2">{title}</h2>
-            <div className="prose prose-invert max-w-none text-slate-300">
-                {children}
-            </div>
+            <div className="prose prose-invert max-w-none text-slate-300">{children}</div>
         </section>
     );
 }
-
-// Metadata para SEO, como você fez. Perfeito.
-export const metadata: Metadata = {
-    title: 'Como Jogar - Blockchain Bet Brasil',
-    description: 'Aprenda o passo a passo para fazer sua aposta e concorrer a prêmios na loteria Web3 mais transparente do Brasil.'
-};
 
 export default function HowToPlayPage() {
     return (
@@ -28,7 +19,7 @@ export default function HowToPlayPage() {
                 <h1 className="text-4xl font-bold">Como Apostar na Blockchain Bet Brasil</h1>
                 <p className="mt-2 text-lg text-gray-400">É simples, rápido e 100% transparente. Siga o guia!</p>
             </div>
-
+            {/* Trocamos todas as aspas problemáticas por apóstrofos simples (') */}
             <InfoSection title="Guia Rápido: 4 Passos Para a Vitória">
                 <ol className="list-decimal list-inside space-y-4">
                     <li><strong>Conecte sua Carteira Digital:</strong> Primeiro, clique em 'Conectar Carteira' no topo do site. Você precisa de uma carteira como a MetaMask para jogar e receber seus prêmios.</li>
@@ -37,18 +28,14 @@ export default function HowToPlayPage() {
                     <li><strong>Acompanhe e Reivindique:</strong> Após o sorteio, volte ao site para ver os resultados. Se for um vencedor com 5, 4, 3, 2 ou 1 ponto apenas, um botão 'Reivindicar Prêmio' aparecerá para você transferir seus ganhos diretamente para sua carteira.</li>
                 </ol>
             </InfoSection>
-
             <InfoSection title="Entendendo o Jogo: A Magia da Transparência">
                 <h4>O que é um 'Token de Aposta'?</h4>
                 <p>Cada aposta com 5 prognósticos que você faz é como um bilhete único, um 'token' que representa sua participação no sorteio.</p>
-                
                 <h4>Como os Resultados são Gerados?</h4>
                 <p>Utilizamos os 5 milhares sorteados aos sabados, pela Loteria Oficial do Brasil, que são processados pelo nosso Smart Contract em conjunto com a tecnologia <strong>Chainlink VRF (Verifiable Random Function)</strong>. Isso garante que os resultados finais (X/Y) sejam aleatórios, seguros e impossíveis de manipular.</p>
-                
                 <h4>Por que na Blockchain?</h4>
                 <p><strong>Segurança e Justiça:</strong> Todo o processo é executado por um Smart Contract, sem intervenção humana. As regras são as mesmas para todos e não podem ser alteradas. <strong>Transparência Total:</strong> Qualquer pessoa pode auditar as transações e os resultados no Etherscan. <strong>Pagamentos Instantâneos:</strong> Você tem total controle sobre seus prêmios e os recebe em segundos.</p>
             </InfoSection>
-
             <InfoSection title="Aumente Suas Chances!">
                 <p>Não há limites! Você pode fazer quantas apostas desejar em cada rodada. Mais 'tokens' na disputa significam mais chances de ser um dos nossos grandes vencedores, quer seja com 5, 4, 3, 2 ou 1 ponto apenas. Boa sorte!</p>
             </InfoSection>
