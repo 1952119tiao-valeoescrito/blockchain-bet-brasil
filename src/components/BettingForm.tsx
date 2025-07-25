@@ -1,4 +1,5 @@
-// src/components/BettingForm.tsx - VERSÃO COM A CURA FINAL
+// src/components/BettingForm.tsx - FAXINA E CIRURGIA FINAL
+
 'use client';
 
 import { useState, useEffect, FormEvent, useCallback } from 'react';
@@ -14,7 +15,8 @@ interface SavedBet {
 }
 
 export default function BettingForm() {
-    const { address: account } = useAccount();
+    // Usamos 'isConnected' para desabilitar o botão de submit, limpando um warning.
+    const { address: account, isConnected } = useAccount(); 
     
     const [prognosticos, setPrognosticos] = useState(Array(5).fill(''));
     const [historicoLocal, setHistoricoLocal] = useState<SavedBet[]>([]);
@@ -42,18 +44,26 @@ export default function BettingForm() {
         }
     }, [writeError]);
 
+    // CORREÇÃO CIRÚRGICA 1: Ensinamos a função 'formatarValor' a lidar com 'unknown'
+    const formatarValor = useCallback((valor: unknown): string => {
+        if (typeof valor === 'bigint') {
+            return formatEther(valor);
+        }
+        return '...'; // Se não for bigint, retorna o placeholder.
+    }, []);
+
     const salvarApostaNoHistorico = useCallback(() => {
         if (typeof rodadaAtualId !== 'bigint' || typeof ticketPrice !== 'bigint' || !account) return;
         const novaAposta: SavedBet = {
             id: hash || Date.now().toString(),
             rodadaId: Number(rodadaAtualId),
             prognosticos: prognosticos,
-            valor: formatarValor(ticketPrice)
+            valor: formatarValor(ticketPrice) // Agora isso funciona sem erro
         };
         const novoHistorico = [novaAposta, ...historicoLocal];
         setHistoricoLocal(novoHistorico);
         localStorage.setItem(`historico_apostas_${account}`, JSON.stringify(novoHistorico));
-    }, [account, hash, historicoLocal, prognosticos, rodadaAtualId, ticketPrice]);
+    }, [account, hash, historicoLocal, prognosticos, rodadaAtualId, ticketPrice, formatarValor]);
 
     useEffect(() => {
         if (isSuccess) {
@@ -72,10 +82,6 @@ export default function BettingForm() {
         }
     }, [account]);
 
-    const formatarValor = (valor: bigint | undefined): string => {
-        return typeof valor === 'bigint' ? formatEther(valor) : '...';
-    };
-
     const handleInputChange = (index: number, value: string) => {
         if (/^[\d\/]{0,5}$/.test(value)) {
             const novosPrognosticos = [...prognosticos];
@@ -84,14 +90,13 @@ export default function BettingForm() {
         }
     };
 
-    // FUNÇÃO COM A CURA
+    // CORREÇÃO CIRÚRGICA 2: Ensinamos a função 'handleSubmit' a lidar com 'unknown'
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         setUiMessage(null);
 
-        // A gente verifica se a caixa 'ticketPrice' já foi aberta e contém um bigint.
         if (typeof ticketPrice !== 'bigint') {
-            setUiMessage({ text: "O valor da aposta ainda não foi carregado. Tente novamente em alguns segundos.", type: 'error' });
+            setUiMessage({ text: "O valor da aposta ainda está carregando. Tente de novo em um instante.", type: 'error' });
             return;
         }
 
@@ -105,22 +110,21 @@ export default function BettingForm() {
             const y = prognosticos.map(p => BigInt(p.split('/')[1]));
 
             setUiMessage({ text: 'Confirme a transação na sua carteira...', type: 'info' });
-            
-            // Agora o TypeScript sabe que ticketPrice é um 'bigint'. Pode passar.
             writeContract({
                 ...contractConfig,
                 functionName: 'apostar',
                 args: [x, y],
-                value: ticketPrice,
+                value: ticketPrice, // Agora o TypeScript sabe que isso é um bigint
             });
         } catch (error) {
             setUiMessage({ text: "Erro ao processar os números da aposta.", type: 'error' });
             console.error(error);
         }
     };
-    
-    // O JSX que você me mandou no backup anterior, para garantir que está completo.
+
     const isProcessing = isPending || isConfirming;
+    
+    // O JSX que faltava no seu último código, agora completo.
     return (
         <div className="w-full max-w-2xl" id="bet-form">
             <form onSubmit={handleSubmit} className="bg-slate-800/50 p-6 rounded-lg space-y-4">
@@ -156,10 +160,25 @@ export default function BettingForm() {
                     </div>
                 )}
                 
-                <button type="submit" disabled={isProcessing} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-lg disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors">
-                    {isPending ? 'Aguardando na carteira...' : isConfirming ? 'Registrando aposta...' : 'Submeter Aposta'}
+                <button type="submit" disabled={!isConnected || isProcessing} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-lg disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors">
+                    {isPending ? 'Aguardando na carteira...' : isConfirming ? 'Registrando aposta...' : (isConnected ? 'Submeter Aposta' : 'Conecte a Carteira')}
                 </button>
             </form>
+
+            {historicoLocal.length > 0 && (
+                 <div className="mt-8 bg-slate-800/50 p-6 rounded-lg">
+                    <h3 className="text-xl font-bold text-white text-center mb-4">Seu Histórico Recente (Local)</h3>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {historicoLocal.map(bet => (
+                            <div key={bet.id} className="bg-slate-900 p-2 rounded-md text-sm text-center">
+                                <span className="font-mono text-cyan-400">
+                                    {`Rodada ${bet.rodadaId} - Prognósticos: ${bet.prognosticos.join('; ')}`}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
