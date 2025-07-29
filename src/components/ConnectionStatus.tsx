@@ -1,45 +1,27 @@
-// src/components/ConnectionStatus.tsx
+// src/components/ConnectionStatus.tsx - VERSÃO CORRIGIDA
+
 'use client';
 
 import { useAccount, useBalance } from 'wagmi';
-import { ConnectKitButton } from 'connectkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit'; // Importação correta!
 
 export function ConnectionStatus() {
   const { address, isConnecting, isConnected } = useAccount();
-  const { data: balance, isLoading: isLoadingBalance } = useBalance({ address });
+  const { data: balance } = useBalance({
+    address: address,
+  });
 
-  // Se não estiver conectado nem tentando conectar, mostra o botão principal
-  if (!isConnected && !isConnecting) {
-    return (
-      <div className="w-full p-4 text-center bg-slate-800 rounded-md border border-slate-700">
-        <p className="mb-4 text-slate-300">Conecte sua carteira para começar.</p>
-        <ConnectKitButton />
-      </div>
-    );
-  }
+  if (isConnecting) return <div>Conectando...</div>;
 
-  // Se estiver no processo de conexão, mostra uma mensagem de status
-  if (isConnecting) {
-    return (
-      <div className="w-full p-3 bg-blue-500/10 text-blue-300 rounded-md border border-blue-500/30 text-center animate-pulse">
-        Conectando carteira...
-      </div>
-    );
-  }
-
-  // Se já estiver conectado, mostra o endereço e o saldo
+  // A maneira mais simples e elegante de mostrar o botão
+  // O ConnectButton do RainbowKit já lida com todos os estados (conectado, desconectado, rede errada, etc.)
   return (
-    <div className="w-full p-3 bg-green-500/10 text-green-300 rounded-md border border-green-500/30">
-      <p className="text-sm">
-        <strong>Carteira:</strong> {address}
-        <span className="ml-2 text-xs text-green-400/70">
-          (
-          {isLoadingBalance
-            ? 'Carregando saldo...'
-            : `${parseFloat(balance?.formatted || '0').toFixed(4)} ${balance?.symbol}`}
-          )
-        </span>
-      </p>
+    <div className="flex items-center space-x-4">
+        <ConnectButton 
+            showBalance={true} // Opcional: mostra o saldo
+            chainStatus="icon" // Opcional: mostra o ícone da rede
+            accountStatus="address" // Opcional: mostra o endereço completo ou avatar
+        />
     </div>
   );
 }

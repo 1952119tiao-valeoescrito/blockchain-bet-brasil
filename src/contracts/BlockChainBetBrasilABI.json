@@ -1,10 +1,4 @@
-// src/contracts/index.ts - O CORAÇÃO DO SEU PROJETO
-
-// ✅ COLOQUE O ENDEREÇO DO SEU CONTRATO DEPLOYADO AQUI
-export const bettingContractAddress = '0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B';
-
-// ✅ COLE O ABI QUE VOCÊ COPIOU DO REMIX AQUI DENTRO DOS COLCHETES
-export const bettingContractABI = [
+[
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -547,19 +541,6 @@ export const bettingContractABI = [
 	},
 	{
 		"inputs": [],
-		"name": "isRoundOpen",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "owner",
 		"outputs": [
 			{
@@ -826,4 +807,4 @@ export const bettingContractABI = [
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-] as const; // O `as const` é uma boa prática do TypeScript
+]

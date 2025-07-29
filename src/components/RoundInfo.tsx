@@ -1,77 +1,81 @@
-// src/components/RoundInfo.tsx
+// src/components/RoundInfo.tsx - A APOSENTADORIA DO PEREBA
 
-'use client';
+"use client";
 
 import { useReadContract } from 'wagmi';
 import { formatEther } from 'viem';
-import abi from '@/contracts/BlockChainBetBrasil.json';
+// ✅ CORREÇÃO 1: Usando a nossa fonte única da verdade.
+import { bettingContractAddress, bettingContractABI } from '@/contracts';
+import { Skeleton } from "@/components/ui/skeleton";
 
-const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
-
-// Um componente pequeno para exibir cada linha de informação
-function InfoRow({ label, value, isLoading }: { label: string, value: string | number, isLoading: boolean }) {
-  return (
-    <div className="flex justify-between items-center text-lg py-1">
-      <span className="font-semibold text-gray-300">{label}:</span>
-      {isLoading ? (
-        <span className="h-6 w-20 bg-gray-700 rounded-md animate-pulse"></span>
-      ) : (
-        <span className="font-bold text-blue-400 text-xl">{value}</span>
-      )}
-    </div>
-  );
-}
+// Boa prática: Definir o tipo para o retorno do hook
+type RodadaInfo = readonly [bigint, number, bigint, bigint, bigint, bigint, bigint];
 
 export function RoundInfo() {
-  // 1. Primeira leitura: Pegar o ID da rodada atual.
-  const { data: currentRoundId, isLoading: isLoadingId } = useReadContract({
-    abi,
-    address: contractAddress as `0x${string}`,
+  // 1. Buscamos o ID da rodada atual
+  const { data: rodadaAtualId, isLoading: isLoadingId } = useReadContract({
+    address: bettingContractAddress,
+    abi: bettingContractABI,
     functionName: 'rodadaAtualId',
-    watch: true,
   });
 
-  // 2. Segunda leitura: Usar o ID para pegar os detalhes da rodada.
-  //    A propriedade `enabled` garante que esta chamada só aconteça se o ID for válido (> 0).
-  const { data: roundData, isLoading: isLoadingInfo, error } = useReadContract({
-    abi,
-    address: contractAddress as `0x${string}`,
+  // 2. Usamos o ID para buscar as informações da rodada
+  const { data: rodadaInfo, isLoading: isLoadingInfo } = useReadContract({
+    address: bettingContractAddress,
+    abi: bettingContractABI,
     functionName: 'getRodadaInfoBasica',
-    args: [currentRoundId as bigint],
-    // Só executa a chamada se currentRoundId for um número maior que 0
-    enabled: !!currentRoundId && Number(currentRoundId) > 0,
-    watch: true,
+    args: [rodadaAtualId!],
+    query: { enabled: typeof rodadaAtualId === 'bigint' },
   });
-  
-  const isLoading = isLoadingId || (!!currentRoundId && isLoadingInfo);
 
-  // Se a rodada atual for 0 ou não tiver sido iniciada.
-  if (!isLoading && (!currentRoundId || Number(currentRoundId) === 0)) {
+  const isLoading = isLoadingId || isLoadingInfo;
+
+  if (isLoading) {
     return (
-        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 text-center text-gray-400">
-            Nenhuma rodada aberta no momento.
+        <div className="w-full max-w-md bg-slate-800/50 p-6 rounded-2xl border border-slate-700 text-sm">
+            <h3 className="text-lg font-bold text-center mb-4 text-white">Informações da Rodada</h3>
+            <div className="space-y-2">
+                <Skeleton className="h-5 w-full bg-slate-700" />
+                <Skeleton className="h-5 w-full bg-slate-700" />
+                <Skeleton className="h-5 w-full bg-slate-700" />
+            </div>
         </div>
     );
   }
 
-  // Se der erro na leitura (ex: rodada não existe)
-  if (error) {
-    return (
-      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 text-red-500 text-center">
-        Não foi possível carregar informações da rodada. Tente atualizar a página ou verifique sua conexão.
-      </div>
-    );
+  if (!rodadaInfo) {
+    return <p className="text-center text-slate-500 mt-8">Nenhuma rodada ativa no momento.</p>;
   }
 
-  // Extrai e formata os dados. O '??' serve como valor padrão enquanto carrega.
-  const id = roundData?.[0]?.toString() ?? currentRoundId?.toString() ?? '#';
-  const totalArrecadado = typeof roundData?.[3] === 'bigint' ? formatEther(roundData[3]) : '0';
-  
+  const typedInfo = rodadaInfo as RodadaInfo;
+  const statusMap = ["Inativa", "Aberta", "Fechada", "Paga", "Finalizada"];
+  const statusText = statusMap[Number(typedInfo[1])] ?? "Desconhecido";
+
   return (
-    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 space-y-2">
-      <InfoRow label="Rodada Atual" value={id} isLoading={isLoading} />
-      <InfoRow label="Valor Total na Rodada" value={`${totalArrecadado} MATIC`} isLoading={isLoading} />
-      {/* Você pode adicionar mais dados de 'getRodadaInfoBasica' aqui no futuro */}
+    <div className="w-full max-w-md bg-slate-800/50 p-6 rounded-2xl border border-slate-700 text-sm">
+      <h3 className="text-lg font-bold text-center mb-4 text-white">Rodada #{typedInfo[0].toString()}</h3>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Status:</span>
+          <span className="font-mono text-white">{statusText}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Valor do Ticket:</span>
+          <span className="font-mono text-green-400">{formatEther(typedInfo[2])} ETH</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Total Arrecadado:</span>
+          <span className="font-mono text-white">{formatEther(typedInfo[3])} ETH</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Prêmio Total:</span>
+          <span className="font-mono text-white">{formatEther(typedInfo[4])} ETH</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Nº de Apostas:</span>
+          <span className="font-mono text-white">{typedInfo[5].toString()}</span>
+        </div>
+      </div>
     </div>
   );
 }

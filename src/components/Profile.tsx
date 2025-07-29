@@ -1,45 +1,61 @@
-// src/components/Profile.tsx
+// src/components/Profile.tsx - VERSÃO CORRIGIDA E ALINHADA COM O TIME
 
-import { useAccount, useBalance, useContractRead } from 'wagmi';
-import { bettingContractABI } from '../abi/BettingContract.json'; // Importando o ABI
-import styles from './Profile.module.css';
+'use client';
 
-const contractAddress = '0x9D586CbA6c856B4979C1D2e5115ecdBAc85184E8'; // COLOQUE O ENDEREÇO DO SEU CONTRATO DEPLOYADO AQUI
+import { useAccount, useBalance } from 'wagmi';
+// ✅ CORREÇÃO: Importando do lugar certo. Não precisamos mais do ABI nem do endereço aqui.
+// O componente de perfil só precisa saber do usuário, não do contrato.
+
+// Helper para formatar o endereço
+const formatAddress = (addr?: `0x${string}`) => {
+  if (!addr) return '...';
+  return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
+};
+
+// Helper para formatar o saldo
+const formatBalance = (balance?: { formatted: string; symbol: string }) => {
+    if (!balance) return '...';
+    // Pega os primeiros 6 dígitos significativos do saldo
+    const value = parseFloat(balance.formatted).toPrecision(6);
+    return `${value} ${balance.symbol}`;
+}
 
 export function Profile() {
   const { address, isConnected } = useAccount();
-  const { data: balance } = useBalance({ address });
-
-  // Exemplo de leitura de contrato: ler o valor total de apostas
-  const { data: totalApostas, isLoading: isLoadingTotalApostas } = useContractRead({
-    address: contractAddress,
-    abi: bettingContractABI,
-    functionName: 'totalApostas', // Mude para o nome da função no seu contrato
-    watch: true, // Fica "escutando" por mudanças
+  
+  // Hook do wagmi para buscar o saldo do endereço conectado
+  const { data: balance, isLoading } = useBalance({
+    address,
+    // O query.enabled garante que a busca só aconteça se o usuário estiver conectado
+    query: {
+        enabled: isConnected,
+    }
   });
 
   if (!isConnected) {
     return (
-      <div className={styles.container}>
-        <p>Sua carteira não está conectada.</p>
-      </div>
+        <div className="w-full max-w-md bg-slate-800/50 p-6 rounded-2xl border border-slate-700 text-sm">
+            <p className="text-center text-yellow-400">Conecte sua carteira para ver seu perfil.</p>
+        </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <h2>Seu Perfil</h2>
-      <p><strong>Endereço:</strong> {address}</p>
-      <p><strong>Saldo:</strong> {balance?.formatted} {balance?.symbol}</p>
-      <hr />
-      <h3>Dados do Contrato</h3>
-      {isLoadingTotalApostas ? (
-        <p>Carregando dados do contrato...</p>
-      ) : (
-        <p><strong>Valor Total Apostado na Plataforma:</strong> {totalApostas?.toString()} Wei</p>
-      )}
-
-      {/* Aqui você colocaria os botões para apostar, que usariam o hook useContractWrite */}
+    <div className="w-full max-w-md bg-slate-800/50 p-6 rounded-2xl border border-slate-700 text-sm">
+      <h3 className="text-lg font-bold text-center mb-4 text-white">Meu Perfil</h3>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Endereço:</span>
+          <span className="font-mono text-cyan-400">{formatAddress(address)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold text-slate-300">Saldo:</span>
+          {isLoading ? 
+            <span className="font-mono text-white">Carregando...</span> :
+            <span className="font-mono text-white">{formatBalance(balance)}</span>
+          }
+        </div>
+      </div>
     </div>
   );
 }

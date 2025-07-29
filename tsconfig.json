@@ -12,7 +12,9 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
+    
+    "resolveJsonModule": true, // ✅✅✅ A LINHA DA VITÓRIA ESTÁ AQUI ✅✅✅
+    
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
@@ -34,6 +36,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
+    // Não precisa mais daquela linha do web3modal aqui. Deixamos limpo.
   ],
   "exclude": [
     "node_modules"

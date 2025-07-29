@@ -1,101 +1,99 @@
-// src/components/PrizeClaim.tsx
+// src/components/PrizeClaim.tsx - VERSÃO FINAL CORRIGIDA
 
-"use client";
+'use client';
 
+import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { BlockchainBetBrasilAddress, BlockchainBetBrasilABI } from '@/contracts'; 
+import { BaseError } from 'viem';
+// ✅ CORREÇÃO 1: Usando os nomes certos da nossa fonte da verdade.
+import { bettingContractAddress, bettingContractABI } from '@/contracts';
 
-interface PrizeClaimProps {
-  rodadaId: number;
-}
+type RodadaInfoBasicaType = readonly [bigint, number, bigint, bigint, bigint, bigint, bigint];
 
-const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
+export default function PrizeClaim({ rodadaId }: { rodadaId: bigint | undefined }) {
   const { address, isConnected } = useAccount();
+  const [uiMessage, setUiMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
 
-  // 1. Verifica se a rodada atual já está em fase de pagamento
-  const { data: infoBasica } = useReadContract({
-    address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilABI,
+  // ✅ CORREÇÃO 2: Chamadas explícitas para cada hook, sem atalhos.
+  const { data: infoBasica, isLoading: isLoadingInfo } = useReadContract({
+    address: bettingContractAddress,
+    abi: bettingContractABI,
     functionName: 'getRodadaInfoBasica',
-    args: [BigInt(rodadaId)],
-    query: { enabled: rodadaId > 0 }
+    args: [rodadaId!],
+    query: { enabled: !!rodadaId }
   });
 
-  const statusRodada = infoBasica ? Number(infoBasica[1]) : 0;
-  const podeReivindicar = statusRodada >= 3; // 3: RESULTADO_DISPONIVEL, 4: PAGA
+  const typedInfoBasica = infoBasica as RodadaInfoBasicaType | undefined;
+  const statusRodada = typedInfoBasica ? Number(typedInfoBasica[1]) : 0;
+  const podeReivindicar = statusRodada === 3 || statusRodada === 4;
 
-  // 2. Busca o prêmio do usuário conectado
-  const { data: premio, isLoading: loadingPremio } = useReadContract({
-    address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilABI,
+  const { data: premio, refetch: refetchPremio } = useReadContract({
+    address: bettingContractAddress,
+    abi: bettingContractABI,
     functionName: 'getPremioParaReivindicar',
-    args: [BigInt(rodadaId), address],
-    query: { enabled: isConnected && rodadaId > 0 && podeReivindicar } // Só busca se for relevante
+    args: [rodadaId!, address!],
+    query: { enabled: !!rodadaId && !!address && podeReivindicar }
   });
 
-  // 3. Verifica se o prêmio já foi sacado
-  const { data: foiReivindicado, isLoading: loadingReivindicado } = useReadContract({
-    address: BlockchainBetBrasilAddress,
-    abi: BlockchainBetBrasilABI,
+  const { data: foiReivindicado, refetch: refetchReivindicado } = useReadContract({
+    address: bettingContractAddress,
+    abi: bettingContractABI,
     functionName: 'checarSePremioFoiReivindicado',
-    args: [BigInt(rodadaId), address],
-    query: { enabled: isConnected && rodadaId > 0 && podeReivindicar }
+    args: [rodadaId!, address!],
+    query: { enabled: !!rodadaId && !!address && podeReivindicar }
   });
+  
+  const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-  // Hooks para a transação de saque
-  const { data: hash, writeContract, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = 
-    useWaitForTransactionReceipt({ hash });
+  useEffect(() => {
+    if (isSuccess) {
+      setUiMessage({ text: 'Prêmio recebido com sucesso!', type: 'success' });
+      refetchPremio();
+      refetchReivindicado();
+    }
+  }, [isSuccess, refetchPremio, refetchReivindicado]);
 
-  const handleClaim = () => {
+  useEffect(() => {
+    if (writeError) {
+        const msg = writeError.cause instanceof BaseError ? writeError.cause.shortMessage : (writeError.message || 'Ocorreu um erro.');
+        setUiMessage({ text: msg, type: 'error' });
+    }
+  }, [writeError]);
+
+  const handleReivindicar = () => {
+    if (!rodadaId) return;
+    setUiMessage({ text: 'Confirmando na carteira...', type: 'info' });
+    // ✅ CORREÇÃO 3: Chamada explícita também para o writeContract.
     writeContract({
-      address: BlockchainBetBrasilAddress,
-      abi: BlockchainBetBrasilABI,
-      functionName: 'reivindicarPremio',
-      args: [BigInt(rodadaId)],
+        address: bettingContractAddress,
+        abi: bettingContractABI,
+        functionName: 'reivindicarPremio',
+        args: [rodadaId]
     });
   };
 
-  // Não mostra nada se não estiver conectado ou a rodada não estiver na fase certa
-  if (!isConnected || !podeReivindicar || loadingPremio || loadingReivindicado) {
-    return null;
+  const temPremio = premio && BigInt(premio.toString()) > 0;
+
+  if (!isConnected || !podeReivindicar || !temPremio || isLoadingInfo || !address) {
+    return null; 
   }
 
-  // Se tem prêmio e ainda não foi sacado, mostra o botão
-  if (premio && Number(premio) > 0 && !foiReivindicado) {
-    const valorPremioEmMatic = Number(premio) / 1e18;
-
-    return (
-      <div className="w-full max-w-md mx-auto bg-green-900/50 border-2 border-green-500 rounded-lg p-6 text-center shadow-lg">
-        <h3 className="text-2xl font-bold text-white">🎉 Parabéns, você ganhou! 🎉</h3>
-        <p className="text-gray-200 mt-2">Você tem um prêmio para resgatar na rodada #{rodadaId}:</p>
-        <p className="text-4xl font-bold text-yellow-400 my-4">{valorPremioEmMatic.toFixed(4)} MATIC</p>
-        <button
-          onClick={handleClaim}
-          disabled={isPending || isConfirming || isConfirmed}
-          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-4 rounded-md transition-all disabled:bg-gray-500 disabled:cursor-not-allowed"
-        >
-          {isPending && 'Aguardando na carteira...'}
-          {isConfirming && 'Confirmando o resgate...'}
-          {isConfirmed && 'Prêmio Resgatado com Sucesso!'}
-          {!isPending && !isConfirming && !isConfirmed && 'RESGATAR MEU PRÊMIO'}
-        </button>
-      </div>
-    );
+  if (foiReivindicado) {
+    return <p className="text-center text-green-400 mt-4">Você já sacou seu prêmio para esta rodada!</p>;
   }
 
-  // Se já sacou, mostra uma mensagem de confirmação
-  if (premio && Number(premio) > 0 && foiReivindicado) {
-    return (
-      <div className="w-full max-w-md mx-auto bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
-          <h3 className="text-xl font-bold text-green-400">Prêmio da Rodada #{rodadaId} já foi resgatado.</h3>
-          <p className="text-gray-300 mt-2">O valor já está na sua carteira. Bom proveito!</p>
-      </div>
-    );
-  }
-
-  // Se não ganhou nada na rodada, não mostra nada para não poluir a tela.
-  return null;
-};
-
-export default PrizeClaim;
+  return (
+    <div className="mt-6 p-4 border border-cyan-500 rounded-lg text-center">
+      <h3 className="text-xl font-bold text-cyan-300">🎉 Parabéns! Você tem um prêmio a receber!</h3>
+      <button 
+        onClick={handleReivindicar} 
+        disabled={isPending || isConfirming}
+        className="mt-4 py-2 px-6 rounded-lg font-bold text-slate-900 transition-all duration-200 bg-cyan-400 hover:bg-cyan-300 disabled:bg-slate-600"
+      >
+        {isPending || isConfirming ? 'Processando...' : 'Reivindicar Prêmio'}
+      </button>
+      {uiMessage && <p className={`mt-2 font-semibold ${uiMessage.type === 'error' ? 'text-red-400' : 'text-slate-300'}`}>{uiMessage.text}</p>}
+    </div>
+  );
+}

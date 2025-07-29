@@ -1,16 +1,18 @@
-// src/components/ConnectWalletPrompt.tsx
+// src/components/ConnectWalletPrompt.tsx - VERSÃO FINAL CORRIGIDA
 
-'use client';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-export function ConnectWalletPrompt() {
+export default function ConnectWalletPrompt() {
   return (
-    <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-lg mx-auto text-center">
-      <h2 className="text-2xl font-bold mb-4 text-blue-400">Bem-vindo ao Blockchain Bet Brasil!</h2>
-      <p className="text-gray-300 mb-6">
-        Para ver as informações da rodada e fazer sua aposta, por favor, conecte sua carteira.
+    <div className="flex flex-col items-center justify-center bg-slate-800 p-8 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold text-white mb-4">Acesso Restrito</h2>
+      <p className="text-slate-300 mb-6 text-center">
+        Por favor, conecte sua carteira para continuar.
       </p>
-      {/* O botão do Web3Modal/Wagmi vai aqui e já faz todo o trabalho pesado */}
-      <w3m-button />
+      
+      {/* ✅ A PEÇA CORRETA! Este é o botão do RainbowKit. */}
+      <ConnectButton />
+
     </div>
   );
 }

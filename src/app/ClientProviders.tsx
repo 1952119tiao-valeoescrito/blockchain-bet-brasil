@@ -1,31 +1,27 @@
 // src/app/ClientProviders.tsx
 
-'use client'; // ESSA É A LINHA MAIS IMPORTANTE!
+'use client';
 
 import '@rainbow-me/rainbowkit/styles.css';
-import {RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { sepolia } from 'wagmi/chains'; // Ou a rede que você estiver usando
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
 
 // 1. Obtenha o projectId no https://cloud.walletconnect.com
-const projectId = process.env.NEXT_PUBLIC_PROJECT_ID!;
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 if (!projectId) {
   throw new Error('Variável de ambiente NEXT_PUBLIC_PROJECT_ID não definida');
 }
 
-// 2. Configure as chains e crie a config do wagmi
-const chains = [sepolia] as const;
-const config = defaultWagmiConfig({
-  chains,
-  projectId,
-  metadata: {
-    name: 'Blockchain Bet Brasil',
-    description: 'O BBB da Web3!',
-    url: 'https://blockchain-betbrasil.io', // Altere para seu domínio
-    icons: ['https://avatars.githubusercontent.com/u/37784886'],
-  },
+// 2. Crie a configuração usando a função correta do RainbowKit
+// A função `getDefaultConfig` já faz tudo que você precisa!
+const config = getDefaultConfig({
+  appName: 'Blockchain Bet Brasil',
+  projectId: projectId,
+  chains: [sepolia],
+  // Opcional: Adicione mais configurações de transporte se necessário
+  // ssr: true, // Adicione se estiver usando Server-Side Rendering
 });
 
 const queryClient = new QueryClient();
