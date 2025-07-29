@@ -7,12 +7,13 @@ import Link from 'next/link';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { BaseError, formatEther } from 'viem';
 import { bettingContractAddress, bettingContractABI } from '@/contracts';
+import toast from 'react-hot-toast';
 
 const chainCurrency: { [id: number]: string } = {};
 
 export default function BettingForm() {
     const [prognosticos, setPrognosticos] = useState<string[]>(Array(5).fill(''));
-    const { address: userAddress, isConnected } = useAccount();
+    const { isConnected } = useAccount();
     const chainId = useChainId();
     const currencySymbol = chainCurrency[chainId] || 'ETH';
     
@@ -33,20 +34,45 @@ export default function BettingForm() {
     const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
     useEffect(() => {
-    }, [isConfirmed]);
-
-    useEffect(() => {
-    }, [writeError]);
+        if (isConfirmed) {
+            toast.success('Aposta submetida com sucesso!');
+            setPrognosticos(Array(5).fill(''));
+        }
+        if (writeError) {
+            toast.error((writeError as BaseError)?.shortMessage || writeError.message);
+        }
+    }, [isConfirmed, writeError]);
 
     const handleApostar = (e: React.FormEvent) => {
         e.preventDefault();
         if (!ticketPrice) return;
+
+        const prognosticosX: bigint[] = [];
+        const prognosticosY: bigint[] = [];
+        const regex = /^\s*\d+\s*,\s*\d+\s*$/;
+
+        for (const prog of prognosticos) {
+            if (!regex.test(prog)) {
+                toast.error(`Formato inválido no prognóstico: "${prog}". Use apenas números no formato X,Y.`);
+                return;
+            }
+            const [xStr, yStr] = prog.split(',');
+            prognosticosX.push(BigInt(xStr.trim()));
+            prognosticosY.push(BigInt(yStr.trim()));
+        }
+
+        if (prognosticosX.length !== 5) {
+            return;
+        }
         
         writeContract({
             address: bettingContractAddress,
             abi: bettingContractABI,
             functionName: 'apostar',
-            args: [prognosticos],
+            args: [
+                prognosticosX as unknown as readonly [bigint, bigint, bigint, bigint, bigint],
+                prognosticosY as unknown as readonly [bigint, bigint, bigint, bigint, bigint]
+            ],
             value: ticketPrice,
         });
     };
@@ -55,7 +81,7 @@ export default function BettingForm() {
     const formattedPrice = ticketPrice ? formatEther(ticketPrice) : '...';
 
     return (
-        <div className="w-full max-w-lg p-8 space-y-8 bg-slate-800/60 border border-slate-700 rounded-2xl shadow-2xl backdrop-blur-sm">
+        <div className="w-full max-w-2xl p-8 space-y-8 bg-slate-800/60 border border-slate-700 rounded-2xl shadow-2xl backdrop-blur-sm">
             <h3 className="text-3xl font-bold text-center text-white">
                 Faça sua Aposta na <span className="text-amber-400">Rodada #{rodadaAtualId?.toString() || '...'}</span>
             </h3>

@@ -1,4 +1,4 @@
-// ARQUIVO: /src/app/layout.tsx - VERSÃO FINAL COM GOOGLE ANALYTICS
+// /src/app/layout.tsx
 
 import './globals.css';
 import type { Metadata } from 'next';
@@ -7,7 +7,8 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { ClientProviders } from './ClientProviders';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import GoogleAnalytics from '@/components/GoogleAnalytics'; // <-- 1. IMPORTAMOS O GOOGLE ANALYTICS
+import GoogleAnalytics from '@/components/GoogleAnalytics';
+import { Toaster } from 'react-hot-toast'; // <-- ADIÇÃO ESTRATÉGICA 1
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,11 +25,16 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.className} bg-slate-900 text-slate-50`}>
-        {/* Adicionamos o GA aqui. Ele vai injetar os scripts no <head> da página,
-            mas colocar o componente aqui é uma prática comum e segura. */}
         <GoogleAnalytics />
 
         <ClientProviders>
+          {/* ADIÇÃO ESTRATÉGICA 2: O Toaster fica aqui para ter acesso ao contexto dos providers */}
+          <Toaster 
+            position="top-center"
+            toastOptions={{
+              duration: 5000,
+            }}
+          />
           <div className="min-h-screen flex flex-col">
             <Header />
             <main className="flex-grow w-full">
