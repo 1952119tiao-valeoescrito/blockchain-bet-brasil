@@ -1,5 +1,7 @@
-// src/app/como-jogar/page.tsx - FAXINA COMPLETA
+// /src/app/como-jogar/page.tsx
+
 import type { Metadata } from 'next';
+import Link from 'next/link'; // 1. IMPORTAR O COMPONENTE LINK
 
 export const metadata: Metadata = { title: 'Como Jogar - Blockchain Bet Brasil', description: 'Aprenda o passo a passo para fazer sua aposta e concorrer a prêmios na loteria Web3 mais transparente do Brasil.' };
 
@@ -19,7 +21,7 @@ export default function HowToPlayPage() {
                 <h1 className="text-4xl font-bold">Como Apostar na Blockchain Bet Brasil</h1>
                 <p className="mt-2 text-lg text-gray-400">É simples, rápido e 100% transparente. Siga o guia!</p>
             </div>
-            {/* Trocamos todas as aspas problemáticas por apóstrofos simples (') */}
+            
             <InfoSection title="Guia Rápido: 4 Passos Para a Vitória">
                 <ol className="list-decimal list-inside space-y-4">
                     <li><strong>Conecte sua Carteira Digital:</strong> Primeiro, clique em 'Conectar Carteira' no topo do site. Você precisa de uma carteira como a MetaMask para jogar e receber seus prêmios.</li>
@@ -28,14 +30,27 @@ export default function HowToPlayPage() {
                     <li><strong>Acompanhe e Reivindique:</strong> Após o sorteio, volte ao site para ver os resultados. Se for um vencedor com 5, 4, 3, 2 ou 1 ponto apenas, um botão 'Reivindicar Prêmio' aparecerá para você transferir seus ganhos diretamente para sua carteira.</li>
                 </ol>
             </InfoSection>
+
             <InfoSection title="Entendendo o Jogo: A Magia da Transparência">
                 <h4>O que é um 'Token de Aposta'?</h4>
                 <p>Cada aposta com 5 prognósticos que você faz é como um bilhete único, um 'token' que representa sua participação no sorteio.</p>
+                
                 <h4>Como os Resultados são Gerados?</h4>
-                <p>Utilizamos os 5 milhares sorteados aos sabados, pela Loteria Oficial do Brasil, que são processados pelo nosso Smart Contract em conjunto com a tecnologia <strong>Chainlink VRF (Verifiable Random Function)</strong>. Isso garante que os resultados finais (X/Y) sejam aleatórios, seguros e impossíveis de manipular.</p>
+                <p>Utilizamos os 5 milhares sorteados aos sabados, pela Loteria Oficial do Brasil. O nosso Smart Contract processa esses números para gerar os prognósticos finais (X/Y) que definem os vencedores.</p>
+                
+                {/* 2. ADIÇÃO ESTRATÉGICA */}
+                <p className="mt-4 p-4 border border-cyan-500/30 bg-cyan-500/10 rounded-lg">
+                    Ficou curioso para ver como a conversão funciona na prática? Não precisa esperar o sorteio! Acesse nosso simulador e teste qualquer milhar para ver o resultado X/Y instantaneamente.
+                    <br />
+                    <Link href="/simulador-resultados" className="inline-block mt-3 font-bold text-cyan-400 hover:text-cyan-300 hover:underline">
+                        Acessar o Simulador de Resultados →
+                    </Link>
+                </p>
+
                 <h4>Por que na Blockchain?</h4>
                 <p><strong>Segurança e Justiça:</strong> Todo o processo é executado por um Smart Contract, sem intervenção humana. As regras são as mesmas para todos e não podem ser alteradas. <strong>Transparência Total:</strong> Qualquer pessoa pode auditar as transações e os resultados no Etherscan. <strong>Pagamentos Instantâneos:</strong> Você tem total controle sobre seus prêmios e os recebe em segundos.</p>
             </InfoSection>
+
             <InfoSection title="Aumente Suas Chances!">
                 <p>Não há limites! Você pode fazer quantas apostas desejar em cada rodada. Mais 'tokens' na disputa significam mais chances de ser um dos nossos grandes vencedores, quer seja com 5, 4, 3, 2 ou 1 ponto apenas. Boa sorte!</p>
             </InfoSection>

@@ -49,14 +49,14 @@ export default function BettingForm() {
 
         const prognosticosX: bigint[] = [];
         const prognosticosY: bigint[] = [];
-        const regex = /^\s*\d+\s*,\s*\d+\s*$/;
+        const regex = /^\s*\d+\s*\/\s*\d+\s*$/;
 
         for (const prog of prognosticos) {
             if (!regex.test(prog)) {
-                toast.error(`Formato inválido no prognóstico: "${prog}". Use apenas números no formato X,Y.`);
+                toast.error(`Formato inválido no prognóstico: "${prog}". Use apenas números no formato X/Y.`);
                 return;
             }
-            const [xStr, yStr] = prog.split(',');
+            const [xStr, yStr] = prog.split('/');
             prognosticosX.push(BigInt(xStr.trim()));
             prognosticosY.push(BigInt(yStr.trim()));
         }
@@ -80,6 +80,13 @@ export default function BettingForm() {
     const isProcessing = isPending || isConfirming;
     const formattedPrice = ticketPrice ? formatEther(ticketPrice) : '...';
 
+    const getButtonText = () => {
+        if (isProcessing) return 'Processando Transação...';
+        if (isPending) return 'Aguardando Carteira...';
+        if (!ticketPrice) return 'Carregando Preço...';
+        return `Submeter Aposta (${formattedPrice} ${currencySymbol})`;
+    }
+
     return (
         <div className="w-full max-w-2xl p-8 space-y-8 bg-slate-800/60 border border-slate-700 rounded-2xl shadow-2xl backdrop-blur-sm">
             <h3 className="text-3xl font-bold text-center text-white">
@@ -92,7 +99,7 @@ export default function BettingForm() {
                         <input
                             key={i}
                             type="text"
-                            placeholder="X,Y"
+                            placeholder="X/Y"
                             value={value}
                             onChange={(e) => {
                                 const newProgs = [...prognosticos];
@@ -110,13 +117,16 @@ export default function BettingForm() {
                     disabled={!isConnected || isProcessing || !ticketPrice} 
                     className="w-full py-4 px-4 rounded-lg font-bold text-lg text-white transition-all bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed"
                 >
-                    {isPending ? 'Aguardando Carteira...' : isConfirming ? 'Processando Transação...' : `Submeter Aposta (${formattedPrice} ${currencySymbol})`}
+                    {getButtonText()}
                 </button>
             </form>
 
-            <div className="text-center pt-4 border-t border-slate-700/50">
+            <div className="flex flex-col items-center gap-2 pt-4 border-t border-slate-700/50">
                 <Link href="/tabela-apostas" className="text-sm text-slate-400 hover:text-emerald-400 hover:underline transition-colors">
                     Ver prognósticos válidos e tabela de premiação
+                </Link>
+                <Link href="/simulador-resultados" className="text-sm text-slate-400 hover:text-cyan-400 hover:underline transition-colors">
+                    Testar conversão no Simulador de Resultados
                 </Link>
             </div>
         </div>
