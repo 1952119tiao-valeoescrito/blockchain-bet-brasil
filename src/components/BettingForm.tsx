@@ -123,7 +123,7 @@ export default function BettingForm() {
 
             <div className="flex flex-col items-center gap-2 pt-4 border-t border-slate-700/50">
                 <Link href="/tabela-apostas" className="text-sm text-slate-400 hover:text-emerald-400 hover:underline transition-colors">
-                    Ver prognósticos válidos e tabela de premiação
+                    Ver prognósticos válidos.
                 </Link>
                 <Link href="/simulador-resultados" className="text-sm text-slate-400 hover:text-cyan-400 hover:underline transition-colors">
                     Testar conversão no Simulador de Resultados
