@@ -1,4 +1,4 @@
-// /src/components/ResultSimulator.tsx - VERSÃO CONECTADA À BLOCKCHAIN
+// /src/components/ResultSimulator.tsx - VERSÃO FINAL COM CORREÇÃO DE BUILD
 
 'use client';
 
@@ -15,7 +15,6 @@ interface IResult {
 }
 
 export default function ResultSimulator() {
-  // Estado para garantir que o código só rode no cliente (evita erro 404/hidratação)
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
@@ -31,24 +30,28 @@ export default function ResultSimulator() {
       functionName: 'rodadaAtualId',
   });
   
-  // Define o ID da rodada atual como padrão quando carregado
   useEffect(() => {
     if (rodadaAtualId !== undefined) {
       setRodadaId(rodadaAtualId.toString());
     }
   }, [rodadaAtualId]);
 
-  // Hook para chamar a função de simulação do contrato.
-  // `enabled: false` significa que só será chamado manualmente.
   const { data: simulationData, error, isFetching, refetch } = useReadContract({
     address: bettingContractAddress,
     abi: bettingContractABI,
     functionName: 'simularConversaoMilhares',
-    args: [BigInt(0), [BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)]], // Args iniciais
-    enabled: false,
+    args: [BigInt(0), [BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)]],
+    // ===================================================================
+    // ==================  ALTERAÇÃO CRÍTICA AQUI  =======================
+    // ===================================================================
+    query: {
+        // A propriedade 'enabled' agora vive dentro do objeto 'query'.
+        enabled: false, 
+    }
+    // ===================================================================
+    // ===================================================================
   });
 
-  // Efeito para processar os resultados quando eles chegarem do contrato.
   useEffect(() => {
     if (error) {
         toast.error((error as BaseError)?.shortMessage || error.message);
@@ -99,12 +102,10 @@ export default function ResultSimulator() {
         return;
     }
     
-    // Completa o array com 0n se tiver menos de 5 milhares
     while (milharesParaSimular.length < 5) {
         milharesParaSimular.push(BigInt(0));
     }
 
-    // `refetch` executa a chamada ao contrato com os novos argumentos
     refetch({ args: [BigInt(rodadaId), milharesParaSimular as [bigint, bigint, bigint, bigint, bigint]] });
   };
 
