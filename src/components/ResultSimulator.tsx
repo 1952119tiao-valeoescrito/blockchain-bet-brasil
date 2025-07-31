@@ -1,9 +1,9 @@
-// /src/components/ResultSimulator.tsx - VERSÃO FINAL COM CORREÇÃO DE BUILD
+// /src/components/ResultSimulator.tsx - VERSÃO COM CORREÇÃO DE TIPO FINAL
 
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useReadContract, useChainId } from 'wagmi';
+import { useReadContract } from 'wagmi'; // Removido useChainId que não era usado
 import { bettingContractAddress, bettingContractABI } from '@/contracts';
 import { BaseError } from 'viem';
 import toast from 'react-hot-toast';
@@ -41,15 +41,9 @@ export default function ResultSimulator() {
     abi: bettingContractABI,
     functionName: 'simularConversaoMilhares',
     args: [BigInt(0), [BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)]],
-    // ===================================================================
-    // ==================  ALTERAÇÃO CRÍTICA AQUI  =======================
-    // ===================================================================
     query: {
-        // A propriedade 'enabled' agora vive dentro do objeto 'query'.
         enabled: false, 
     }
-    // ===================================================================
-    // ===================================================================
   });
 
   useEffect(() => {
@@ -58,7 +52,15 @@ export default function ResultSimulator() {
         setResults(null);
     }
     if (simulationData) {
-        const [resultadosX, resultadosY] = simulationData as [bigint[], bigint[]];
+        // ===================================================================
+        // ==================  CORREÇÃO DE TIPO AQUI  ========================
+        // ===================================================================
+        // Criamos novas cópias mutáveis a partir dos dados readonly.
+        const resultadosX = [...simulationData[0]];
+        const resultadosY = [...simulationData[1]];
+        // ===================================================================
+        // ===================================================================
+        
         const allResults: IResult[] = [];
         const filledNumbers = lotteryNumbers.filter(num => num.toString().length >= 4);
 
