@@ -1,9 +1,10 @@
-// /src/components/ResultSimulator.tsx - VERSÃO COM CORREÇÃO DE TIPO FINAL
+// /src/components/ResultSimulator.tsx - VERSÃO FINAL COM AÇÃO DIRETA
 
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useReadContract } from 'wagmi'; // Removido useChainId que não era usado
+import { useConfig, useReadContract } from 'wagmi';
+import { readContract } from 'wagmi/actions';
 import { bettingContractAddress, bettingContractABI } from '@/contracts';
 import { BaseError } from 'viem';
 import toast from 'react-hot-toast';
@@ -24,6 +25,14 @@ export default function ResultSimulator() {
   const [results, setResults] = useState<IResult[] | null>(null);
   const [rodadaId, setRodadaId] = useState<string>('');
   
+  // ===================================================================
+  // ==================  MUDANÇA DE ESTRATÉGIA  ========================
+  // ===================================================================
+  const config = useConfig(); // Pegamos a configuração do wagmi para usar nas ações.
+  const [isSimulating, setIsSimulating] = useState(false); // Nosso próprio estado de loading.
+  // ===================================================================
+  // ===================================================================
+
   const { data: rodadaAtualId } = useReadContract({
       address: bettingContractAddress,
       abi: bettingContractABI,
@@ -35,48 +44,7 @@ export default function ResultSimulator() {
       setRodadaId(rodadaAtualId.toString());
     }
   }, [rodadaAtualId]);
-
-  const { data: simulationData, error, isFetching, refetch } = useReadContract({
-    address: bettingContractAddress,
-    abi: bettingContractABI,
-    functionName: 'simularConversaoMilhares',
-    args: [BigInt(0), [BigInt(0), BigInt(0), BigInt(0), BigInt(0), BigInt(0)]],
-    query: {
-        enabled: false, 
-    }
-  });
-
-  useEffect(() => {
-    if (error) {
-        toast.error((error as BaseError)?.shortMessage || error.message);
-        setResults(null);
-    }
-    if (simulationData) {
-        // ===================================================================
-        // ==================  CORREÇÃO DE TIPO AQUI  ========================
-        // ===================================================================
-        // Criamos novas cópias mutáveis a partir dos dados readonly.
-        const resultadosX = [...simulationData[0]];
-        const resultadosY = [...simulationData[1]];
-        // ===================================================================
-        // ===================================================================
-        
-        const allResults: IResult[] = [];
-        const filledNumbers = lotteryNumbers.filter(num => num.toString().length >= 4);
-
-        for (let i = 0; i < filledNumbers.length; i++) {
-            const numStr = filledNumbers[i].toString();
-            allResults.push({
-                prizeNum: i + 1,
-                milhar: numStr.slice(-4),
-                prognostico: `${resultadosX[i]}/${resultadosY[i]}`,
-            });
-        }
-        setResults(allResults);
-    }
-  }, [simulationData, error, lotteryNumbers]);
-
-
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (/^\d*$/.test(e.target.value)) {
         const newNumbers = [...lotteryNumbers];
@@ -85,6 +53,9 @@ export default function ResultSimulator() {
     }
   };
 
+  // ===================================================================
+  // ==================  NOVA FUNÇÃO HANDLE SIMULATE  ==================
+  // ===================================================================
   const handleSimulate = async () => {
     setResults(null);
     if (!rodadaId || isNaN(parseInt(rodadaId)) || parseInt(rodadaId) <= 0) {
@@ -108,8 +79,39 @@ export default function ResultSimulator() {
         milharesParaSimular.push(BigInt(0));
     }
 
-    refetch({ args: [BigInt(rodadaId), milharesParaSimular as [bigint, bigint, bigint, bigint, bigint]] });
+    setIsSimulating(true);
+    try {
+        const simulationData = await readContract(config, {
+            address: bettingContractAddress,
+            abi: bettingContractABI,
+            functionName: 'simularConversaoMilhares',
+            args: [BigInt(rodadaId), milharesParaSimular as [bigint, bigint, bigint, bigint, bigint]],
+        });
+
+        const resultadosX = [...simulationData[0]];
+        const resultadosY = [...simulationData[1]];
+        
+        const allResults: IResult[] = [];
+        const filledNumbers = lotteryNumbers.filter(num => num.toString().length >= 4);
+
+        for (let i = 0; i < filledNumbers.length; i++) {
+            const numStr = filledNumbers[i].toString();
+            allResults.push({
+                prizeNum: i + 1,
+                milhar: numStr.slice(-4),
+                prognostico: `${resultadosX[i]}/${resultadosY[i]}`,
+            });
+        }
+        setResults(allResults);
+
+    } catch (err) {
+        toast.error((err as BaseError)?.shortMessage || (err as Error).message);
+    } finally {
+        setIsSimulating(false);
+    }
   };
+  // ===================================================================
+  // ===================================================================
 
   return (
     <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 w-full max-w-4xl">
@@ -153,10 +155,10 @@ export default function ResultSimulator() {
         
         <button 
           onClick={handleSimulate} 
-          disabled={!isClient || isFetching}
+          disabled={!isClient || isSimulating}
           className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-md transition-colors disabled:bg-slate-600 disabled:cursor-not-allowed"
         >
-          {isFetching ? 'Simulando na Blockchain...' : 'Simular'}
+          {isSimulating ? 'Simulando na Blockchain...' : 'Simular'}
         </button>
       </div>
 
