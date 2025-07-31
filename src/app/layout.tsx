@@ -1,4 +1,4 @@
-// /src/app/layout.tsx
+// src/app/layout.tsx
 
 import './globals.css';
 import type { Metadata } from 'next';
@@ -8,7 +8,7 @@ import { ClientProviders } from './ClientProviders';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
-import { Toaster } from 'react-hot-toast'; // <-- ADIÇÃO ESTRATÉGICA 1
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
         <GoogleAnalytics />
 
         <ClientProviders>
-          {/* ADIÇÃO ESTRATÉGICA 2: O Toaster fica aqui para ter acesso ao contexto dos providers */}
+          {/* O Toaster está no lugar certo para ter acesso ao contexto dos providers */}
           <Toaster 
             position="top-center"
             toastOptions={{

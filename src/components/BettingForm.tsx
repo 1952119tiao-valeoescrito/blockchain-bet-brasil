@@ -12,18 +12,26 @@ import toast from 'react-hot-toast';
 const chainCurrency: { [id: number]: string } = {};
 
 export default function BettingForm() {
+    // NOVO: Estado para garantir que o código só rode no cliente e evitar erro de hidratação.
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
     const [prognosticos, setPrognosticos] = useState<string[]>(Array(5).fill(''));
     const { isConnected } = useAccount();
     const chainId = useChainId();
     const currencySymbol = chainCurrency[chainId] || 'ETH';
     
-    const { data: rodadaAtualId } = useReadContract({
+    // ALTERADO: Capturamos o estado de carregamento do hook.
+    const { data: rodadaAtualId, isLoading: isRodadaLoading } = useReadContract({
         address: bettingContractAddress,
         abi: bettingContractABI,
         functionName: 'rodadaAtualId',
     });
 
-    const { data: ticketPrice } = useReadContract({
+    // ALTERADO: Capturamos o estado de carregamento do hook.
+    const { data: ticketPrice, isLoading: isPriceLoading } = useReadContract({
         address: bettingContractAddress,
         abi: bettingContractABI,
         functionName: 'ticketPriceBase',
@@ -78,19 +86,25 @@ export default function BettingForm() {
     };
     
     const isProcessing = isPending || isConfirming;
+    // ALTERADO: Usamos o estado de carregamento para a formatação do preço.
     const formattedPrice = ticketPrice ? formatEther(ticketPrice) : '...';
 
+    // ALTERADO: Lógica do botão agora é mais robusta e explícita.
     const getButtonText = () => {
-        if (isProcessing) return 'Processando Transação...';
+        if (isPriceLoading || isRodadaLoading) return 'Carregando Dados...';
+        if (isConfirming) return 'Confirmando Transação...';
         if (isPending) return 'Aguardando Carteira...';
-        if (!ticketPrice) return 'Carregando Preço...';
+        if (!ticketPrice) return 'Preço Indisponível';
         return `Submeter Aposta (${formattedPrice} ${currencySymbol})`;
     }
+
+    // ALTERADO: Adicionamos uma verificação `isClient` para evitar a renderização no servidor.
+    const displayRodada = isClient && rodadaAtualId !== undefined ? rodadaAtualId.toString() : '...';
 
     return (
         <div className="w-full max-w-2xl p-8 space-y-8 bg-slate-800/60 border border-slate-700 rounded-2xl shadow-2xl backdrop-blur-sm">
             <h3 className="text-3xl font-bold text-center text-white">
-                Faça sua Aposta na <span className="text-amber-400">Rodada #{rodadaAtualId?.toString() || '...'}</span>
+                Faça sua Aposta na <span className="text-amber-400">Rodada #{displayRodada}</span>
             </h3>
 
             <form onSubmit={handleApostar} className="space-y-6">
@@ -114,10 +128,11 @@ export default function BettingForm() {
                 
                 <button 
                     type="submit" 
-                    disabled={!isConnected || isProcessing || !ticketPrice} 
+                    disabled={!isConnected || isProcessing || !ticketPrice || isPriceLoading} 
                     className="w-full py-4 px-4 rounded-lg font-bold text-lg text-white transition-all bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed"
                 >
-                    {getButtonText()}
+                    {/* ALTERADO: A lógica do botão agora funciona mesmo se a renderização for apenas no cliente */}
+                    {isClient ? getButtonText() : 'Carregando Preço...'}
                 </button>
             </form>
 
