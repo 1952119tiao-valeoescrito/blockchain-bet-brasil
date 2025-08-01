@@ -18,7 +18,7 @@ export default function HowToPlayPage() {
     return (
         <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 text-left">
             <div className="text-center">
-                <h1 className="text-4xl font-bold">Como Apostar na Blockchain Bet Brasil</h1>
+                <h1 className="text-4xl font-bold">Como Jogar na Blockchain Bet Brasil</h1>
                 <p className="mt-2 text-lg text-gray-400">É simples, rápido e 100% transparente. Siga o guia!</p>
             </div>
             

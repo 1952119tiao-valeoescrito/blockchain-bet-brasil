@@ -12,7 +12,7 @@ export default function ComoJogarPage() {
   return (
     <div className="bg-slate-800 p-6 md:p-10 rounded-lg shadow-lg max-w-4xl w-full text-slate-300">
       <h1 className="text-4xl font-bold mb-6 text-center text-white">
-        Como Funciona a Blockchain Bet Brasil
+        Como Premiamos na Blockchain Bet Brasil
       </h1>
       <p className="text-center text-lg mb-10">
         Nosso compromisso é com a transparência e a justiça, utilizando a tecnologia blockchain para garantir um jogo seguro e auditável.
