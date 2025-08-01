@@ -1,33 +1,31 @@
 // src/components/AdminRoundControls.tsx
 
-"use client"; // Importante para os hooks do wagmi
+"use client"; // Necessário para usar hooks
 
-import AdminWriteButton from '@/components/AdminWriteButton'; // A importação correta que você descobriu!
+// A importação correta, sem ambiguidades, usando o alias @
+import AdminWriteButton from '@/components/AdminWriteButton';
 
 export default function AdminRoundControls() {
+  // Agora vamos realmente USAR o botão que importamos
   return (
     <div className="bg-slate-700 p-4 rounded-lg space-y-4">
       <h2 className="text-xl font-bold mb-4">Painel de Controle do Admin</h2>
 
-      {/* Exemplo de como usar o seu botão para iniciar uma rodada */}
       <AdminWriteButton
-        functionName="startNewRound" // O nome da função no seu contrato
+        functionName="startNewRound" // Coloque o nome da função do seu contrato
         message="Iniciar Nova Rodada"
-        args={[]} // Argumentos da função, se houver. Deixe vazio se não tiver.
-        onSuccess={() => alert('Nova rodada iniciada com sucesso!')} // O que fazer depois do sucesso
+        args={[]} // Deixe vazio se a função não precisar de argumentos
+        onSuccess={() => alert('Rodada iniciada!')}
         className="bg-green-500 hover:bg-green-600"
       />
 
-      {/* Exemplo de outro botão, para pagar os vencedores */}
       <AdminWriteButton
         functionName="payoutWinners"
-        message="Pagar Vencedores da Última Rodada"
+        message="Pagar Vencedores"
         args={[]}
         onSuccess={() => alert('Vencedores pagos!')}
         className="bg-blue-500 hover:bg-blue-600"
       />
-
-      {/* Adicione quantos botões precisar para as funções do seu contrato */}
     </div>
   );
 }
