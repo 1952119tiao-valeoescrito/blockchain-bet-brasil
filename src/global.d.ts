@@ -1,4 +1,9 @@
-// global.d.ts
-interface Window {
-  ethereum?: any; // Ou um tipo mais específico se você tiver um de uma lib como @metamask/detect-provider
+// CÓDIGO CORRIGIDO para: src/global.d.ts
+
+import { Eip1193Provider } from 'ethers';
+
+declare global {
+  interface Window {
+    ethereum?: Eip1193Provider;
+  }
 }

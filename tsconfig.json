@@ -1,38 +1,42 @@
 {
   "compilerOptions": {
-    "lib": [ // "esnext" aqui já inclui ES2020, então está bom.
+    "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false, // Considere habilitar "strict": true no futuro para um código mais robusto.
+    "strict": true,
     "noEmit": true,
-    "incremental": true,
-    "module": "esnext",
     "esModuleInterop": true,
+    "module": "esnext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
+    
+    "resolveJsonModule": true, // ✅✅✅ A LINHA DA VITÓRIA ESTÁ AQUI ✅✅✅
+    
     "isolatedModules": true,
     "jsx": "preserve",
-    "target": "ES2020", // <-- ALTERAÇÃO AQUI
+    "incremental": true,
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
+    // Não precisa mais daquela linha do web3modal aqui. Deixamos limpo.
   ],
   "exclude": [
     "node_modules"
