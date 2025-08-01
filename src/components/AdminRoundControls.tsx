@@ -1,20 +1,21 @@
 // src/components/AdminRoundControls.tsx
 
-"use client"; // Necessário para usar hooks
+"use client"; // Necessário para usar componentes interativos
 
-// A importação correta, sem ambiguidades, usando o alias @
+// AQUI ESTÁ A LINHA! Estamos na "caixa de ferramentas" (AdminRoundControls)
+// e estamos PEGANDO a "ferramenta" (AdminWriteButton).
 import AdminWriteButton from '@/components/AdminWriteButton';
 
 export default function AdminRoundControls() {
-  // Agora vamos realmente USAR o botão que importamos
   return (
     <div className="bg-slate-700 p-4 rounded-lg space-y-4">
-      <h2 className="text-xl font-bold mb-4">Painel de Controle do Admin</h2>
+      <h2 className="text-xl font-bold text-yellow-300">Painel de Controle Final</h2>
 
+      {/* Agora usamos a ferramenta que pegamos */}
       <AdminWriteButton
-        functionName="startNewRound" // Coloque o nome da função do seu contrato
+        functionName="startNewRound"
         message="Iniciar Nova Rodada"
-        args={[]} // Deixe vazio se a função não precisar de argumentos
+        args={[]}
         onSuccess={() => alert('Rodada iniciada!')}
         className="bg-green-500 hover:bg-green-600"
       />
