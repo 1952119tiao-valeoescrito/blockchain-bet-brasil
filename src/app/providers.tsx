@@ -9,7 +9,7 @@ import { sepolia } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 // ATENÇÃO: Cole aqui o seu ID de projeto gerado no site do WalletConnect Cloud.
-const projectId = 'edee62a1f005a9d0ba32911ada1ef2c9'; // <-- SUBSTITUA AQUI
+const projectId = '0xC4bbDAF808A0586534Ce108894745718Ff27cC14'; // <-- SUBSTITUA AQUI
 
 const config = getDefaultConfig({
   appName: "Blockchain BetBrasil",
