@@ -2,7 +2,7 @@
 
 "use client";
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import contractAbi from '@/abi/BlockChainBet.json';
 
 const contractAddress = '0x00376502EA15B19E5aD363B47126cBF4903cCbD0';
