@@ -1,0 +1,19 @@
+/* app/globals.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Nosso pacote de estilos customizados para componentes.
+  O Tailwind vai processar isso e disponibilizar as classes .btn-admin e .input-admin
+  para usarmos no nosso JSX.
+*/
+@layer components {
+  .btn-admin {
+    @apply w-full sm:w-auto px-6 py-2 font-semibold text-white rounded-md transition-colors disabled:cursor-not-allowed disabled:bg-slate-600;
+  }
+  .input-admin {
+     @apply w-full sm:w-auto p-2 rounded-md border border-slate-600 bg-slate-700 text-center text-white transition-colors disabled:bg-slate-800 focus:border-blue-500 focus:ring-blue-500;
+  }
+}
