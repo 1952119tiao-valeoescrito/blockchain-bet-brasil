@@ -1,125 +1,64 @@
-// components/AdminPanel.tsx
+// src/components/AdminPanel.tsx
+
 'use client';
 
-import { useState } from 'react';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { contractABI, contractAddress } from '@/constants';
-import { parseEther } from 'viem';
-import { RodadaInfo } from '@/types';
+import React from 'react';
 
-type AdminPanelProps = {
+// --- A "PLANTA BAIXA" (PROPS) ---
+// Estamos definindo o formato dos "fios" que este componente precisa
+// E estamos exportando para que outras páginas possam saber qual é o formato.
+export type AdminPanelProps = {
   isSubmitting: boolean;
-  setIsSubmitting: (isSubmitting: boolean) => void;
-  setUiMessage: (message: string | null) => void;
-  setUiMessageType: (type: 'success' | 'error' | 'info' | null) => void;
-  refreshContractData: () => Promise<void>;
-  isPaused: boolean | undefined;
-  currentRoundId: bigint | undefined;
-  roundInfo: RodadaInfo | null;
+  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
+  uiMessage: string;
+  setUiMessage: React.Dispatch<React.SetStateAction<string>>;
+  uiMessageType: 'success' | 'error' | 'info';
+  setUiMessageType: React.Dispatch<React.SetStateAction<'success' | 'error' | 'info'>>;
+  results: string;
+  setResults: React.Dispatch<React.SetStateAction<string>>;
+  roundId: string;
+  setRoundId: React.Dispatch<React.SetStateAction<string>>;
 };
 
+// --- O COMPONENTE EM SI ---
+// Note que agora ele usa a AdminPanelProps que acabamos de criar.
 export const AdminPanel = ({
   isSubmitting,
   setIsSubmitting,
+  uiMessage,
   setUiMessage,
-  setUiMessageType,
-  refreshContractData,
-  isPaused,
-  currentRoundId,
-  roundInfo,
+  // ... outras props que você possa usar aqui
 }: AdminPanelProps) => {
-  const [newTicketPrice, setNewTicketPrice] = useState('0.01');
-  const { data: hash, writeContract, isPending } = useWriteContract();
 
-  const handleWrite = async (functionName: string, message: string, args?: any[]) => {
+  // O seu código do painel de admin vai aqui.
+  // Por exemplo, um formulário:
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
-    setUiMessage(message);
-    setUiMessageType('info');
-
-    writeContract({
-      address: contractAddress,
-      abi: contractABI,
-      functionName: functionName,
-      args: args || [],
-    });
-  };
-
-  useWaitForTransactionReceipt({
-    hash,
-    onSuccess: async () => {
-      setUiMessage('Transação confirmada! Atualizando dados...');
-      setUiMessageType('success');
-      await refreshContractData();
+    setUiMessage('Enviando dados...');
+    // Lógica de envio...
+    console.log("Formulário do Admin enviado!");
+    setTimeout(() => {
       setIsSubmitting(false);
-    },
-    onError: (err) => {
-      setUiMessage(`Erro na confirmação: ${err.message}`);
-      setUiMessageType('error');
-      setIsSubmitting(false);
-    },
-  });
-
-  const handleStartRound = () => {
-    const priceInWei = parseEther(newTicketPrice);
-    handleWrite('iniciarNovaRodada', 'Iniciando nova rodada... Verifique sua carteira.', [priceInWei]);
+      setUiMessage('Operação concluída!');
+    }, 2000);
   };
-
-  const handlePauseContract = () => {
-    handleWrite('pausar', 'Pausando o contrato... Verifique sua carteira.');
-  };
-
-  const handleUnpauseContract = () => {
-    handleWrite('despausar', 'Reativando o contrato... Verifique sua carteira.');
-  };
-
-  // --- LÓGICA DE DESABILITAÇÃO REFINADA ---
-  const isPauseButtonDisabled = isSubmitting || isPaused === undefined;
-  const canStartNewRound = isPaused === false && ((roundInfo && roundInfo.status === 2) || currentRoundId === 0n);
-  const isStartButtonDisabled = isSubmitting || !canStartNewRound;
-  
-  const getHelpText = () => {
-    if (isSubmitting) return "Aguardando confirmação da transação...";
-    if (isPaused) return "O contrato está pausado. Reative para continuar.";
-    if (!canStartNewRound && roundInfo?.status === 1) return "A rodada atual precisa ser fechada antes de iniciar uma nova.";
-    if (!canStartNewRound) return "Não é possível iniciar uma nova rodada no momento.";
-    return "Pronto para iniciar uma nova rodada.";
-  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-slate-800/50 rounded-lg border border-slate-700">
-      <h3 className="text-xl font-bold text-center text-slate-100 mb-6">Painel do Administrador</h3>
-      
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
-        {isPaused ? (
-          <button onClick={handleUnpauseContract} disabled={isPauseButtonDisabled} className="btn-admin bg-emerald-600 hover:bg-emerald-700">
-            Reativar Contrato
-          </button>
-        ) : (
-          <button onClick={handlePauseContract} disabled={isPauseButtonDisabled} className="btn-admin bg-amber-600 hover:bg-amber-700">
-            Pausar Contrato
-          </button>
-        )}
-      </div>
-      
-      <div className="border-t border-slate-700 pt-4 mt-4">
-        <div className='flex flex-col sm:flex-row items-center justify-center gap-4'>
-            <input
-              type="text"
-              value={newTicketPrice}
-              onChange={(e) => setNewTicketPrice(e.target.value)}
-              placeholder="Preço em ETH (ex: 0.01)"
-              className="input-admin"
-              disabled={isStartButtonDisabled}
-            />
-            <button onClick={handleStartRound} disabled={isStartButtonDisabled} className="btn-admin bg-blue-600 hover:bg-blue-700">
-              Iniciar Nova Rodada
-            </button>
-        </div>
-      </div>
-      
-      <p className="text-center text-sm text-slate-400 mt-6 min-h-[20px]">
-        {getHelpText()}
-      </p>
+    <div className="space-y-4">
+      <p className="text-white">Bem-vindo ao painel de controle.</p>
+      {/* Exemplo de uso das props */}
+      <form onSubmit={handleSubmit}>
+        {/* Seus campos de formulário aqui */}
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:bg-gray-500"
+        >
+          {isSubmitting ? 'Enviando...' : 'Executar Ação'}
+        </button>
+      </form>
+      {uiMessage && <p className="text-white mt-4">{uiMessage}</p>}
     </div>
   );
 };
