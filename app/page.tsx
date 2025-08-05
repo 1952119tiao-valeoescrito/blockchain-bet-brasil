@@ -92,7 +92,7 @@ export default function HomePage() {
           <div className="md:w-1/3 w-full">
             <ContractDetails
               isLoading={isLoadingDetails}
-              owner={ownerAddress as string | undefined}
+              owner={ownerAddress as `0x${string}` | undefined}
               isPaused={isPaused as boolean | undefined}
               ticketBase={ticketPriceBase as bigint | undefined}
               taxaPlataforma={typeof currentFeeBps === 'bigint' ? Number(currentFeeBps) / 100 : undefined}
