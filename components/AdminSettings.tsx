@@ -27,7 +27,7 @@ export default function AdminSettings({
         alert("Valor da taxa inválido.");
         return;
     }
-    handleWrite('setTaxaAdministracao', `Alterando taxa para ${newFee} BPS...`, [feeBps]);
+    handleWrite('setTaxaPlataforma', `Alterando taxa para ${newFee} BPS...`, [feeBps]);
   };
 
   const handleTransferOwnership = () => {

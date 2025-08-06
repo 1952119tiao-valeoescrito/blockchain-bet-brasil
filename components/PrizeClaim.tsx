@@ -1,7 +1,7 @@
-// src/components/PrizeClaim.tsx
+// src/components/PrizeClaim.tsx (VERSÃO CORRIGIDA E FINAL)
 
 "use client";
-
+import React from 'react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { contractAddress, contractABI } from '@/constants';
 
@@ -12,7 +12,6 @@ interface PrizeClaimProps {
 const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
   const { address, isConnected } = useAccount();
 
-  // 1. Verifica se a rodada atual já está em fase de pagamento
   const { data: infoBasica } = useReadContract({
     address: contractAddress,
     abi: contractABI,
@@ -22,27 +21,24 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
   });
 
   const statusRodada = infoBasica ? Number(infoBasica[1]) : 0;
-  const podeReivindicar = statusRodada >= 3; // 3: RESULTADO_DISPONIVEL, 4: PAGA
+  const podeReivindicar = statusRodada >= 3;
 
-  // 2. Busca o prêmio do usuário conectado
   const { data: premio, isLoading: loadingPremio } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getPremioParaReivindicar',
-    args: [BigInt(rodadaId), address],
-    query: { enabled: isConnected && rodadaId > 0 && podeReivindicar } // Só busca se for relevante
+    args: [BigInt(rodadaId), address!], // CORRIGIDO: '!' é seguro por causa do 'enabled'
+    query: { enabled: !!address && isConnected && rodadaId > 0 && podeReivindicar } // CORRIGIDO: '!!address' adicionado
   });
 
-  // 3. Verifica se o prêmio já foi sacado
   const { data: foiReivindicado, isLoading: loadingReivindicado } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'checarSePremioFoiReivindicado',
-    args: [BigInt(rodadaId), address],
-    query: { enabled: isConnected && rodadaId > 0 && podeReivindicar }
+    args: [BigInt(rodadaId), address!], // CORRIGIDO: '!' é seguro por causa do 'enabled'
+    query: { enabled: !!address && isConnected && rodadaId > 0 && podeReivindicar } // CORRIGIDO: '!!address' adicionado
   });
 
-  // Hooks para a transação de saque
   const { data: hash, writeContract, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = 
     useWaitForTransactionReceipt({ hash });
@@ -56,12 +52,10 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
     });
   };
 
-  // Não mostra nada se não estiver conectado ou a rodada não estiver na fase certa
   if (!isConnected || !podeReivindicar || loadingPremio || loadingReivindicado) {
     return null;
   }
 
-  // Se tem prêmio e ainda não foi sacado, mostra o botão
   if (premio && Number(premio) > 0 && !foiReivindicado) {
     const valorPremioEmMatic = Number(premio) / 1e18;
 
@@ -84,7 +78,6 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
     );
   }
 
-  // Se já sacou, mostra uma mensagem de confirmação
   if (premio && Number(premio) > 0 && foiReivindicado) {
     return (
       <div className="w-full max-w-md mx-auto bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
@@ -94,7 +87,6 @@ const PrizeClaim = ({ rodadaId }: PrizeClaimProps) => {
     );
   }
 
-  // Se não ganhou nada na rodada, não mostra nada para não poluir a tela.
   return null;
 };
 

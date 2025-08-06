@@ -1,12 +1,12 @@
-// components/BettingForm.tsx (VERSÃO COMPLETA E REATORADA)
+// components/BettingForm.tsx (A VERSÃO FINAL. PROMETO.)
 
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
 import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
-import { formatEther } from 'viem';
+import { formatEther, BaseError } from 'viem';
 import { contractAddress, contractABI } from '@/constants';
-import { UiMessageCard } from './UiMessageCard'; // Importando o componente de UI
+import { UiMessageCard } from './UiMessageCard';
 
 interface SavedBet {
   id: string;
@@ -25,22 +25,31 @@ export default function BettingForm() {
     const contractConfig = { address: contractAddress, abi: contractABI };
     
     const { data: rodadaAtualId } = useReadContract({ ...contractConfig, functionName: 'rodadaAtualId' });
-    const { data: ticketPrice } = useReadContract({ ...contractConfig, functionName: 'ticketPriceBase' }); // Ou ticketPrice, verifique seu contrato
+    const { data: ticketPrice } = useReadContract({ ...contractConfig, functionName: 'ticketPriceBase' });
     
     const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
     
-    const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
       hash,
-      onSuccess: () => {
-        setUiMessage({ text: 'Aposta registrada com sucesso!', type: 'success' });
-        salvarApostaNoHistorico();
-        setPrognosticos(Array(5).fill(''));
-      },
     });
 
     useEffect(() => {
+        if (isSuccess) {
+            setUiMessage({ text: 'Aposta registrada com sucesso!', type: 'success' });
+            salvarApostaNoHistorico();
+            setPrognosticos(Array(5).fill(''));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSuccess]);
+
+    useEffect(() => {
         if (writeError) {
-            setUiMessage({ text: writeError.shortMessage || 'Erro ao enviar aposta.', type: 'error' });
+            if (writeError instanceof BaseError) {
+                const rootCause = writeError.walk();
+                setUiMessage({ text: rootCause.message, type: 'error' });
+            } else {
+                setUiMessage({ text: 'Ocorreu um erro inesperado.', type: 'error' });
+            }
         }
     }, [writeError]);
 
@@ -90,8 +99,8 @@ export default function BettingForm() {
         }
 
         try {
-            const x = prognosticos.map(p => BigInt(p.split('/')[0]));
-            const y = prognosticos.map(p => BigInt(p.split('/')[1]));
+            const x = prognosticos.map(p => BigInt(p.split('/')[0])) as [bigint, bigint, bigint, bigint, bigint];
+            const y = prognosticos.map(p => BigInt(p.split('/')[1])) as [bigint, bigint, bigint, bigint, bigint];
 
             setUiMessage({ text: 'Confirme a transação na sua carteira...', type: 'info' });
             writeContract({
@@ -137,8 +146,7 @@ export default function BettingForm() {
                     <input type="text" readOnly value={formatarValor(ticketPrice)} className="w-full mt-1 bg-slate-900 border border-slate-600 rounded-md py-2 px-3 text-white font-mono" />
                 </div>
                 
-                {/* Usando o novo componente de UI para as mensagens */}
-                <UiMessageCard message={uiMessage?.text} type={uiMessage?.type} />
+                <UiMessageCard message={uiMessage?.text ?? null} type={uiMessage?.type ?? null} />
                 
                 <button type="submit" disabled={!isConnected || isProcessing || !ticketPrice} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-lg disabled:bg-slate-500 disabled:cursor-not-allowed transition-colors">
                     {isPending ? 'Aguardando na carteira...' : isConfirming ? 'Registrando aposta...' : (isConnected ? 'Submeter Aposta' : 'Conecte a Carteira')}

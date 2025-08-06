@@ -1,7 +1,7 @@
 // constants/index.ts
 
 // Cole o endereço do seu contrato após o deploy em uma rede de teste (ex: Sepolia) ou mainnet (ex: Polygon)
-export const contractAddress = "0xB719196066950D0bb308da388B92f33ABd298D8b"; // <-- SUBSTITUA PELO ENDEREÇO DO SEU CONTRATO
+export const contractAddress: `0x${string}` = "0xB719196066950D0bb308da388B92f33ABd298D8b"; // <-- SUBSTITUA PELO ENDEREÇO DO SEU CONTRATO
 
 export const contractABI = [
 	{

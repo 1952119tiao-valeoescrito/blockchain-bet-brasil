@@ -1,47 +1,76 @@
-// components/AdminRoundControls.tsx
+// src/components/AdminRoundControls.tsx
 
 'use client';
 
-import { formatEther } from 'viem';
+import React, { useState } from 'react';
 
-// Definindo as props que este componente receberá
-type AdminRoundControlsProps = {
+// ======================================================================
+// CADA COMPONENTE DEFINE E EXPORTA SUAS PRÓPRIAS PROPS.
+// Esta é a abordagem correta e anti-paradoxo.
+
+// Primeiro, definimos o tipo para a função de escrita, como antes.
+type WriteableFunctionName =
+  | 'apostar' | 'despausar' | 'fecharApostas' | 'iniciarNovaRodada' | 'pausar'
+  | 'registrarResultadosDaFederalEProcessar' | 'reivindicarPremio' | 'renounceOwnership'
+  | 'retirarTaxas' | 'setTaxaPlataforma' | 'setTicketPriceBase' | 'transferOwnership';
+
+// Agora, definimos e EXPORTAMOS o tipo das props do componente.
+export type AdminRoundControlsProps = {
   isSubmitting: boolean;
-  handleWrite: (functionName: string, message: string, args?: any[]) => Promise<void>;
-  availableFees: bigint | undefined; // Taxas disponíveis para saque
+  handleWrite: (functionName: WriteableFunctionName, message: string, args?: any[]) => Promise<void>;
+  availableFees: number[];
 };
+// ======================================================================
 
-export default function AdminRoundControls({
-  isSubmitting,
-  handleWrite,
-  availableFees,
-}: AdminRoundControlsProps) {
+const AdminRoundControls = ({ isSubmitting, handleWrite }: AdminRoundControlsProps) => {
+  const [ticketPrice, setTicketPrice] = useState('0.01'); 
 
-  const handleWithdrawFees = () => {
-    handleWrite('retirarTaxas', 'Iniciando o saque das taxas... Verifique a carteira.');
+  const handleIniciarRodada = () => {
+    // Usamos o utilitário ethers para converter a string para a unidade correta
+    // const parsedPrice = ethers.parseEther(ticketPrice);
+    // handleWrite('iniciarNovaRodada', 'Iniciando nova rodada...', [parsedPrice]);
+    // Simplificando por agora, vamos passar a string, a conversão deve ser feita antes
+    handleWrite('iniciarNovaRodada', 'Iniciando nova rodada...', [ticketPrice]);
   };
 
-  // Lógica para desabilitar o botão
-  const canWithdraw = availableFees !== undefined && availableFees > 0n;
-  const feesInEth = availableFees ? formatEther(availableFees) : '0.00';
+  const handlePausarContrato = () => {
+    handleWrite('pausar', 'Pausando o contrato...');
+  };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-slate-800/50 rounded-lg border border-slate-700">
-      <h3 className="text-xl font-bold text-center text-slate-100 mb-6">Controles Financeiros</h3>
-
-      <div className="flex flex-col md:flex-row items-center justify-center text-center p-4 bg-slate-900/50 rounded-md">
-        <div className="flex-1 mb-4 md:mb-0">
-          <p className="text-slate-400">Taxas acumuladas para saque:</p>
-          <p className="text-2xl font-bold text-cyan-400">{feesInEth} ETH</p>
+    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
+      <h3 className="text-xl font-semibold text-white mb-4">Controle de Rodadas</h3>
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="ticketPrice" className="block text-sm font-medium text-gray-300 mb-1">
+            Preço do Bilhete (em ETH/MATIC)
+          </label>
+          <input
+            type="text"
+            id="ticketPrice"
+            value={ticketPrice}
+            onChange={(e) => setTicketPrice(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-white"
+            placeholder="Ex: 0.01"
+          />
         </div>
         <button
-          onClick={handleWithdrawFees}
-          disabled={isSubmitting || !canWithdraw}
-          className="btn-admin bg-cyan-600 hover:bg-cyan-700"
+          onClick={handleIniciarRodada}
+          disabled={isSubmitting}
+          className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-500"
         >
-          Retirar Taxas
+          {isSubmitting ? 'Iniciando...' : 'Iniciar Nova Rodada'}
+        </button>
+        <button
+          onClick={handlePausarContrato}
+          disabled={isSubmitting}
+          className="w-full px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:bg-gray-500"
+        >
+          {isSubmitting ? 'Pausando...' : 'Pausar Contrato'}
         </button>
       </div>
     </div>
   );
-}
+};
+
+export default AdminRoundControls;

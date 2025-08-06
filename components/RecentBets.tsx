@@ -1,12 +1,11 @@
-// components/RecentBets.tsx
+// components/RecentBets.tsx (VERSÃO FINAL QUE COMPILA)
 
 "use client";
 
 import { useReadContract } from 'wagmi';
-import { formatEther } from 'viem';
-import { contractAddress, contractABI } from '@/constants'; // Usando nossa fonte da verdade
+import { formatEther, BaseError } from 'viem';
+import { contractAddress, contractABI } from '@/constants';
 
-// Definindo as props que o componente receberá
 type RecentBetsProps = {
   currentRoundId: bigint | undefined;
 };
@@ -17,16 +16,13 @@ export function RecentBets({ currentRoundId }: RecentBetsProps) {
     address: contractAddress,
     abi: contractABI,
     functionName: 'getApostasDaRodada',
-    // Usando o ID da rodada atual que recebemos como prop
-    args: [currentRoundId, 0, 100], 
-    // Só executa a query se o ID da rodada for válido
+    args: [currentRoundId!, 0n, 100n], 
     query: {
       enabled: !!currentRoundId && currentRoundId > 0n,
     },
-    watch: true, // A mágica do tempo real!
+    // A linha 'watch: true,' foi REMOVIDA daqui.
   });
 
-  // Se ainda não sabemos qual é a rodada atual, não mostramos nada.
   if (!currentRoundId || currentRoundId === 0n) {
     return null;
   }
@@ -36,7 +32,11 @@ export function RecentBets({ currentRoundId }: RecentBetsProps) {
   }
 
   if (error) {
-    return <div className="text-center text-red-400">Erro ao carregar apostas: {error.shortMessage}</div>;
+    if (error instanceof BaseError) {
+      const rootCause = error.walk();
+      return <div className="text-center text-red-400">Erro ao carregar apostas: {rootCause.message}</div>;
+    }
+    return <div className="text-center text-red-400">Ocorreu um erro inesperado ao carregar as apostas.</div>;
   }
   
   return (
@@ -48,7 +48,7 @@ export function RecentBets({ currentRoundId }: RecentBetsProps) {
         {(!apostas || apostas.length === 0) ? (
             <div className="text-center text-gray-500 py-8">Nenhuma aposta feita nesta rodada ainda. Seja o primeiro!</div>
         ) : (
-          [...apostas].reverse().map((aposta, index) => ( // Usando spread para não mutar o array original
+          [...apostas].reverse().map((aposta, index) => (
             <div key={index} className="bg-slate-700/50 p-3 rounded-md text-sm flex justify-between items-center gap-4">
               <div>
                 <p className="font-mono text-gray-300">
