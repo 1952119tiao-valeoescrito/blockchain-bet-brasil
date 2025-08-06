@@ -1,56 +1,50 @@
-// app/apostas/page.tsx (VERSÃO FINAL E COMPLETA)
+// app/apostas/page.tsx
 
 'use client';
 
-import { useReadContract } from 'wagmi';
-import BettingForm from '@/components/BettingForm';
-import BlockchainBetBrasilTable from '@/components/BlockchainBetBrasilTable';
-import { CurrentRoundInfo } from '@/components/CurrentRoundInfo';
-import { RecentBets } from '@/components/RecentBets'; // 1. IMPORTAR O NOVO COMPONENTE
-import { contractAddress, contractABI } from '@/constants';
-import { RodadaInfo } from '@/types';
+import { useAccount } from 'wagmi';
+import BettingForm from '@/components/BettingForm'; // O seu formulário de aposta
+import { ReferenceTable } from '@/components/ReferenceTable'; // Sua tabela de referência
+import { ConnectWalletPrompt } from '@/components/ConnectWalletPrompt'; // Nosso novo porteiro
 
-export default function ApostasPage() {
+// Supondo que você tenha um componente para a mensagem "Nenhuma rodada aberta"
+// import { RoundStatusMessage } from '@/components/RoundStatusMessage';
 
-  // --- BUSCANDO DADOS DA RODADA ---
-  const { data: currentRoundId, isLoading: isLoadingId } = useReadContract({
-    address: contractAddress,
-    abi: contractABI,
-    functionName: 'rodadaAtualId',
-  });
-
-  const { data: roundInfo, isLoading: isLoadingInfo } = useReadContract({
-    address: contractAddress,
-    abi: contractABI,
-    functionName: 'rodadas',
-    args: [currentRoundId as bigint],
-    query: {
-      enabled: !!currentRoundId && currentRoundId > 0n,
-    },
-  }) as { data: RodadaInfo | null, isLoading: boolean };
-
-  const isLoading = isLoadingId || isLoadingInfo;
+const ApostasPage = () => {
+  // A linha mais importante: pegamos o status da conexão.
+  const { isConnected } = useAccount();
 
   return (
-    <div className="container mx-auto p-4 md:p-8 space-y-16">
-      
-      {/* Container para a parte superior da página (Informações e Formulário) */}
-      <div className="flex flex-col items-center gap-12">
-        <CurrentRoundInfo 
-          isLoading={isLoading}
-          currentRoundId={currentRoundId as bigint | undefined}
-          roundInfo={roundInfo}
-        />
-        <BettingForm />
-      </div>
-
-      {/* 2. ADICIONAR O FEED DE APOSTAS AQUI, PASSANDO O ID DA RODADA */}
-      <RecentBets currentRoundId={currentRoundId as bigint | undefined} />
-      
-      {/* Tabela de Referência Completa */}
-      <div className="flex justify-center">
-        <BlockchainBetBrasilTable />
-      </div>
-    </div>
+    <main className="container mx-auto py-10 px-4">
+      {/* 
+        A MÁGICA ACONTECE AQUI:
+        - Se o usuário ESTIVER conectado, mostramos o conteúdo principal da página.
+        - Se NÃO ESTIVER conectado, mostramos o nosso "porteiro".
+      */}
+      {isConnected ? (
+        <div className="flex flex-col items-center gap-12 w-full">
+          {/* Você pode adicionar aqui a lógica para mostrar a mensagem da rodada */}
+          {/* <RoundStatusMessage /> */}
+          
+          <div className="w-full max-w-3xl">
+            <BettingForm />
+          </div>
+          
+          <div className="w-full">
+            {/* Supondo que sua tabela se chame ReferenceTable */}
+            {/* <ReferenceTable /> */}
+            <h2 className="text-2xl font-bold text-center text-cyan-400 mb-4">Tabela de Referência de Prognósticos</h2>
+            <p className="text-center text-gray-400">Esta tabela serve como uma referência completa de todos os 625 prognósticos possíveis em nosso sistema, no formato "x/y". Use-a para consultar e planejar suas apostas.</p>
+            {/* O conteúdo da sua tabela iria aqui */}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center pt-20">
+          <ConnectWalletPrompt />
+        </div>
+      )}
+    </main>
   );
-}
+};
+
+export default ApostasPage;
