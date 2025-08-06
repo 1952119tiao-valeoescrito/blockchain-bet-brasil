@@ -5,17 +5,12 @@ import React from 'react';
 const TermosDeUsoPage = () => {
   return (
     // ======================================================================
-    // MUDANÇA DE ESTRATÉGIA:
-    // - Removemos 'min-h-screen', 'flex', 'items-center', 'justify-center'.
-    // - Adicionamos um padding vertical (py-16) para dar espaço em cima e embaixo.
+    // A CORREÇÃO:
+    // Trocamos 'py-16' (muito espaço) por 'py-8' (espaçamento moderado).
+    // Isso vai "subir" o card de conteúdo, dando mais espaço para o rodapé aparecer.
     // ======================================================================
-    <main className="container mx-auto py-16 px-4">
+    <main className="container mx-auto py-8 px-4">
       
-      {/* 
-        A MÁGICA AGORA ESTÁ AQUI:
-        - O container principal da PÁGINA já é 'container mx-auto', que centraliza na horizontal.
-        - Não precisamos mais do 'w-full max-w-4xl' aqui, pois o 'container' já cuida disso.
-      */}
       <div className="bg-gray-800/60 p-8 rounded-lg shadow-2xl border border-gray-700">
         
         <h1 className="text-4xl font-bold text-white text-center mb-6">
@@ -50,7 +45,7 @@ const TermosDeUsoPage = () => {
           <div>
             <h2 className="text-2xl font-semibold text-white mb-2">Cláusula 10 – Contato</h2>
             <p>
-              Se tiver dúvidas sobre estes Termos, entre em contato conosco pelo e-mail: [SEU E-MAIL DE SUPORTE].
+              Se tiver dúvidas sobre estes Termos, entre em contato conosco pelo e-mail: suporte@valeoescrito.com.br
             </p>
           </div>
         </div>
