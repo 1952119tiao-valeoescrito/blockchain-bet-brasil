@@ -1,0 +1,14 @@
+{
+  "Header": {
+    "apostas": "Apostas",
+    "comoJogar": "Como Jogar",
+    "premiacao": "Premiação",
+    "painelAdmin": "Painel Admin",
+    "conectarCarteira": "Conectar Carteira"
+  },
+  "HomePage": {
+    "title": "Bem-vindo à Blockchain BetBrasil!",
+    "subtitle": "Você sonha, nós entregamos os resultados.",
+    "connect_prompt": "Conecte sua carteira para começar a apostar:"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "Header": {
+    "apostas": "Bets",
+    "comoJogar": "How to Play",
+    "premiacao": "Prizes",
+    "painelAdmin": "Admin Panel",
+    "conectarCarteira": "Connect Wallet"
+  },
+  "HomePage": {
+    "title": "Welcome to Blockchain BetBrasil!",
+    "subtitle": "You dream, we deliver the results.",
+    "connect_prompt": "Connect your wallet to start betting:"
+  }
+}
