@@ -7,10 +7,11 @@ import { useAccount, useReadContract } from 'wagmi';
 import { contractAddress, contractABI } from '@/constants';
 
 // ======================================================================
-// CORREÇÃO FINAL: Usando chaves {} para importações nomeadas
-import { AdminRoundControls } from '@/components/AdminRoundControls';
-import { AdminRegisterResults } from '@/components/AdminRegisterResults';
-import { AdminSettings } from '@/components/AdminSettings';
+// A CORREÇÃO FINAL: Removendo as chaves {} porque os componentes
+// usam 'export default', como o próprio compilador sugeriu.
+import AdminRoundControls from '@/components/AdminRoundControls';
+import AdminRegisterResults from '@/components/AdminRegisterResults';
+import AdminSettings from '@/components/AdminSettings';
 // ======================================================================
 
 const AdminDashboardPage = () => {
