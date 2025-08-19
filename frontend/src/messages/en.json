@@ -1,0 +1,213 @@
+{
+  "Header": {
+    "betting": "Betting",
+    "howToPlay": "How to Play",
+    "prizes": "Prizes",
+    "adminPanel": "Admin Panel"
+  },
+  "Footer": {
+    "copyright": "All rights reserved.",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy"
+  },
+  "LandingPage": {
+    "welcome": "Welcome",
+    "main_slogan_1": "Blockchain Bet Brazil -",
+    "main_slogan_2": "The Big One of Web3.",
+    "secondary_slogan": "This Game is Awesome",
+    "game_hook": "Win with 5, 4, 3, 2, and even with just 1 point!",
+    "platform_description": "Decentralized betting platform."
+  },
+  "AnnouncementBanner": {
+    "title": "It's Official: We Are Live!",
+    "body": "Blockchain Bet Brasil has officially launched! Our platform has been rigorously audited and operates with a robust security system to ensure the integrity of your bets. Play with confidence and good luck!"
+  },
+  "Countdown": {
+    "title_closing": "Betting Closes In:",
+    "title_opening": "Next Round Opens In:",
+    "days": "DAYS",
+    "hours": "HOURS",
+    "minutes": "MINUTES",
+    "seconds": "SECONDS"
+  },
+  "ConnectWalletButton": {
+    "label": "Connect Wallet"
+  },
+  "PainelInformativo": {
+    "loading": "Loading contract information...",
+    "title": "Platform Status",
+    "currentRound": "Current Round",
+    "accumulatedFees": "Accumulated Fees",
+    "verifiedContract": "Verified Contract"
+  },
+  "SeletorDeRodada": {
+    "loading": "Loading round history...",
+    "title": "Select Round",
+    "roundLabel": "Round #{id}",
+    "currentLabel": "(Current)"
+  },
+  "PainelDeAposta": {
+    "title": "Bets for Round #{id}",
+    "ticketPrice": "Ticket Price",
+    "connect_wallet": "Connect your wallet to place a bet",
+    "loading_info": "Loading round information...",
+    "bets_closed": "Betting for this round is closed.",
+    "approve_pending": "Waiting for approval in wallet...",
+    "approve_confirming": "Processing approval...",
+    "approve_button": "1. Approve Spend of {price} USDC",
+    "bet_pending": "Waiting for bet confirmation...",
+    "bet_confirming": "Processing your bet...",
+    "bet_success": "Bet placed successfully!",
+    "bet_button": "2. Place Bet",
+    "validation_error": "Please fill in all predictions with numbers between 1 and 25."
+  },
+  "PainelDeResultados": {
+    "title": "Results for Round #{id}",
+    "loading": "Loading results...",
+    "awaiting": "Waiting for the results of this round to be published.",
+    "resultsX": "Results X",
+    "resultsY": "Results Y",
+    "checking_prize": "Checking your prize...",
+    "already_claimed": "You have already claimed your prize of {prize} USDC for this round!",
+    "congratulations": "Congratulations! You won!",
+    "claim_button": "Claim {prize} USDC",
+    "claim_pending": "Waiting in wallet...",
+    "claim_confirming": "Processing claim...",
+    "claim_success": "Prize sent! ✅",
+    "no_win": "Unfortunately, you were not a winner this time. Better luck next time!"
+  },
+  "Notifications": {
+    "approve_loading": "Sending approval transaction...",
+    "approve_success": "Approval successful! You can now place your bet.",
+    "bet_loading": "Confirming your bet on the blockchain...",
+    "bet_success": "Bet placed successfully! Good luck!",
+    "claim_loading": "Processing your prize claim...",
+    "claim_success": "Prize claimed and sent to your wallet!",
+    "error_rejected": "Transaction rejected by user.",
+    "error_generic": "An error occurred: {message}"
+  },
+  "ComoJogarPage": {
+    "title": "How to Play at Blockchain Bet Brasil",
+    "intro_p1": "Our system is inspired by the classic mechanics... <link>Official Brazilian Lottery</link>...",
+    "betting_title": "The Bet",
+    "betting_p1": "Your bet consists of 5 predictions... <mono>X / Y</mono>...",
+    "clearing_title": "The Clearing",
+    "clearing_li1": "After the Official Brazilian Lottery draw...",
+    "clearing_li2": "Our smart contract converts the <yellow>last two digits</yellow>...",
+    "clearing_li3": "The contract then compares...",
+    "clearing_li4": "The prize money is automatically distributed...",
+    "cta_button": "Place My Bet Now!"
+  },
+  "PremiacaoPage": {
+    "check_prize_title": "Check My Prizes",
+    "check_prize_subtitle": "Enter the number of a finished round to check if you have prizes to claim.",
+    "round_id_placeholder": "Round ID",
+    "verify_button": "Verify",
+    "error_invalid_round": "Please enter a valid round number.",
+
+    "main_title": "The End of the \"Long Shot\"",
+    "subtitle": "Discover our revolutionary Cascading Prize Structure, designed to reward more players, more often.",
+    
+    "distribution_title": "Standard Prize Distribution",
+    "distribution_desc": "In each round, the total prize pool is transparently divided into five tiers of correct guesses:",
+    "points": "Points",
+    "point": "Point",
+    "of_prize": "of the prize pool",
+
+    "cascade_title": "The Cascade Effect",
+    "cascade_desc": "What if no one hits the top tiers? This is where the magic happens. The prize doesn't roll over to the next week. It rolls down.",
+    "cascade_example1": "For example: if no one gets 5 points, the 50% prize pool is added to the 4-point tier. Suddenly, the 4-point winners are splitting 70% of the total prize!",
+    "cascade_example2": "This cascade continues down to the last tier, which means that with just 1 point, you could be competing for 100% of the prize pool!",
+
+    "conclusion_title": "Your Persistence is Your Greatest Strategy",
+    "conclusion_desc": "At Blockchain Bet Brasil, a single correct guess can make you the grand winner of the round. Play, persist, and discover the multiple ways to win."
+  },
+  "AdminPanel": {
+    "title": "Admin Panel",
+    "loading": "Verifying permissions...",
+    "error_not_connected": "Please connect your wallet to access this area.",
+    "error_not_admin": "Access denied. Only the contract owner can access this page.",
+    "toast_start_loading": "Starting new round on the blockchain...",
+    "toast_start_success": "New round started successfully!",
+    "toast_close_loading": "Closing bets on the blockchain...",
+    "toast_close_success": "Bets closed successfully!",
+    "toast_results_loading": "Submitting results to the contract...",
+    "toast_results_success": "Results registered and prizes calculated!",
+    "toast_fee_loading": "Updating platform fee...",
+    "toast_fee_success": "Platform fee updated successfully!",
+    "toast_owner_loading": "Transferring contract ownership...",
+    "toast_owner_success": "Ownership transferred! You are no longer the admin.",
+    "RoundControls": {
+      "title": "Round Controls",
+      "ticket_price_label": "Ticket Price (in USDC)",
+      "ticket_price_placeholder": "e.g., 1.5",
+      "button_start": "Start New Round",
+      "button_starting": "Starting...",
+      "button_pause": "Pause Contract",
+      "button_pausing": "Pausing...",
+      "error_invalid_price": "Please enter a valid ticket price."
+    },
+    "RegisterResults": {
+      "title": "Current Round Control (ID: {id})",
+      "step1_title": "Step 1: Close Bets",
+      "step1_desc": "Closes the ability for new bets...",
+      "button_close": "Close Bets",
+      "step2_title": "Step 2: Register Results",
+      "step2_desc": "Enter the 5 thousands from the Federal Lottery...",
+      "placeholder": "e.g., 12345,67890,...",
+      "button_register": "Register Results",
+      "error_5_numbers": "Error: You must enter exactly 5 numbers..."
+    },
+    "Settings": {
+      "title": "Advanced Settings",
+      "fee_title": "Administration Fee",
+      "fee_current": "Current fee: {fee}%",
+      "fee_placeholder": "New fee (%)",
+      "button_change": "Change",
+      "owner_title": "Transfer Ownership",
+      "owner_warning": "WARNING: This action is irreversible...",
+      "owner_placeholder": "Address of the new owner",
+      "button_transfer": "Transfer",
+      "error_invalid_fee": "Invalid fee value.",
+      "error_invalid_address": "Invalid wallet address."
+    }
+  },
+  "SimulatorPage": {
+    "title": "Results Simulator",
+    "subtitle": "Test it yourself!...",
+    "prize_label": "{num}th Prize",
+    "placeholder": "e.g., 95467",
+    "error_message": "Please fill in at least one field...",
+    "simulate_button": "Simulate",
+    "results_title": "Simulation Results",
+    "milhar_used": "Thousand Used",
+    "dezena1": "Dozen 1",
+    "dezena2": "Dozen 2",
+    "grupo1": "Group 1",
+    "grupo2": "Group 2",
+    "final_prognostico": "Final Prediction"
+  },
+  "ReferenceTablePage": {
+    "title": "Prognostics Reference Table",
+    "subtitle": "This table serves as a complete reference... <mono>\"x/y\"</mono>..."
+  },
+  "TermsPage": {
+    "title": "Terms and Conditions of Use",
+    "last_updated": "Last Updated Date",
+    "date": "July 07, 2025",
+    "welcome": "Welcome to <bold>Blockchain Bet Brasil</bold>!...",
+    "clause1_title": "Clause 1 – Eligibility",
+    "clause1_desc": "Access to and use of the services are strictly limited...",
+    "clause10_title": "Clause 10 – Contact",
+    "clause10_desc": "If you have questions about these Terms..."
+  },
+  "PrivacyPage": {
+    "title": "Privacy Policy",
+    "last_updated": "Last Updated Date",
+    "date": "July 07, 2025",
+    "clause1_title": "Clause 1 – Introduction and Commitment",
+    "clause1_desc": "<bold>Blockchain Bet Brasil</bold> is committed to protecting your privacy...",
+    "clause10_title": "Clause 10 – Contact",
+    "clause10_desc": "If you have questions about this Policy..."
+  }
+}

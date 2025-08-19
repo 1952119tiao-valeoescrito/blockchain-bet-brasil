@@ -1,0 +1,19 @@
+blockchain-bet-brasil/
+├── contracts/
+│   └── BlockChainBetBrasil.json  // O ABI (interface) do seu Smart Contract
+├── lib/
+│   └── ethers.ts               // Configurações e helpers para interagir com o contrato
+├── pages/
+│   ├── _app.tsx                // Componente principal da aplicação
+│   ├── index.tsx               // A página principal onde tudo acontece
+│   └── admin.tsx               // (Opcional) Uma página para funções do administrador
+├── components/
+│   ├── BetForm.tsx             // O formulário de aposta
+│   ├── ConnectWallet.tsx       // Botão e lógica para conectar a carteira
+│   ├── Footer.tsx              // O rodapé solicitado
+│   └── RoundInfo.tsx           // Componente para exibir informações da rodada
+├── styles/
+│   └── globals.css             // Estilos globais para a aplicação
+├── .gitignore
+├── package.json
+└── tsconfig.json

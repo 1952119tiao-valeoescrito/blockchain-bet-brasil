@@ -1,0 +1,19 @@
+C:\blockchain-bet-brasil\
+|
+|-- 📁 contract\         (Projeto 1: O Smart Contract)
+|   |-- contracts/
+|   |-- scripts/
+|   |-- node_modules/
+|   |-- hardhat.config.js
+|   |-- package.json
+|   |-- .gitignore
+|   |-- .env             <-- SÓ AQUI DENTRO! (com a PRIVATE_KEY)
+|
+|-- 📁 frontend\         (Projeto 2: O Site)
+|   |-- src/
+|   |-- public/
+|   |-- node_modules/
+|   |-- next.config.mjs
+|   |-- package.json
+|   |-- .gitignore
+|   |-- .env.local       <-- SÓ AQUI DENTRO! (com o endereço do contrato)

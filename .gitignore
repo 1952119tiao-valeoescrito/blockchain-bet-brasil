@@ -1,0 +1,25 @@
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de log e dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de ambiente - NUNCA COMMITE ISSO!
+.env
+.env*.local
+
+# Arquivos gerados pelo Hardhat
+cache/
+artifacts/
+
+# Arquivos de build do Frontend (exemplo para Next.js)
+.next/
+out/
+
+# Outros
+coverage/
+coverage.json

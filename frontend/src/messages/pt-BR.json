@@ -1,0 +1,213 @@
+{
+  "Header": {
+    "betting": "Apostas",
+    "howToPlay": "Como Jogar",
+    "prizes": "Premiação",
+    "adminPanel": "Painel Admin"
+  },
+  "Footer": {
+    "copyright": "Todos os direitos reservados.",
+    "terms": "Termos de Uso",
+    "privacy": "Política de Privacidade"
+  },
+  "LandingPage": {
+    "welcome": "Bem-vindo",
+    "main_slogan_1": "Blockchain Bet Brasil -",
+    "main_slogan_2": "O BBB da Web3.",
+    "secondary_slogan": "Esse Jogo é Animal",
+    "game_hook": "Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!",
+    "platform_description": "Plataforma de apostas descentralizada."
+  },
+  "AnnouncementBanner": {
+    "title": "É Oficial: Estamos no Ar!",
+    "body": "A Blockchain Bet Brasil iniciou suas operações! Nossa plataforma foi rigorosamente auditada e opera com um robusto sistema de segurança para garantir a integridade de suas apostas. Jogue com confiança e boa sorte!"
+  },
+  "Countdown": {
+    "title_closing": "Fechamento das Apostas em:",
+    "title_opening": "Próxima Rodada Abre em:",
+    "days": "DIAS",
+    "hours": "HORAS",
+    "minutes": "MINUTOS",
+    "seconds": "SEGUNDOS"
+  },
+  "ConnectWalletButton": {
+    "label": "Conectar Carteira"
+  },
+  "PainelInformativo": {
+    "loading": "Carregando informações do contrato...",
+    "title": "Status da Plataforma",
+    "currentRound": "Rodada Atual",
+    "accumulatedFees": "Taxas Acumuladas",
+    "verifiedContract": "Contrato Verificado"
+  },
+  "SeletorDeRodada": {
+    "loading": "Carregando histórico de rodadas...",
+    "title": "Selecione a Rodada",
+    "roundLabel": "Rodada #{id}",
+    "currentLabel": "(Atual)"
+  },
+  "PainelDeAposta": {
+    "title": "Apostas para a Rodada #{id}",
+    "ticketPrice": "Preço do Bilhete",
+    "connect_wallet": "Conecte sua carteira para apostar",
+    "loading_info": "Carregando informações da rodada...",
+    "bets_closed": "As apostas para esta rodada estão fechadas.",
+    "approve_pending": "Aguardando aprovação na carteira...",
+    "approve_confirming": "Processando aprovação...",
+    "approve_button": "1. Aprovar Gasto de {price} USDC",
+    "bet_pending": "Aguardando confirmação da aposta...",
+    "bet_confirming": "Processando sua aposta...",
+    "bet_success": "Aposta realizada com sucesso!",
+    "bet_button": "2. Fazer Aposta",
+    "validation_error": "Por favor, preencha todos os prognósticos com números entre 1 e 25."
+  },
+  "PainelDeResultados": {
+    "title": "Resultados da Rodada #{id}",
+    "loading": "Carregando resultados...",
+    "awaiting": "Aguardando a divulgação dos resultados para esta rodada.",
+    "resultsX": "Resultados X",
+    "resultsY": "Resultados Y",
+    "checking_prize": "Verificando seu prêmio...",
+    "already_claimed": "Você já reivindicou seu prêmio de {prize} USDC para esta rodada!",
+    "congratulations": "Parabéns! Você ganhou!",
+    "claim_button": "Reivindicar {prize} USDC",
+    "claim_pending": "Aguardando na carteira...",
+    "claim_confirming": "Processando reivindicação...",
+    "claim_success": "Prêmio enviado! ✅",
+    "no_win": "Infelizmente você não foi um vencedor desta vez. Mais sorte na próxima!"
+  },
+  "Notifications": {
+    "approve_loading": "Enviando transação de aprovação...",
+    "approve_success": "Aprovação bem-sucedida! Agora você pode fazer sua aposta.",
+    "bet_loading": "Confirmando sua aposta na blockchain...",
+    "bet_success": "Aposta realizada com sucesso! Boa sorte!",
+    "claim_loading": "Processando sua reivindicação de prêmio...",
+    "claim_success": "Prêmio reivindicado e enviado para sua carteira!",
+    "error_rejected": "Transação rejeitada pelo usuário.",
+    "error_generic": "Ocorreu um erro: {message}"
+  },
+  "ComoJogarPage": {
+    "title": "Como Jogar na Blockchain Bet Brasil",
+    "intro_p1": "Nosso sistema é inspirado na mecânica clássica... <link>Loteria Oficial do Brasil</link>...",
+    "betting_title": "A Aposta",
+    "betting_p1": "Sua aposta consiste em 5 prognósticos... <mono>X / Y</mono>...",
+    "clearing_title": "A Apuração",
+    "clearing_li1": "Após o sorteio da Loteria Oficial do Brasil...",
+    "clearing_li2": "Nosso smart contract converte as <yellow>duas últimas dezenas</yellow>...",
+    "clearing_li3": "O contrato então compara...",
+    "clearing_li4": "A premiação é distribuída automaticamente...",
+    "cta_button": "Fazer Minha Aposta Agora!"
+  },
+  "PremiacaoPage": {
+    "check_prize_title": "Verificar Meus Prêmios",
+    "check_prize_subtitle": "Insira o número de uma rodada finalizada para checar se você tem prêmios para reivindicar.",
+    "round_id_placeholder": "ID da Rodada",
+    "verify_button": "Verificar",
+    "error_invalid_round": "Por favor, insira um número de rodada válido.",
+
+    "main_title": "O Fim do \"Azarão\"",
+    "subtitle": "Conheça a nossa revolucionária Estrutura de Premiação em Cascata, projetada para recompensar mais jogadores, com mais frequência.",
+    
+    "distribution_title": "Distribuição Padrão do Prêmio",
+    "distribution_desc": "Em cada rodada, o prêmio total é dividido de forma transparente em cinco faixas de acerto:",
+    "points": "Pontos",
+    "point": "Ponto",
+    "of_prize": "do prêmio",
+
+    "cascade_title": "O Efeito Cascata",
+    "cascade_desc": "E se ninguém acertar as faixas mais altas? É aqui que a mágica acontece. O prêmio não acumula para a próxima semana. Ele desce.",
+    "cascade_example1": "Por exemplo: se ninguém acertar 5 pontos, os 50% do prêmio são somados à faixa de 4 pontos. De repente, os acertadores de 4 pontos dividem 70% do prêmio total!",
+    "cascade_example2": "Essa cascata continua até a última faixa, o que significa que com apenas 1 ponto, você pode concorrer a 100% da premiação!",
+
+    "conclusion_title": "Sua Persistência é a Sua Maior Estratégia",
+    "conclusion_desc": "Na Blockchain Bet Brasil, um único acerto pode te transformar no grande vencedor da rodada. Jogue, persista e veja as múltiplas formas de ganhar."
+  },
+  "AdminPanel": {
+    "title": "Painel Administrativo",
+    "loading": "Verificando permissões...",
+    "error_not_connected": "Por favor, conecte sua carteira para acessar esta área.",
+    "error_not_admin": "Acesso negado. Apenas o proprietário do contrato pode acessar esta página.",
+    "toast_start_loading": "Iniciando nova rodada na blockchain...",
+    "toast_start_success": "Nova rodada iniciada com sucesso!",
+    "toast_close_loading": "Fechando apostas na blockchain...",
+    "toast_close_success": "Apostas fechadas com sucesso!",
+    "toast_results_loading": "Enviando resultados para o contrato...",
+    "toast_results_success": "Resultados registrados e prêmios calculados!",
+    "toast_fee_loading": "Atualizando taxa da plataforma...",
+    "toast_fee_success": "Taxa da plataforma atualizada com sucesso!",
+    "toast_owner_loading": "Transferindo propriedade do contrato...",
+    "toast_owner_success": "Propriedade transferida! Você não é mais o admin.",
+    "RoundControls": {
+      "title": "Controle de Rodadas",
+      "ticket_price_label": "Preço do Bilhete (em USDC)",
+      "ticket_price_placeholder": "Ex: 1.5",
+      "button_start": "Iniciar Nova Rodada",
+      "button_starting": "Iniciando...",
+      "button_pause": "Pausar Contrato",
+      "button_pausing": "Pausando...",
+      "error_invalid_price": "Por favor, insira um preço de bilhete válido."
+    },
+    "RegisterResults": {
+      "title": "Controle da Rodada Atual (ID: {id})",
+      "step1_title": "Passo 1: Fechar Apostas",
+      "step1_desc": "Encerra a possibilidade de novas apostas na rodada atual.",
+      "button_close": "Fechar Apostas",
+      "step2_title": "Passo 2: Registrar Resultados",
+      "step2_desc": "Insira os 5 milhares da Loteria Federal...",
+      "placeholder": "ex: 12345,67890,...",
+      "button_register": "Registrar Resultados",
+      "error_5_numbers": "Erro: Você precisa inserir exatamente 5 números..."
+    },
+    "Settings": {
+      "title": "Configurações Avançadas",
+      "fee_title": "Taxa de Administração",
+      "fee_current": "Taxa atual: {fee}%",
+      "fee_placeholder": "Nova taxa (%)",
+      "button_change": "Alterar",
+      "owner_title": "Transferir Propriedade",
+      "owner_warning": "ATENÇÃO: Esta ação é irreversível...",
+      "owner_placeholder": "Endereço do novo dono",
+      "button_transfer": "Transferir",
+      "error_invalid_fee": "Valor da taxa inválido.",
+      "error_invalid_address": "Endereço de carteira inválido."
+    }
+  },
+  "SimulatorPage": {
+    "title": "Simulador de Resultados",
+    "subtitle": "Tire a prova você mesmo!...",
+    "prize_label": "{num}º Prêmio",
+    "placeholder": "Ex: 95467",
+    "error_message": "Por favor, preencha ao menos um campo...",
+    "simulate_button": "Simular",
+    "results_title": "Resultados da Simulação",
+    "milhar_used": "Milhar Utilizado",
+    "dezena1": "Dezena 1",
+    "dezena2": "Dezena 2",
+    "grupo1": "Grupo 1",
+    "grupo2": "Grupo 2",
+    "final_prognostico": "Prognóstico Final"
+  },
+  "ReferenceTablePage": {
+    "title": "Tabela de Referência de Prognósticos",
+    "subtitle": "Esta tabela serve como uma referência completa... <mono>\"x/y\"</mono>..."
+  },
+  "TermsPage": {
+    "title": "Termos e Condições de Uso",
+    "last_updated": "Data da Última Atualização",
+    "date": "07 de Julho de 2025",
+    "welcome": "Bem-vindo(a) à <bold>Blockchain Bet Brasil</bold>!...",
+    "clause1_title": "Cláusula 1 – Elegibilidade",
+    "clause1_desc": "O acesso e uso dos serviços são estritamente limitados...",
+    "clause10_title": "Cláusula 10 – Contato",
+    "clause10_desc": "Se tiver dúvidas sobre estes Termos..."
+  },
+  "PrivacyPage": {
+    "title": "Política de Privacidade",
+    "last_updated": "Data da Última Atualização",
+    "date": "07 de Julho de 2025",
+    "clause1_title": "Cláusula 1 – Introdução e Compromisso",
+    "clause1_desc": "A <bold>Blockchain Bet Brasil</bold> está comprometida...",
+    "clause10_title": "Cláusula 10 – Contato",
+    "clause10_desc": "Se tiver dúvidas sobre esta Política..."
+  }
+}
