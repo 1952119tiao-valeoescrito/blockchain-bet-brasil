@@ -1,8 +1,6 @@
 # Arquivos do sistema operacional
 .DS_Store
 Thumbs.db
-# Ignorar a pasta de anotações pessoais
-docs/
 
 # Arquivos de log e dependências
 node_modules/
