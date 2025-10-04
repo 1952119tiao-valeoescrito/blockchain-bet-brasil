@@ -1,0 +1,1 @@
+// ZeroPointsNotification component content

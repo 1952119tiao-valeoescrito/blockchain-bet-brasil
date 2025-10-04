@@ -1,0 +1,4 @@
+Agora o projeto deve compilar sem erros! Estamos usando um hook simulado para evitar os problemas com Wagmi v2 enquanto você desenvolve a interface. Quando quiser conectar com a blockchain real, é só trocar useSimpleBet por useBlockchainBet no BettingForm.
+
+
+Conta Git:git remote add origin https://github.com/1952119tiao-valeoescrito/blockchain-bet-brasil.git

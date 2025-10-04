@@ -1,0 +1,7 @@
+node_modules/ 
+.next/ 
+.env 
+.env.local 
+deployed-addresses.json 
+artifacts/ 
+cache/ 

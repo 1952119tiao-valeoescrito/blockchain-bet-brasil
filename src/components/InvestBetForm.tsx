@@ -1,0 +1,1 @@
+// InvestBetForm component content
