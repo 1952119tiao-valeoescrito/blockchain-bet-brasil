@@ -65,7 +65,7 @@ function ChoiceModal({
 const WalletConnector: React.FC = () => {
     const [account, setAccount] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
-    const [chainId, setChainId] = useState<number | null>(null);
+    const [chainId, setChainId] = useState<bigint | null>(null); // 🔽 CORREÇÃO AQUI
     const [showWalletMenu, setShowWalletMenu] = useState<boolean>(false);
     const [showChoiceModal, setShowChoiceModal] = useState<boolean>(false);
     
@@ -118,7 +118,7 @@ const WalletConnector: React.FC = () => {
             });
 
             window.ethereum.on('chainChanged', (newChainId: string) => {
-                setChainId(parseInt(newChainId, 16));
+                setChainId(BigInt(parseInt(newChainId, 16))); // 🔽 CORREÇÃO AQUI
                 showNotification('Rede alterada', 'info');
             });
         }
@@ -208,7 +208,7 @@ const WalletConnector: React.FC = () => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 walletMenuRef.current &&
-                !walletMenuRef.current.contains(event.target as Node) &&
+                !walMenuRef.current.contains(event.target as Node) &&
                 connectBtnRef.current &&
                 !connectBtnRef.current.contains(event.target as Node)
             ) {
