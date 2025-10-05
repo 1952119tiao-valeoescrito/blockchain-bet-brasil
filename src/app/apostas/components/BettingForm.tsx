@@ -75,8 +75,9 @@ export default function BettingForm({ betType }: BettingFormProps) {
     }
 
     try {
-      const prognosticosX = prognosticos.map(p => BigInt(p.x))
-      const prognosticosY = prognosticos.map(p => BigInt(p.y))
+      // 🔽 CORREÇÃO AQUI - Garantir que sempre temos 5 elementos com tipo correto
+      const prognosticosX = prognosticos.map(p => BigInt(p.x)) as [bigint, bigint, bigint, bigint, bigint]
+      const prognosticosY = prognosticos.map(p => BigInt(p.y)) as [bigint, bigint, bigint, bigint, bigint]
       const value = betType === 'regular' ? parseEther('0.005') : parseEther('1.0')
 
       writeContract({
