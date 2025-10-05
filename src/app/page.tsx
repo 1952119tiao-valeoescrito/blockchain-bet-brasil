@@ -64,7 +64,7 @@ const WalletConnector: React.FC = () => {
             });
 
             window.ethereum.on('chainChanged', (newChainId: string) => {
-                setChainId(parseInt(newChainId, 16));
+                setChainId(BigInt(parseInt(newChainId, 16)));
                 showNotification('Rede alterada', 'info');
             });
         }
