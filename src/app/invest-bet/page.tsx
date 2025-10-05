@@ -137,7 +137,8 @@ function InvestBetForm({ currentRound }: { currentRound: number }) {
   )
 }
 
-export default function InvestBetPage() {
+// COMPONENTE PRINCIPAL CORRIGIDO - export default SEPARADO
+function InvestBetPage() {
   const [isConnected, setIsConnected] = useState(false)
 
   return (
@@ -253,3 +254,5 @@ export default function InvestBetPage() {
     </div>
   )
 }
+
+export default InvestBetPage
