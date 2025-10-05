@@ -1,7 +1,10 @@
 'use client';
 
+
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Web3 from 'web3';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link'; 
 
 interface Window {
   ethereum?: any;
@@ -9,6 +12,7 @@ interface Window {
 declare const window: Window;
 
 const WalletConnector: React.FC = () => {
+const router = useRouter();
     const [account, setAccount] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [chainId, setChainId] = useState<bigint | null>(null);
@@ -139,11 +143,17 @@ const WalletConnector: React.FC = () => {
     };
 
     const investNow = () => {
-        if (isConnected) {
-            showNotification('Redirecionando para o painel de apostas...', 'success');
-           (window as any).location.href = '/apostas';
-        }
-    };
+    if (isConnected) {
+        showNotification('🎯 Redirecionando para Invest-Bet Premium...', 'success');
+        // Redireciona após 1 segundo para usuário ver a mensagem
+        setTimeout(() => {
+            router.push('/invest-bet'); // ← USA router.push EM VEZ DE window.location
+        }, 1000);
+    } else {
+        showNotification('🔗 Conecte sua carteira primeiro!', 'warning');
+        connect();
+    }
+};
 
     // Fechar menu ao clicar fora
     useEffect(() => {
@@ -181,20 +191,20 @@ const WalletConnector: React.FC = () => {
                             </span>
                         </div>
                     </a>
-                    <nav className="hidden lg:flex items-center gap-8 font-semibold text-lg">
-                        <a className="text-slate-300 hover:text-emerald-400 transition-colors duration-200" href="/apostas">
-                            Apostas
-                        </a>
-                        <a className="text-slate-300 hover:text-emerald-400 transition-colors duration-200" href="/como-jogar">
-                            Como Jogar
-                        </a>
-                        <a className="text-slate-300 hover:text-emerald-400 transition-colors duration-200" href="/premiacao">
-                            Premiação
-                        </a>
-                        <a className="text-slate-300 hover:text-emerald-400 transition-colors duration-200" href="#">
-                            Painel Admin
-                        </a>
-                    </nav>
+                  <nav className="hidden lg:flex items-center gap-8 font-semibold text-lg">
+    <Link href="/apostas" className="text-slate-300 hover:text-emerald-400 transition-colors duration-200">
+        Apostas
+    </Link>
+    <Link href="/como-jogar" className="text-slate-300 hover:text-emerald-400 transition-colors duration-200">
+        Como Jogar
+    </Link>
+    <Link href="/premiacao" className="text-slate-300 hover:text-emerald-400 transition-colors duration-200">
+        Premiação
+    </Link>
+    <Link href="/painel-admin" className="text-slate-300 hover:text-emerald-400 transition-colors duration-200">
+        Painel Admin
+    </Link>
+</nav>
                     <div className="flex items-center gap-4">
                         <div id="walletConnectContainer" className="flex items-center gap-3 relative">
                             <div id="connectionStatus" className={`flex items-center gap-2 text-sm ${isConnected ? 'block' : 'hidden'}`}>
@@ -383,20 +393,20 @@ const WalletConnector: React.FC = () => {
 
             {/* RODAPÉ */}
             <footer className="w-full bg-slate-800 mt-auto border-t border-emerald-500/30">
-                <div className="container mx-auto text-center p-6 text-slate-400 text-sm">
-                    <p className="mb-2">© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
-                    <div className="flex justify-center gap-4">
-                        <a className="hover:text-emerald-400 transition-colors duration-200" href="#">
-                            Termos de Uso
-                        </a>
-                        <span>|</span>
-                        <a className="hover:text-emerald-400 transition-colors duration-200" href="#">
-                            Política de Privacidade
-                        </a>
-                    </div>
-                    <p className="mt-4 text-xs text-slate-600">Desenvolvido por sfchagasfilho, com <span className="text-red-500">♥</span> em Web3.</p>
-                </div>
-            </footer>
+    <div className="container mx-auto text-center p-6 text-slate-400 text-sm">
+        <p className="mb-2">© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
+        <div className="flex justify-center gap-4">
+            <Link href="/termos" className="hover:text-emerald-400 transition-colors duration-200">
+                Termos de Uso
+            </Link>
+            <span>|</span>
+            <Link href="/privacidade" className="hover:text-emerald-400 transition-colors duration-200">
+                Política de Privacidade
+            </Link>
+        </div>
+        <p className="mt-4 text-xs text-slate-600">Desenvolvido por sfchagasfilho, com <span className="text-red-500">❤️</span> em Web3.</p>
+    </div>
+</footer>
         </div>
     );
 };
