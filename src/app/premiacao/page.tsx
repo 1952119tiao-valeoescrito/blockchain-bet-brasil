@@ -82,40 +82,21 @@ export default function Premiacao() {
         // Inicia do maior para o menor acerto
         for (let i = tiers.length - 1; i >= 0; i--) { // Percorre do 5 Pontos até 1 Ponto
             const tier = tiers[i];
-            const baseDistribution = scenarios.padrao.distribution[tier]; // Usamos a distribuição padrão como base para os percentuais base
+            const baseDistribution = (scenarios.padrao.distribution as any)[tier]; // 🔽 CORREÇÃO AQUI
 
             let totalPrizeForTier = 0;
-            const numTierWinners = numWinners[tier] || 0;
+            const numTierWinners = (numWinners as any)[tier] || 0;
 
             if (numTierWinners > 0) { // Se houver ganhadores nesta faixa
-                // No cenário cascata, se houver ganhadores em uma faixa,
-                // eles recebem o prêmio total acumulado daquela faixa e das superiores
-                // que não tiveram ganhadores.
-                // Simplificação: vamos dar o percentual padrão SE houver ganhadores, e o restante acumula para baixo
-                // Ou, se for cascata pura, o primeiro a ter ganhadores leva tudo.
-                
-                // Para uma "Cascata" real, precisamos verificar se houve ganhadores nas faixas acima.
-                // Vamos simular a lógica de que o prêmio 'desce' se a faixa superior não tiver ganhadores.
-                // Para simplificar a simulação no UI, se selecionar "Cascata",
-                // consideraremos que o prêmio vai para a faixa mais baixa com ganhadores (ou 1 Ponto se ninguém acima)
-                // A descrição do seu HTML sugere que "100% do prêmio vai para quem acertou 1 ponto"
-                // se ninguém acertar de 5 a 2 pontos.
-
-                // Para o simulador, a "cascata" pode ser interpretada como: se tiver ganhador no 5, distribui, senão, 4, senão 3...
-                // Ou, como a descrição da turbinada/mega turbinada, uma distribuição fixa caso o cenário seja ativado.
-                // Pela sua descrição "se ninguém acertar de 5 a 2 pontos, 100% do prêmio vai para quem acertou 1 ponto",
-                // vou implementar uma lógica mais fiel: o prêmio "cai" para o próximo nível com ganhadores, ou para 1 Ponto se não houverem acima.
-
                 let hasHigherWinners = false;
                 for(let j = tiers.length - 1; j > i; j--) { // Checa se tem ganhadores nas faixas acima
-                    if (numWinners[tiers[j]] > 0) {
+                    if ((numWinners as any)[tiers[j]] > 0) {
                         hasHigherWinners = true;
                         break;
                     }
                 }
 
                 if (!hasHigherWinners) { // Se não houver ganhadores nas faixas superiores
-                    // Este é o nível mais alto com ganhadores OU o 1 Ponto
                     if (numTierWinners > 0) {
                         totalPrizeForTier = remainingPrize; // Leva o restante do prêmio
                         remainingPrize = 0;
@@ -124,28 +105,28 @@ export default function Premiacao() {
             }
             
             // Lógica Padrão para os outros cenários (e para o "cascata" se não houve acerto acima)
-            if (activeScenario.distribution[tier] > 0 && numWinners[tier] > 0 && (currentCenario !== 'cascata' || prizeByTier[tier] === undefined)) {
-                totalPrizeForTier = premioTotalFinal * activeScenario.distribution[tier];
+            if ((activeScenario.distribution as any)[tier] > 0 && (numWinners as any)[tier] > 0 && (currentCenario !== 'cascata' || (prizeByTier as any)[tier] === undefined)) { // 🔽 CORREÇÃO AQUI
+                totalPrizeForTier = premioTotalFinal * (activeScenario.distribution as any)[tier]; // 🔽 CORREÇÃO AQUI
             } else if (currentCenario === 'cascata' && tier === '1 Ponto' && remainingPrize > 0) {
                 // Se for cenário cascata e chegamos ao 1 Ponto e ainda há prêmio, distribui aqui
                 totalPrizeForTier = remainingPrize;
                 remainingPrize = 0;
             }
 
-            const prizePerWinner = totalPrizeForTier / (numWinners[tier] > 0 ? numWinners[tier] : 1);
-            prizeByTier[tier] = {
+            const prizePerWinner = totalPrizeForTier / ((numWinners as any)[tier] > 0 ? (numWinners as any)[tier] : 1);
+            (prizeByTier as any)[tier] = {
                 total: totalPrizeForTier,
                 perWinner: prizePerWinner,
-                numWinners: numWinners[tier] > 0 ? numWinners[tier] : 1 // Garante que não é 0 para divisão
+                numWinners: (numWinners as any)[tier] > 0 ? (numWinners as any)[tier] : 1 // Garante que não é 0 para divisão
             };
         }
         
     } else { // Lógica para Padrão, Turbinada, Mega Turbinada
         for (const tier in activeScenario.distribution) {
-            const totalPrizeForTier = premioTotalFinal * activeScenario.distribution[tier];
-            const numTierWinners = numWinners[tier] > 0 ? numWinners[tier] : 1;
+            const totalPrizeForTier = premioTotalFinal * (activeScenario.distribution as any)[tier]; // 🔽 CORREÇÃO AQUI
+            const numTierWinners = (numWinners as any)[tier] > 0 ? (numWinners as any)[tier] : 1;
             const prizePerWinner = totalPrizeForTier / numTierWinners;
-            prizeByTier[tier] = {
+            (prizeByTier as any)[tier] = {
                 total: totalPrizeForTier,
                 perWinner: prizePerWinner,
                 numWinners: numTierWinners
@@ -306,7 +287,7 @@ export default function Premiacao() {
           <h1 className="text-4xl md:text-5xl font-bold text-[#4A4A4A] mb-4">
             Regulamento Interativo
           </h1>
-          <p classsName="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Descubra como nosso sistema revolucionário recompensa todos os participantes!
           </p>
         </header>
@@ -383,7 +364,7 @@ export default function Premiacao() {
                 </div>
               </div>
               <div id="scenario-description" className="bg-gray-50 p-4 rounded-lg border min-h-[140px]">
-                <h4 classNameName="font-bold text-lg mb-1">{activeScenario.title}</h4>
+                <h4 className="font-bold text-lg mb-1">{activeScenario.title}</h4>
                 <p className="text-sm text-gray-600">{activeScenario.description}</p>
               </div>
             </div>
@@ -396,11 +377,11 @@ export default function Premiacao() {
             <h3 className="text-xl font-semibold text-center mb-4">Distribuição do Prêmio por Faixa</h3>
             <div className="space-y-3">
               {Object.entries(prizeDistribution).map(([tier, values]) => {
-                const basePercentage = scenarios.padrao.distribution[tier as keyof PrizeDistribution] * 100;
-                const effectivePercentage = activeScenario.distribution[tier as keyof PrizeDistribution] * 100;
+                const basePercentage = (scenarios.padrao.distribution as any)[tier] * 100; // 🔽 CORREÇÃO AQUI
+                const effectivePercentage = (activeScenario.distribution as any)[tier] * 100; // 🔽 CORREÇÃO AQUI
 
                 let percentageText = `${basePercentage.toFixed(0)}%`;
-                if (cenarioAtivo.includes('turbinada')) {
+               if (String(cenarioAtivo).includes('turbinada')) {
                   percentageText = `${effectivePercentage.toFixed(0)}% do prêmio turbinado`;
                 } else if (cenarioAtivo === 'cascata' && tier === '1 Ponto' && values.total > 0) {
                   percentageText = '100% (Cascata)';

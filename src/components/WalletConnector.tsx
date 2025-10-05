@@ -11,7 +11,7 @@ declare const window: Window;
 const WalletConnector: React.FC = () => {
     const [account, setAccount] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
-    const [chainId, setChainId] = useState<number | null>(null);
+    const [chainId, setChainId] = useState<bigint | null>(null);
     const [showWalletMenu, setShowWalletMenu] = useState<boolean>(false);
     const web3Ref = useRef<Web3 | null>(null);
     const walletMenuRef = useRef<HTMLDivElement>(null);
@@ -44,7 +44,7 @@ const WalletConnector: React.FC = () => {
         if (web3Ref.current) {
             const id = await web3Ref.current.eth.getChainId();
             setChainId(id);
-            if (id !== 11155111) { // Sepolia Chain ID
+            if (id !== BigInt(11155111)) { // Sepolia Chain ID
                 showNotification('Conecte-se à rede Sepolia para testes', 'warning');
             }
         }
@@ -62,7 +62,7 @@ const WalletConnector: React.FC = () => {
             });
 
             window.ethereum.on('chainChanged', (newChainId: string) => {
-                setChainId(parseInt(newChainId, 16));
+                setChainId(BigInt(parseInt(newChainId, 16)));
                 showNotification('Rede alterada', 'info');
             });
         }
@@ -126,7 +126,7 @@ const WalletConnector: React.FC = () => {
     const viewOnBlockExplorer = () => {
         if (account) {
             const explorerUrl = `https://sepolia.etherscan.io/address/${account}`;
-            window.open(explorerUrl, '_blank');
+           (window as any).open(explorerUrl, '_blank');
         }
     };
 
@@ -141,7 +141,7 @@ const WalletConnector: React.FC = () => {
     const investNow = () => {
         if (isConnected) {
             showNotification('Redirecionando para o painel de apostas...', 'success');
-            window.location.href = '/apostas';
+           (window as any).location.href = '/apostas';
         }
     };
 

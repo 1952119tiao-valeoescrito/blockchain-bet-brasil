@@ -75,8 +75,8 @@ export default function BettingForm({ betType }: BettingFormProps) {
     }
 
     try {
-      const prognosticosX = prognosticos.map(p => BigInt(p.x))
-      const prognosticosY = prognosticos.map(p => BigInt(p.y))
+      const prognosticosX = prognosticos.map(p => BigInt(p.x)) as [bigint, bigint, bigint, bigint, bigint]
+      const prognosticosY = prognosticos.map(p => BigInt(p.y)) as [bigint, bigint, bigint, bigint, bigint]
       const value = betType === 'regular' ? parseEther('0.005') : parseEther('1.0')
 
       writeContract({
@@ -131,4 +131,94 @@ export default function BettingForm({ betType }: BettingFormProps) {
                     placeholder="X"
                     maxLength={2}
                   />
-                  <span className="text-white text-sm font
+                  <span className="text-white text-sm font-bold mx-1">/</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={prognostico.y || ''}
+                    onChange={(e) => handleYChange(index, e.target.value)}
+                    className="w-8 bg-transparent text-white text-center text-sm font-bold focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="Y"
+                    maxLength={2}
+                  />
+                </div>
+                <div className="text-slate-400 text-xs mt-1 h-4">
+                  {prognostico.x && prognostico.y ? `${prognostico.x}/${prognostico.y}` : ''}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-slate-700/50 p-3 rounded-lg">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="text-center">
+              <div className="text-slate-400 text-xs">Valor</div>
+              <div className="text-emerald-400 font-bold">{betPrice}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-slate-400 text-xs">Bônus Zero</div>
+              <div className="text-amber-400 font-bold">{bonusAmount}</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 text-xs mt-2 pt-2 border-t border-slate-600">
+            <div className="text-center">
+              <div className="text-slate-400">Bônus Acum.</div>
+              <div className="text-amber-400 font-bold">
+                {betType === 'regular' ? 'R$ 2,50' : 'R$ 500,00'}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-slate-400">Grátis</div>
+              <div className="text-emerald-400 font-bold">
+                {betType === 'regular' ? '1' : '2'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!isConnected || !allNumbersValid || isPlacingBet}
+          className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 disabled:from-slate-600 disabled:to-slate-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:cursor-not-allowed shadow-lg"
+        >
+          {!isConnected ? 'Conecte Carteira' :
+           isPlacingBet ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Processando...
+            </div>
+          ) : (
+            `🎯 Apostar ${betPrice}`
+          )}
+        </button>
+      </form>
+
+      <div className="mt-3 text-center">
+        {isConnected ? (
+          <div className="text-emerald-400 text-xs bg-emerald-500/10 p-1 rounded">
+            ✅ Carteira Conectada
+          </div>
+        ) : (
+          <div className="text-amber-400 text-xs bg-amber-500/10 p-1 rounded">
+            🔗 Conecte sua carteira
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8 pt-4 border-t border-slate-600 text-center">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-200 text-sm"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          ← Voltar para Página Inicial
+        </Link>
+      </div>
+    </div>
+  )
+}

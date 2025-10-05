@@ -5,8 +5,10 @@ import Web3 from 'web3';
 // Importe o provedor de WalletConnect se for us├í-lo, mas para este exemplo, vamos focar no MetaMask/injected provider.
 // import WalletConnectProvider from '@walletconnect/web3-provider';
 
-interface Window {
-  ethereum?: any;
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
 }
 declare const window: Window;
 
@@ -128,7 +130,7 @@ const WalletConnector: React.FC = () => {
     const viewOnBlockExplorer = () => {
         if (account) {
             const explorerUrl = `https://sepolia.etherscan.io/address/${account}`;
-            window.open(explorerUrl, '_blank');
+           (window as any).open(explorerUrl, '_blank');
         }
     };
 

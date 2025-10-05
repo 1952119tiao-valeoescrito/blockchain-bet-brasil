@@ -9,11 +9,11 @@ export function useBlockchainBet(betType: 'regular' | 'invest') {
   
   const config = {
     regular: {
-      address: TEST_ADDRESSES.BLOCKCHAIN_BET_BRASIL,
+      address: '0x0000000000000000000000000000000000000000' as `0x${string}`, // Endereço mock
       value: parseEther('0.005') // R$5,00
     },
     invest: {
-      address: TEST_ADDRESSES.INVEST_BET, 
+      address: TEST_ADDRESSES.invest, 
       value: parseEther('1.0') // R$1.000,00
     }
   }[betType]

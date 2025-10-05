@@ -6,17 +6,19 @@ import React from 'react'
 import { createConfig, http, WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { sepolia } from 'wagmi/chains'
-import { getDefaultConfig } from 'wagmi'
+import { injected, metaMask } from 'wagmi/connectors' // 🔽 CORREÇÃO AQUI
 
-const config = createConfig(
-  getDefaultConfig({
-    chains: [sepolia],
-    transports: {
-      [sepolia.id]: http(),
-    },
-    ssr: true,
-  })
-)
+const config = createConfig({
+  chains: [sepolia],
+  connectors: [
+    injected(),
+    metaMask(),
+  ],
+  transports: {
+    [sepolia.id]: http(),
+  },
+  ssr: true,
+})
 
 const queryClient = new QueryClient()
 
