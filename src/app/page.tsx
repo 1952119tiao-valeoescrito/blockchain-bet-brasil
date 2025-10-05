@@ -1,6 +1,3 @@
-C:\projetos\blockchain-betbrasil-frontend>type src\app\page.tsx
-// src/app/page.tsx
-
 'use client';
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
