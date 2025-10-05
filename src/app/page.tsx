@@ -46,7 +46,7 @@ const WalletConnector: React.FC = () => {
     if (web3Ref.current) {
         const id = await web3Ref.current.eth.getChainId();
         setChainId(id);
-        if (id !== 11155111n) { // 🔽 CORREÇÃO AQUI - use 'n' para BigInt
+        if (id !== BigInt(11155111)) { // 🔽 CORREÇÃO AQUI - use 'n' para BigInt
             showNotification('Conecte-se à rede Sepolia para testes', 'warning');
         }
     }
